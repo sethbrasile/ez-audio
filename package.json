@@ -1,14 +1,22 @@
 {
   "name": "ez-audio",
-  "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "standardized-audio-context": "^25.3.76",
+    "ts-mixer": "^6.0.4"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^2.26.0",
+    "eslint": "9.5.0",
     "typescript": "^5.5.3",
     "vite": "^5.4.0"
   }

@@ -1,5 +1,5 @@
+import { Mixin } from 'ts-mixer'
 import MusicalIdentity from './mixins/musical-identity'
-import mix from './mixins/mix'
 
 /**
  * A class that represents a musical note, but does not carry any audio data.
@@ -11,6 +11,4 @@ import mix from './mixins/mix'
  * @class Note
  * @uses MusicalIdentity
  */
-class Note extends mix(MusicalIdentity).with() {}
-
-export default Note;
+export default class Note extends Mixin(MusicalIdentity) {}

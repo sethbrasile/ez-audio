@@ -1,5 +1,7 @@
-import { A } from '@ember/array';
-import { arraySwap, flatten } from './array-methods';
+import type Note from '../note'
+import { arraySwap, unique } from './array-methods'
+
+type NotesTuple = [Note[], string[]]
 
 /**
  * @public
@@ -10,32 +12,32 @@ import { arraySwap, flatten } from './array-methods';
  * Sorts an array of {{#crossLink "Note"}}Notes{{/crossLink}} so that they are in the same order that they would
  * appear on a piano.
  *
- * @param {array} notes An array of notes that should be musically-sorted.
+ * @param {Array} notes An array of notes that should be musically-sorted.
  *
  * @public
  * @method sortNotes
  *
- * @return {array} Array of musically-sorted notes.
+ * @return {Array} Array of musically-sorted notes.
  */
-export function sortNotes(notes) {
+export function sortNotes(notes: Note[]) {
   // get octaves so that we can sort based on them
-  let sortedNotes = extractOctaves(notes);
+  let sortedNotes = extractOctaves(notes)
 
   // Each octave has tons of duplicates
-  sortedNotes = stripDuplicateOctaves(sortedNotes);
+  sortedNotes = stripDuplicateOctaves(sortedNotes)
 
   // Create array of arrays. Each inner array contains all the notes in an octave
-  sortedNotes = createOctavesWithNotes(sortedNotes);
+  let octavesWithNotes = createOctavesWithNotes(sortedNotes)
 
   // Sort the notes in each octave, alphabetically, flats before naturals
-  sortedNotes = octaveSort(sortedNotes);
+  octavesWithNotes = octaveSort(octavesWithNotes)
 
   // Determine last note of first octave, then for each octave, split at
   // that note, then shift the beginning notes to the end
-  sortedNotes = octaveShift(sortedNotes);
+  octavesWithNotes = octaveShift(octavesWithNotes)
 
   // Flatten array of arrays into a flat array
-  return A(flatten(sortedNotes));
+  return octavesWithNotes.flat()
 }
 
 /**
@@ -55,26 +57,25 @@ export function sortNotes(notes) {
  * @private
  * @method octaveShift
  *
- * @param {array} octaves An array of octaves, each octave is an array of Notes.
+ * @param {Array} octaves An array of octaves, each octave is an array of Notes.
  *
- * @return {array} Input array after having been shifted.
+ * @return {Array} Input array after having been shifted.
  */
-export function octaveShift(octaves) {
+export function octaveShift(octaves: Note[][]) {
   // Pull first octave from beginning of array
-  const firstOctave = A(A(octaves).shiftObject());
+  const firstOctave = octaves.shift() || []
   // Get all the note names from the second octave for comparison
-  const secondOctaveNames = A(octaves.get('firstObject')).getEach('name');
+  const secondOctaveNames = octaves[0].map(note => note.name)
   // Get the note name of the last note in the first octave
-  const lastNote = firstOctave.get('lastObject.name');
+  const lastNote = firstOctave[firstOctave.length - 1].name
   // Get the index of the occurrence of the last note from the first
   // octave, in the second octave
-  const indexToShiftAt = secondOctaveNames.lastIndexOf(lastNote) + 1;
+  const indexToShiftAt = secondOctaveNames.lastIndexOf(lastNote) + 1
   // Split the octave array at that point, and move the first chunk to the end
-  return (
-    A(octaves.map((octave) => arraySwap(octave, indexToShiftAt)))
-      // Put first octave back at the beginning of the array
-      .unshiftObjects([firstOctave])
-  );
+  const result = octaves.map(octave => arraySwap(octave, indexToShiftAt))
+  // Put first octave back at the beginning of the array
+  result.unshift(firstOctave)
+  return result
 }
 
 /**
@@ -84,12 +85,12 @@ export function octaveShift(octaves) {
  * @private
  * @method octaveSort
  *
- * @param  {array} octaves array of arrays to be sorted
+ * @param  {Array} octaves array of arrays to be sorted
  *
- * @return {array} array of sorted arrays
+ * @return {Array} array of sorted arrays
  */
-export function octaveSort(octaves) {
-  return octaves.map((octave) => octave.sort(noteSort));
+export function octaveSort(octaves: Note[][]) {
+  return octaves.map(octave => octave.sort(noteSort))
 }
 
 /**
@@ -99,13 +100,13 @@ export function octaveSort(octaves) {
  * @private
  * @method extractOctaves
  *
- * @param  {array} notes array of note objects.
+ * @param  {Array} notes array of note objects.
  *
- * @return {array} array containing two inner arrays, [0] is the untouched input
+ * @return {Array} array containing two inner arrays, [0] is the untouched input
  * array, [1] is an array of all the octaves in the original array.
  */
-export function extractOctaves(notes) {
-  return [notes, A(A(notes).getEach('octave'))];
+export function extractOctaves(notes: Note[]): NotesTuple {
+  return [notes, notes.map(note => note.octave)]
 }
 
 /**
@@ -115,12 +116,12 @@ export function extractOctaves(notes) {
  * @private
  * @method stripDuplicateOctaves
  *
- * @param  {array} [ notes, octaves ] the output from extractOctaves.
+ * @param  {Array} [ notes, octaves ] the output from extractOctaves.
  *
- * @return {array} The mutated array.
+ * @return {Array} The mutated array.
  */
-export function stripDuplicateOctaves([notes, octaves]) {
-  return [notes, A(octaves).uniq().sort()];
+export function stripDuplicateOctaves([notes, octaves]: NotesTuple): NotesTuple {
+  return [notes, unique(octaves).sort()]
 }
 
 /**
@@ -132,12 +133,12 @@ export function stripDuplicateOctaves([notes, octaves]) {
  * @private
  * @method createOctavesWithNotes
  *
- * @param  {array} data The output of stripDuplicateOctaves.
+ * @param  {Array} data The output of stripDuplicateOctaves.
  *
  * @return {Ember.MutableArray}
  */
-export function createOctavesWithNotes([notes, octaves]) {
-  return A(octaves).map((octave) => A(notes).filterBy('octave', octave));
+export function createOctavesWithNotes([notes, octaves]: NotesTuple) {
+  return octaves.map(octave => notes.filter(note => note.octave === octave))
 }
 
 /**
@@ -155,19 +156,19 @@ export function createOctavesWithNotes([notes, octaves]) {
  * @return {number} -1 or 1, depending on whether the current
  * {{#crossLink "Note"}}{{/crossLink}} instance should be sorted left, or right.
  */
-export function noteSort(a, b) {
-  const aLet = a.get('letter');
-  const bLet = b.get('letter');
+export function noteSort(a: Note, b: Note) {
+  const aLet = a.letter
+  const bLet = b.letter
 
   if (aLet < bLet) {
-    return -1;
+    return -1
   }
 
   if (aLet === bLet) {
-    if (a.get('accidental') === 'b') {
-      return -1;
+    if (a.accidental === 'b') {
+      return -1
     }
   }
 
-  return 1;
+  return 1
 }

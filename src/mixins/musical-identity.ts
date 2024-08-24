@@ -1,4 +1,9 @@
-import {frequencyMap} from '../utils'
+import { frequencyMap, get } from '../utils'
+
+type Letter = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
+type Accidental = '' | 'b' | '#'
+type Octave = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8'
+type AcceptableNote = keyof typeof frequencyMap
 
 /**
  * This mixin allows an object to have an awareness of it's "musical identity"
@@ -16,7 +21,7 @@ import {frequencyMap} from '../utils'
  * @public
  * @class MusicalIdentity
  */
-const MusicalIdentity = (superclass: any) => class extends superclass {
+export default class MusicalIdentity {
   /**
    * For note `Ab5`, this would be `A`.
    *
@@ -24,7 +29,7 @@ const MusicalIdentity = (superclass: any) => class extends superclass {
    * @property letter
    * @type {string}
    */
-  letter: string = ''
+  letter: Letter = 'A'
 
   /**
    * For note `Ab5`, this would be `b`.
@@ -33,7 +38,7 @@ const MusicalIdentity = (superclass: any) => class extends superclass {
    * @property accidental
    * @type {string}
    */
-  accidental: string = ''
+  accidental: Accidental = ''
 
   /**
    * For note `Ab5`, this would be `5`.
@@ -42,7 +47,7 @@ const MusicalIdentity = (superclass: any) => class extends superclass {
    * @property octave
    * @type {string}
    */
-  octave: string = ''
+  octave: Octave = '0'
 
   /**
    * Computed property. Value is `${letter}` or `${letter}${accidental}` if
@@ -53,12 +58,13 @@ const MusicalIdentity = (superclass: any) => class extends superclass {
    * @type {string}
    */
   get name() {
-    const {accidental, letter} = this
+    const { accidental, letter } = this
 
     if (accidental) {
-      return `${letter}${accidental}`;
-    } else {
-      return letter;
+      return `${letter}${accidental}`
+    }
+    else {
+      return letter
     }
   }
 
@@ -73,15 +79,17 @@ const MusicalIdentity = (superclass: any) => class extends superclass {
    * @type {number}
    */
   get frequency() {
-    const {identifier} = this
+    const { identifier } = this
     if (identifier) {
-      return frequencyMap[identifier]
+      return get(frequencyMap, identifier)
     }
     return ''
   }
+
   set frequency(value) {
-    for (let key in frequencyMap) {
-      if (value === frequencyMap[key]) {
+    let key: AcceptableNote
+    for (key in frequencyMap) {
+      if (value === get(frequencyMap, key)) {
         this.identifier = key
       }
     }
@@ -97,33 +105,39 @@ const MusicalIdentity = (superclass: any) => class extends superclass {
    * @property identifier
    * @type {string}
    */
-  get identifier() {
-    const {accidental, letter, octave } = this
-    let output
+  get identifier(): AcceptableNote {
+    const { accidental, letter, octave } = this
+    let output: AcceptableNote = 'A0'
 
     if (accidental) {
-      output = `${letter}${accidental}${octave}`
-    } else {
-      output = `${letter}${octave}`
+      output = `${letter}${accidental}${octave}` as AcceptableNote
+    }
+    else {
+      output = `${letter}${octave}` as AcceptableNote
     }
 
-    return output
+    if (get(frequencyMap, output)) {
+      return output
+    }
+    else {
+      throw new Error(`Invalid musical identifier: ${output}`)
+    }
   }
-  set identifier(value) {
+
+  set identifier(value: AcceptableNote) {
     const [letter] = value
     const octave = value[2] || value[1]
     let accidental
 
     if (value[2]) {
       accidental = value[1]
-    } else {
+    }
+    else {
       accidental = ''
     }
 
-    this.letter = letter
-    this.accidental = accidental
-    this.octave = octave
+    this.letter = letter as Letter
+    this.accidental = accidental as Accidental
+    this.octave = octave as Octave
   }
 }
-
-export default MusicalIdentity

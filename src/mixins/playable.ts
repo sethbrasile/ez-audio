@@ -1,3 +1,4 @@
+import customTimeout from '../utils/timeout'
 
 /**
  * A mixin that allows an object to start and stop an audio source, now or in
@@ -11,7 +12,31 @@
  * @public
  * @class Playable
  */
-const Playable = (superclass: any) => class extends superclass {
+
+const { warn } = console
+
+export default class Playable {
+  constructor(context: AudioContext, opts: { startOffset: number }) {
+    this.audioContext = context
+    this.startOffset = opts.startOffset || 0
+  }
+
+  /**
+   * The parent
+   * [AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext)
+   * instance that all audio events are occurring within. It is useful for
+   * getting currentTime, as well as creating new
+   * [AudioNodes](https://developer.mozilla.org/en-US/docs/Web/API/AudioNode).
+   *
+   * This is the object that facilitates and ties together all aspects of the
+   * Web Audio API.
+   *
+   * @public
+   * @property audioContext
+   * @type {AudioContext}
+   */
+  audioContext: AudioContext
+
   /**
    * Whether an audio source is playing or not.
    *
@@ -23,13 +48,36 @@ const Playable = (superclass: any) => class extends superclass {
   isPlaying: boolean = false
 
   /**
+   * When a Sound instance is played, this value is passed to the
+   * {{#crossLink "AudioBufferSourceNode/start:method"}}AudioBufferSourceNode.start(){{/crossLink}}
+   * `offset` param. Determines `where` (in seconds) the play will start, along
+   * the duration of the audio source.
+   *
+   * @public
+   * @property startOffset
+   * @type {number}
+   */
+  startOffset: number
+
+  /**
+   * When a Sound instance plays, this is set to the `audioContext.currentTime`.
+   * It will always reflect the start time of the most recent
+   * {{#crossLink "Sound/_play:method"}}{{/crossLink}}.
+   *
+   * @property _startedPlayingAt
+   * @type {number}
+   * @private
+   */
+  _startedPlayingAt: number = 0
+
+  /**
    * Plays the audio source immediately.
    *
    * @public
    * @method play
    */
   play() {
-    this._play(this.get('audioContext.currentTime'))
+    this._play(this.audioContext.currentTime)
   }
 
   /**
@@ -60,7 +108,7 @@ const Playable = (superclass: any) => class extends superclass {
    * should be played.
    */
   playIn(seconds: number) {
-    this._play(this.get('audioContext.currentTime') + seconds)
+    this._play(this.audioContext.currentTime + seconds)
   }
 
   /**
@@ -103,7 +151,7 @@ const Playable = (superclass: any) => class extends superclass {
    * @method stop
    */
   stop() {
-    this._stop(this.get('audioContext.currentTime'))
+    this._stop(this.audioContext.currentTime)
   }
 
   /**
@@ -116,7 +164,7 @@ const Playable = (superclass: any) => class extends superclass {
    * should be stopped.
    */
   stopIn(seconds: number) {
-    this._stop(this.get('audioContext.currentTime') + seconds)
+    this._stop(this.audioContext.currentTime + seconds)
   }
 
   /**
@@ -149,18 +197,30 @@ const Playable = (superclass: any) => class extends superclass {
    */
   _stop(stopAt: number) {
     const node = this.getNodeFrom('audioSource')
-    const currentTime = this.get('audioContext.currentTime')
+    const currentTime = this.audioContext.currentTime
 
     if (node) {
       node.stop(stopAt)
     }
 
     if (stopAt === currentTime) {
-      this.set('isPlaying', false)
-    } else {
-      // nextTick?
-      setTimeout(() => this.set('isPlaying', false), (stopAt - currentTime) * 1000, 1)
+      this.isPlaying = false
     }
+    else {
+      const { setTimeout } = customTimeout(this.audioContext)
+      setTimeout(() => this.isPlaying = false, (stopAt - currentTime) * 1000)
+    }
+  }
+
+  wireConnections() {
+    warn('wireConnections no-op called from mixin, this should not happen')
+    // no-op
+  }
+
+  getNodeFrom(key: string): { start: (when: number, offset: number) => void, stop: (at: number) => void } | undefined {
+    warn(`getNodeFrom no-op called from mixin for key '${key}', this should not happen`)
+    // no-op
+    return undefined
   }
 
   /**
@@ -177,20 +237,24 @@ const Playable = (superclass: any) => class extends superclass {
    * @private
    */
   _play(playAt: number) {
-    const currentTime = this.get('audioContext.currentTime');
+    const currentTime = this.audioContext.currentTime
 
-    this.wireConnections();
+    this.wireConnections()
 
-    const node = this.getNodeFrom('audioSource');
+    const node = this.getNodeFrom('audioSource')
 
-    node.start(playAt, this.startOffset);
+    if (node) {
+      node.start(playAt, this.startOffset)
+    }
 
-    this.set('_startedPlayingAt', playAt);
+    this._startedPlayingAt = playAt
 
     if (playAt === currentTime) {
-      this.set('isPlaying', true);
-    } else {
-      later(() => this.set('isPlaying', true), (playAt - currentTime) * 1000);
+      this.isPlaying = true
     }
-  },
-});
+    else {
+      const { setTimeout } = customTimeout(this.audioContext)
+      setTimeout(() => this.isPlaying = true, (playAt - currentTime) * 1000)
+    }
+  }
+}

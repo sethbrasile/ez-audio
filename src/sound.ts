@@ -1,3 +1,7 @@
+import { Mixin } from 'ts-mixer'
+import Connectable from './mixins/connectable'
+import Playable from './mixins/playable'
+import { createTimeObject } from './utils'
 
 /**
  * The Sound class provides the core functionality for
@@ -14,22 +18,22 @@
  * @uses Connectable
  * @uses Playable
  */
-export class Sound {
+export class Sound extends Mixin(Playable, Connectable) {
+  constructor(audioContext: AudioContext, opts: any) {
+    super(audioContext, opts)
+    this.audioBuffer = opts.audioBuffer
+    this.name = opts.name || ''
+  }
+
   /**
-   * The parent
-   * [AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext)
-   * instance that all audio events are occurring within. It is useful for
-   * getting currentTime, as well as creating new
-   * [AudioNodes](https://developer.mozilla.org/en-US/docs/Web/API/AudioNode).
-   *
-   * This is the object that facilitates and ties together all aspects of the
-   * Web Audio API.
+   * When using the {{#crossLink "Audio-Service"}}{{/crossLink}}, The name that
+   * this Sound instance is registered as on it's parent register.
    *
    * @public
-   * @property audioContext
-   * @type {AudioContext}
+   * @property name
+   * @type {string}
    */
-  audioContext: AudioContext
+  name: string
 
   /**
    * The AudioBuffer instance that provides audio data to the bufferSource connection.
@@ -39,36 +43,6 @@ export class Sound {
    * @type {AudioBuffer}
    */
   audioBuffer: AudioBuffer
-
-   /**
-   * When a Sound instance is played, this value is passed to the
-   * {{#crossLink "AudioBufferSourceNode/start:method"}}AudioBufferSourceNode.start(){{/crossLink}}
-   * `offset` param. Determines `where` (in seconds) the play will start, along
-   * the duration of the audio source.
-   *
-   * @public
-   * @property startOffset
-   * @type {number}
-   */
-  startOffset: number
-
-  /**
-   * When a Sound instance plays, this is set to the `audioContext.currentTime`.
-   * It will always reflect the start time of the most recent
-   * {{#crossLink "Sound/_play:method"}}{{/crossLink}}.
-   *
-   * @property _startedPlayingAt
-   * @type {number}
-   * @private
-   */
-  _startedPlayingAt: number
-
-  constructor(context: AudioContext, source, options) {
-    this.audioContext = context
-    this.startOffset = options.startOffset || 0
-    this.startOffset = 0
-    this._startedPlayingAt = 0
-  }
 
   /**
    * Computed property. Value is an object containing the duration of the
@@ -92,8 +66,8 @@ export class Sound {
    */
   get duration() {
     const { duration } = this.audioBuffer
-    const min = Math.floor(duration / 60);
-    const sec = duration % 60;
-    return createTimeObject(duration, min, sec);
+    const min = Math.floor(duration / 60)
+    const sec = duration % 60
+    return createTimeObject(duration, min, sec)
   }
 }
