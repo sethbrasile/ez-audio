@@ -1,19 +1,21 @@
-import { removeValue } from './utils'
+import { get, set } from './utils'
 
 export interface NodeAttributes {
   attrNameOnNode: string
-  relativePath: string
+  relativePath?: string
   value?: any
 }
 
-interface NodeAttributesOptions {
+export interface NodeAttributesOptions {
   key: string
   value: number
   startTime?: number
   endTime?: number
 }
 
-type CreateCommand = 'createBuffer' | 'createBufferSource' | 'createGain' | 'createDelay' | 'createBiquadFilter' | 'createWaveShaper' | 'createPanner' | 'createStereoPanner' | 'createAnalyser' | ''
+type AudioNodeType = AudioBufferSourceNode | AudioBuffer | GainNode | OscillatorNode | DelayNode | WaveShaperNode | PannerNode | StereoPannerNode | AnalyserNode
+
+type CreateCommand = 'createBuffer' | 'createBufferSource' | 'createGain' | 'createOscillator' | 'createDelay' | 'createBiquadFilter' | 'createWaveShaper' | 'createPanner' | 'createStereoPanner' | 'createAnalyser' | ''
 
 interface ConnectionOptions {
   name: string
@@ -48,7 +50,7 @@ interface ConnectionOptions {
  * @class Connection
  */
 class Connection {
-  constructor(opts: ConnectionOptions, node?: AudioNode) {
+  constructor(opts: ConnectionOptions, node?: AudioNodeType) {
     this.name = opts.name || ''
     this.createdOnPlay = opts.createdOnPlay || false
     this.createCommand = opts.createCommand || ''
@@ -64,6 +66,14 @@ class Connection {
     if (node) {
       this.node = node
     }
+  }
+
+  get<T>(path: string) {
+    return get<T>(this, path)
+  }
+
+  set<T>(path: string, value: any) {
+    return set<T>(this, path, value)
   }
 
   /**
@@ -282,9 +292,9 @@ class Connection {
    *
    * @public
    * @property node
-   * @type {AudioNode}
+   * @type {AudioNodeType}
    */
-  node: AudioNode | undefined
+  node: AudioNodeType | undefined
 
   /**
    * If this is true, the AudioNode will be created every time the consuming
@@ -320,22 +330,25 @@ class Connection {
     const exponentialValues = this.exponentialRampToValuesAtTime
     const linearValues = this.linearRampToValuesAtTime
     const valuesAtTime = this.setValuesAtTime
-    let startingValues = this.startingValues
+    const startingValues = this.startingValues
 
     return {
       to(value: number) {
         const startValue = { key, value }
-
         startingValues.push(startValue)
-
         return {
           at(startTime: number) {
-            startingValues = removeValue(startingValues, startValue)
+            const index = startingValues.indexOf(startValue)
+            if (index === -1)
+              return
+            startingValues.splice(index, 1)
             valuesAtTime.push({ key, value, startTime })
           },
           endingAt(endTime: number, type: 'exponential' | 'linear' = 'exponential') {
-            startingValues = removeValue(startingValues, startValue)
-
+            const index = valuesAtTime.indexOf(startValue)
+            if (index === -1)
+              return
+            valuesAtTime.splice(index, 1)
             switch (type) {
               case 'exponential':
                 exponentialValues.push({ key, value, endTime })

@@ -11,6 +11,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@nx-js/observer-util": "^4.2.2",
     "standardized-audio-context": "^25.3.76",
     "ts-mixer": "^6.0.4"
   },

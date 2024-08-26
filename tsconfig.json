@@ -12,7 +12,6 @@
 
     /* Linting */
     "strict": true,
-    // required for ts-toolbelt
     "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
@@ -20,7 +19,6 @@
     "noEmit": true,
     "isolatedModules": true,
     "skipLibCheck": true
-
   },
   "include": ["src"]
 }

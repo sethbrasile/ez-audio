@@ -1,13 +1,5 @@
-import {
-  Sound,
-  // Note,
-  // SampledNote,
-  // Track,
-  // BeatTrack,
-  // Sampler,
-  // Oscillator,
-  // Font,
-} from './sound'
+import { Sound } from './sound'
+import { Oscillator } from './oscillator'
 // import {
 //   base64ToUint8,
 //   frequencyMap,
@@ -295,44 +287,44 @@ export default class AudioService {
   //   return notes
   // }
 
-  // /**
-  //  * Creates a Sound instance with it's audioBuffer filled with one sample's
-  //  * worth of white noise.
-  //  *
-  //  * @public
-  //  * @method createWhiteNoise
-  //  *
-  //  * @param {object} opts An object passed into the Sound instance.
-  //  *
-  //  * @return {Sound} The created white noise Sound instance.
-  //  */
-  // createWhiteNoise(opts = {}) {
-  //   const audioContext = this.audioContext
-  //   const bufferSize = audioContext.sampleRate
-  //   const audioBuffer = audioContext.createBuffer(1, bufferSize, bufferSize)
-  //   const output = audioBuffer.getChannelData(0)
+  /**
+   * Creates a Sound instance with it's audioBuffer filled with one sample's
+   * worth of white noise.
+   *
+   * @public
+   * @method createWhiteNoise
+   *
+   * @param {object} opts An object passed into the Sound instance.
+   *
+   * @return {Sound} The created white noise Sound instance.
+   */
+  createWhiteNoise(opts = {}) {
+    const audioContext = this.audioContext
+    const bufferSize = audioContext.sampleRate
+    const audioBuffer = audioContext.createBuffer(1, bufferSize, bufferSize)
+    const output = audioBuffer.getChannelData(0)
 
-  //   for (let i = 0; i < bufferSize; i++) {
-  //     output[i] = Math.random() * 2 - 1
-  //   }
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1
+    }
 
-  //   return Sound.create(Object.assign(opts, { audioContext, audioBuffer }))
-  // }
+    return new Sound(audioContext, Object.assign(opts, { audioContext, audioBuffer }))
+  }
 
-  // /**
-  //  * Creates an Oscillator instance.
-  //  *
-  //  * @public
-  //  * @method createOscillator
-  //  *
-  //  * @param {object} opts An object passed into the Oscillator instance.
-  //  *
-  //  * @return {Oscillator} The created Oscillator instance.
-  //  */
-  // createOscillator(opts = {}) {
-  //   const audioContext = this.audioContext
-  //   return Oscillator.create(Object.assign(opts, { audioContext }))
-  // },
+  /**
+   * Creates an Oscillator instance.
+   *
+   * @public
+   * @method createOscillator
+   *
+   * @param {object} opts An object passed into the Oscillator instance.
+   *
+   * @return {Oscillator} The created Oscillator instance.
+   */
+  createOscillator(opts = {}) {
+    const { audioContext } = this
+    return new Oscillator(audioContext, opts)
+  }
 
   // /**
   //  * Gets a BeatTrack instance by name from the _beatTracks register.

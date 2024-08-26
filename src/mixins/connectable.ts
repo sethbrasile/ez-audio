@@ -1,8 +1,9 @@
+import { observable, observe } from '@nx-js/observer-util'
 import { get, set } from '../utils'
 import Connection from '../connection'
-import { removeValue } from '../utils/array-methods'
+import type { NodeAttributes, NodeAttributesOptions } from '../connection'
 
-type ConnectionValueNames = 'exponentialRampToValueAtTime' | 'linearRampToValueAtTime' | 'setValuesAtTime' | 'startingValue'
+const { warn } = console
 
 /**
  * A mixin that allows an object to create AudioNodes and connect them together.
@@ -16,25 +17,16 @@ type ConnectionValueNames = 'exponentialRampToValueAtTime' | 'linearRampToValueA
 export default class Connectable {
   constructor(context: AudioContext) {
     this.audioContext = context
-    this._initConnections()
   }
 
-  // nodeDefinitions: any[] = []
+  get<T>(path: string) {
+    return get<T>(this, path)
+  }
 
-  /**
-   * The parent
-   * [AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext)
-   * instance that all audio events are occurring within. It is useful for
-   * getting currentTime, as well as creating new
-   * [AudioNodes](https://developer.mozilla.org/en-US/docs/Web/API/AudioNode).
-   *
-   * This is the object that facilitates and ties together all aspects of the
-   * Web Audio API.
-   *
-   * @public
-   * @property audioContext
-   * @type {AudioContext}
-   */
+  set<T>(path: string, value: any) {
+    return set<T>(this, path, value)
+  }
+
   audioContext: AudioContext
 
   /**
@@ -45,9 +37,9 @@ export default class Connectable {
    *
    * @public
    * @property connections
-   * @type {Array}
+   * @type {Connection[]}
    */
-  connections: Connection[] = []
+  connections = observable<Connection[]>([])
 
   /**
    * returns a connection's AudioNode from the connections array by the
@@ -64,7 +56,7 @@ export default class Connectable {
     const connection = this.getConnection(name)
 
     if (connection) {
-      return connection.node
+      return get(connection, 'node')
     }
   }
 
@@ -78,7 +70,7 @@ export default class Connectable {
    *
    * @return {Connection} The requested Connection.
    */
-  getConnection(name: string): Connection {
+  getConnection(name: string) {
     return this.connections.filter(connection => connection.name === name)[0]
   }
 
@@ -91,10 +83,11 @@ export default class Connectable {
    * @method removeConnection
    */
   removeConnection(name: string) {
-    removeValue(this.connections, this.getConnection(name))
+    const connection = this.getConnection(name)
+    const index = this.connections.indexOf(connection)
+    this.connections.splice(index, 1)
   }
 
-  // TODO: should this be on oscillator? Does it apply to others?
   /**
    * Updates an AudioNode's property in real time by setting the property on the
    * connectable object (which affects the next play) and also sets it on it's
@@ -131,25 +124,27 @@ export default class Connectable {
    *
    * @param value {string} The value that the property should be set to.
    */
-  update(key: string, value: any) {
-    this.connections.forEach((connection) => {
-      connection.onPlaySetAttrsOnNode.forEach((attr) => {
-        // @ts-expect-error ts(2589) - Type instantiation is excessively deep and possibly infinite.
+  update(key: string, value: string) {
+    this.connections.map((connection) => {
+      console.log(key, value, connection.get('onPlaySetAttrsOnNode'))
+      connection.get<NodeAttributes[]>('onPlaySetAttrsOnNode').map((attr) => {
+        console.log('attr', attr)
         const path = get(attr, 'relativePath')
-
+        console.log('path', path)
         if (key === path) {
+          console.log('key', key)
           const pathChunks = path.split('.')
-          const node = get(connection, 'node')
-          const lastChunk = pathChunks.pop() as 'frequency'
-          if (node && lastChunk) {
-            node[lastChunk].value = value
+          const lastChunk = pathChunks.pop()
+          if (lastChunk) {
+            console.log('lastChunk', lastChunk)
+            const node = get<AudioNode>(connection, 'node')
+            get<NodeAttributes>(node, lastChunk).value = value
           }
         }
       })
     })
 
-    // @ts-expect-error ts(2589) - Type instantiation is excessively deep and possibly infinite.
-    set<Connectable, string, number>(this, key, value)
+    this.set(key, value)
   }
 
   /**
@@ -159,6 +154,7 @@ export default class Connectable {
    * @method _initConnections
    */
   _initConnections() {
+    console.log('init connections in connectable')
     const bufferSource = new Connection({
       name: 'audioSource',
       createdOnPlay: true,
@@ -189,28 +185,9 @@ export default class Connectable {
       path: 'audioContext.destination',
     })
 
-    this.connections = [bufferSource, gain, panner, destination]
+    this.connections = observable<Connection[]>([bufferSource, gain, panner, destination])
+    observe(() => this._wireConnections(this.connections))
   }
-
-  // TODO: find a new way to react to changes in the connections array. This is needed when for instance an effect is
-  // added to the connections array after a sound is already playing.
-  /*
-    * Note about _watchConnectionChanges:
-    * Yeah yeah yeah.. observers are bad. Making the connections array a computed
-    * property doesn't work very well because complete control over when it
-    * recalculates is needed.
-    */
-
-  // /**
-  //  * Observes the connections array and runs wireConnections each time it
-  //  * changes.
-  //  *
-  //  * @private
-  //  * @method _watchConnectionChanges
-  //  */
-  // _watchConnectionChanges() {
-  //   this.wireConnections()
-  // }
 
   /**
    * Gets the array of Connection instances from the connections array and
@@ -218,17 +195,21 @@ export default class Connectable {
    * to be created, and having connected the AudioNode instances to one another
    * in the order in which they were present in the connections array.
    *
-   * @protected
+   * @private
    * @method wireConnections
    *
    * @return {Array | Connection} Array of Connection instances collected from the
    * connections array, created, connected, and ready to play.
    */
-  wireConnections() {
+  _wireConnections(connections: Connection[]) {
     const createNode = this._createNode.bind(this)
     const setAttrsOnNode = this._setAttrsOnNode.bind(this)
     const wireConnection = this._wireConnection
-    const connections = this.connections
+
+    if (!connections) {
+      warn('wire connections called with no connections')
+      return
+    }
 
     connections.map(createNode).map(setAttrsOnNode).map(wireConnection)
   }
@@ -250,19 +231,20 @@ export default class Connectable {
    * @return {Connection} The input Connection instance after having it's node
    * created.
    */
-  _createNode(connection: Connection): Connection {
-    const { path, name, createdOnPlay, source, createCommand, node } = connection
+  _createNode(connection: Connection) {
+    const { path, name, createdOnPlay, source, createCommand, node }
+      = connection
 
     if (node && !createdOnPlay) {
       // The node is already created and doesn't need to be created again
       return connection
     }
     else if (path) {
-      connection.node = get(this, path) as AudioNode
+      connection.node = this.get(path)
     }
     else if (createCommand && source) {
-      // @ts-expect-error TODO: fix this
-      connection.node = get<Connectable, keyof typeof Connectable>(this, source)[createCommand]()
+      const newNode = this.get<AudioContext>(source)[createCommand]()
+      connection.node = newNode
     }
     else if (!connection.node) {
       throw new Error(
@@ -286,14 +268,11 @@ export default class Connectable {
    * @return {Connection} The input Connection instance after having it's nodes
    * attrs set.
    */
-  _setAttrsOnNode(connection: Connection): Connection {
-    connection.onPlaySetAttrsOnNode.forEach((attr) => {
+  _setAttrsOnNode(connection: Connection) {
+    connection.get<NodeAttributes[]>('onPlaySetAttrsOnNode').map((attr) => {
       const { attrNameOnNode, relativePath, value } = attr
-      // @ts-expect-error TODO: fix this
-      const attrValue = relativePath && get(this, relativePath) ? get(this, relativePath) : value
-
+      const attrValue = relativePath && this.get(relativePath) ? this.get(relativePath) : value
       if (connection.node && attrNameOnNode && attrValue) {
-      // @ts-expect-error TODO: fix this
         set(connection.node, attrNameOnNode, attrValue)
       }
     })
@@ -302,6 +281,8 @@ export default class Connectable {
     this._setConnectionValues(connection, 'linearRampToValuesAtTime')
     this._setConnectionValues(connection, 'setValuesAtTime')
     this._setConnectionValues(connection, 'startingValues', 'setValueAtTime')
+
+    console.log(connection)
 
     return connection
   }
@@ -331,21 +312,13 @@ export default class Connectable {
    * should be called to set the attr. This would override the `setValueAtTime
    * method in the example.
    */
-  _setConnectionValues(connection: Connection, attr: ConnectionValueNames, optionalMethodKey?: string): void {
-    const currentTime = this.audioContext.currentTime
-    const values = get(connection, attr) as Array<any>
-    if (!values)
-      return
+  _setConnectionValues(connection: Connection, attr: string, optionalMethodKey?: string) {
+    const currentTime = this.get('audioContext.currentTime')
 
-    values.forEach((opts: any) => {
+    connection.get(attr).map((opts) => {
       const time = currentTime + (opts.endTime || 0)
       attr = optionalMethodKey || attr.replace('Values', 'Value')
-      if (connection.node) {
-        const banana = get(connection.node, opts.key)
-        if (banana) {
-          get(banana, attr)(opts.value, time)
-        }
-      }
+      connection.node[opts.key][attr](opts.value, time)
     })
   }
 
@@ -378,8 +351,8 @@ export default class Connectable {
       // each connection created twice
       connections[nextIdx] = nextNode
 
+      // Make the connection from current to next
       if (currentNode.node && nextNode.node) {
-        // Make the connection from current to next
         currentNode.node.connect(nextNode.node)
       }
     }

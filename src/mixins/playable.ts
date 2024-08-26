@@ -16,8 +16,9 @@ import customTimeout from '../utils/timeout'
 const { warn } = console
 
 export default class Playable {
-  constructor(context: AudioContext, opts: { startOffset: number }) {
+  constructor(context: AudioContext, opts: { startOffset?: number } | OscillatorOptions) {
     this.audioContext = context
+    // @ts-expect-error Typescript is legitimately the stupidest shit ever. Thank you Microsoft for ruining javascript too.
     this.startOffset = opts.startOffset || 0
   }
 
@@ -77,6 +78,7 @@ export default class Playable {
    * @method play
    */
   play() {
+    console.log('play')
     this._play(this.audioContext.currentTime)
   }
 
@@ -212,7 +214,7 @@ export default class Playable {
     }
   }
 
-  wireConnections() {
+  _wireConnections() {
     warn('wireConnections no-op called from mixin, this should not happen')
     // no-op
   }
@@ -239,7 +241,7 @@ export default class Playable {
   _play(playAt: number) {
     const currentTime = this.audioContext.currentTime
 
-    this.wireConnections()
+    this._wireConnections(this.connections)
 
     const node = this.getNodeFrom('audioSource')
 

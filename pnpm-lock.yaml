@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@nx-js/observer-util':
+        specifier: ^4.2.2
+        version: 4.2.2
       standardized-audio-context:
         specifier: ^25.3.76
         version: 25.3.76
@@ -323,6 +326,10 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@nx-js/observer-util@4.2.2':
+    resolution: {integrity: sha512-9OayX1xkdGjdnsDiO2YdaYJ6aMyCF7/NY4QWVgIgjSAZJ4OX2fD766Ts79hEzBscenQy2DCaSoY8VkguIMB1ZA==}
+    engines: {node: '>=6.5.0'}
 
   '@pkgr/core@0.1.1':
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
@@ -1901,6 +1908,8 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
+
+  '@nx-js/observer-util@4.2.2': {}
 
   '@pkgr/core@0.1.1': {}
 

@@ -3,6 +3,7 @@ import typescriptLogo from './typescript.svg'
 import viteLogo from '/vite.svg'
 import { setupCounter } from './counter.ts'
 import { setupPlayButton } from './play-button.ts'
+import { setupKickButton } from './kick-button.ts'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
@@ -16,6 +17,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <div class="card">
       <button id="counter" type="button"></button>
       <button id="play" type="button">Play</button>
+      <button id="play_kick" type="button">Play Kick</button>
     </div>
     <p class="read-the-docs">
       Click on the Vite and TypeScript logos to learn more
@@ -25,3 +27,4 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 
 setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
 setupPlayButton(document.querySelector<HTMLButtonElement>('#play')!)
+setupKickButton(document.querySelector<HTMLButtonElement>('#play_kick')!)

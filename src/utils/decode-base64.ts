@@ -11,7 +11,7 @@
  * @param  {string} base64String The base64 string that you'd like to be converted into a Uint8Array.
  * @return {Uint8Array} A Uint8Array of converted binary audio data.
  */
-export function base64ToUint8(base64String) {
+export function base64ToUint8(base64String: string) {
   return new Uint8Array(
     atob(base64String)
       .split('')
@@ -28,7 +28,7 @@ export function base64ToUint8(base64String) {
  * @param {string} soundfont A soundfont as a long base64 string
  * @return {object} A JSON representation of all the notes in the font
  */
-export function mungeSoundFont(soundfont) {
+export function mungeSoundFont(soundfont: string): object {
   const begin
     = soundfont.indexOf('=', soundfont.indexOf('MIDI.Soundfont.')) + 2
   const end = soundfont.lastIndexOf('"') + 1
