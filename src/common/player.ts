@@ -1,4 +1,17 @@
-import customTimeout from '../utils/timeout'
+import customTimeout from '@utils/timeout'
+import type { Connector } from '@common/connector'
+
+// export interface Playable {
+//   start: (when: number) => void
+//   playIn: (when: number) => void
+//   playFor: (duration: number) => void
+//   playInAndStopAfter: (playIn: number, stopAfter: number) => void
+//   stop: (when: number) => void
+//   stopIn: (seconds: number) => void
+//   stopAt: (time: number) => void
+//   stopAfter: (duration: number) => void
+//   isPlaying: () => boolean
+// }
 
 /**
  * A mixin that allows an object to start and stop an audio source, now or in
@@ -13,11 +26,10 @@ import customTimeout from '../utils/timeout'
  * @class Playable
  */
 
-const { warn } = console
-
-export default class Playable {
-  constructor(context: AudioContext, opts: { startOffset?: number } | OscillatorOptions) {
+export class Player {
+  constructor(context: AudioContext, connector: Connector, opts: { startOffset?: number } | OscillatorOptions) {
     this.audioContext = context
+    this.connector = connector
     // @ts-expect-error Typescript is legitimately the stupidest shit ever. Thank you Microsoft for ruining javascript too.
     this.startOffset = opts.startOffset || 0
   }
@@ -47,6 +59,9 @@ export default class Playable {
    * @default false
    */
   isPlaying: boolean = false
+
+  // Provides ability to make connections with web audio API connections
+  connector: Connector
 
   /**
    * When a Sound instance is played, this value is passed to the
@@ -78,7 +93,6 @@ export default class Playable {
    * @method play
    */
   play() {
-    console.log('play')
     this._play(this.audioContext.currentTime)
   }
 
@@ -198,10 +212,11 @@ export default class Playable {
    * time") when the audio source should be stopped.
    */
   _stop(stopAt: number) {
-    const node = this.getNodeFrom('audioSource')
+    const node = this.connector.getNodeFrom('audioSource')
     const currentTime = this.audioContext.currentTime
 
     if (node) {
+      // @ts-expect-error TS PLEASE JUST LET ME DUCK TYPE
       node.stop(stopAt)
     }
 
@@ -212,17 +227,6 @@ export default class Playable {
       const { setTimeout } = customTimeout(this.audioContext)
       setTimeout(() => this.isPlaying = false, (stopAt - currentTime) * 1000)
     }
-  }
-
-  _wireConnections() {
-    warn('wireConnections no-op called from mixin, this should not happen')
-    // no-op
-  }
-
-  getNodeFrom(key: string): { start: (when: number, offset: number) => void, stop: (at: number) => void } | undefined {
-    warn(`getNodeFrom no-op called from mixin for key '${key}', this should not happen`)
-    // no-op
-    return undefined
   }
 
   /**
@@ -241,9 +245,9 @@ export default class Playable {
   _play(playAt: number) {
     const currentTime = this.audioContext.currentTime
 
-    this._wireConnections(this.connections)
+    this.connector.wireConnections('_play')
 
-    const node = this.getNodeFrom('audioSource')
+    const node = this.connector.getNodeFrom('audioSource')
 
     if (node) {
       node.start(playAt, this.startOffset)

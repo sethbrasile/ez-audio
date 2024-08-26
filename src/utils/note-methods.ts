@@ -1,5 +1,5 @@
-import type Note from '../note'
-import { arraySwap, unique } from './array-methods'
+import { arraySwap, unique } from '@utils/array-methods'
+import type Note from '@/note'
 
 type NotesTuple = [Note[], string[]]
 

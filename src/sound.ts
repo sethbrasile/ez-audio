@@ -1,7 +1,6 @@
-import { Mixin } from 'ts-mixer'
-import Connectable from './mixins/connectable'
-import Playable from './mixins/playable'
-import { createTimeObject } from './utils'
+import createTimeObject from '@utils/create-time-object'
+import { Connector } from '@common/connector'
+import { Player } from '@common/player'
 
 /**
  * The Sound class provides the core functionality for
@@ -18,11 +17,11 @@ import { createTimeObject } from './utils'
  * @uses Connectable
  * @uses Playable
  */
-export class Sound extends Mixin(Playable, Connectable) {
+export class Sound {
   constructor(audioContext: AudioContext, opts: any) {
-    super(audioContext, opts)
     this.audioBuffer = opts.audioBuffer
     this.name = opts.name || ''
+    this.player = new Player(audioContext, new Connector(audioContext, opts), opts)
   }
 
   /**
@@ -43,6 +42,12 @@ export class Sound extends Mixin(Playable, Connectable) {
    * @type {AudioBuffer}
    */
   audioBuffer: AudioBuffer
+
+  player: Player
+
+  play() {
+    this.player.play()
+  }
 
   /**
    * Computed property. Value is an object containing the duration of the

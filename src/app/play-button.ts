@@ -1,4 +1,4 @@
-import AudioService from './audio-service'
+import AudioService from '../audio-service'
 
 export function setupPlayButton(element: HTMLButtonElement) {
   const setup = async () => {
@@ -6,12 +6,12 @@ export function setupPlayButton(element: HTMLButtonElement) {
     // then remove the listener.
     const audioService = AudioService.instance
     const note = await audioService.load('Eb5.mp3').asSound('note')
-    if (note) {
-      // This plays the note upon first user interaction
-      note.play()
 
+    if (note) {
       // remove the setup listener
       element.removeEventListener('click', setup)
+
+      note.play()
 
       // add a listener to play the note again when the button is clicked for the rest of the document's life
       element.addEventListener('click', () => {

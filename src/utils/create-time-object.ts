@@ -1,4 +1,4 @@
-import { zeroify } from '.'
+import zeroify from '@utils/zeroify'
 
 /**
  * @public

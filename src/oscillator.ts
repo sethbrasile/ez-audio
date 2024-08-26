@@ -1,11 +1,8 @@
 import { observable, observe } from '@nx-js/observer-util'
-import { Mixin } from 'ts-mixer'
-import Connectable from './mixins/connectable'
-import Playable from './mixins/playable'
-import { get, set } from './utils'
-import Connection from './connection'
-
-const { warn } = console
+import { Connector } from '@common/connector'
+import Playable from '@common/player'
+import { get, set } from '@utils/prop-access'
+import Connection from './common/connection'
 
 export interface OscillatorOptions {
   type?: OscillatorType
@@ -52,13 +49,11 @@ export interface OscillatorOptions {
  * @uses Playable
  * @todo figure out why `isPlaying` isn't working for Oscillator
  */
-export class Oscillator extends Mixin(Playable, Connectable) {
-  constructor(audioContext: AudioContext, opts: OscillatorOptions = {}) {
-    super(audioContext, opts)
+export class Oscillator {
+  constructor(opts: OscillatorOptions = {}) {
     this.type = opts.type || 'sine'
     this.frequency = opts.frequency || 440
     this.gain = opts.gain || 1
-    // this._initFilters(opts)
     this._initConnections()
   }
 
@@ -145,9 +140,9 @@ export class Oscillator extends Mixin(Playable, Connectable) {
 
     this.connections = connections
     // observe(() => {
-    //   // this._wireConnections(this.connections)
+    //   this.wireConnections('oscillator observer initConnections', this.connections)
     // })
-    // this._wireConnections(this.connections)
+    // this.wireConnections('oscillator initConnections', this.connections)
   }
 
   _initFilters(opts: OscillatorOptions) {

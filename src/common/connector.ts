@@ -1,7 +1,7 @@
-import { observable, observe } from '@nx-js/observer-util'
-import { get, set } from '../utils'
-import Connection from '../connection'
-import type { NodeAttributes, NodeAttributesOptions } from '../connection'
+import { isObservable, observable, observe } from '@nx-js/observer-util'
+import { get, set } from '@utils/prop-access'
+import Connection from '@common/connection'
+import type { AudioNodeType, NodeAttributes } from '@common/connection'
 
 const { warn } = console
 
@@ -14,9 +14,11 @@ const { warn } = console
  * @todo figure out how to augment Ember.MutableArray so that the connections
  * array can have methods like addConnection, removeConnection, addFilter, disableNode
  */
-export default class Connectable {
-  constructor(context: AudioContext) {
+export class Connector {
+  constructor(context: AudioContext, opts) {
     this.audioContext = context
+    this.audioBuffer = opts.audioBuffer
+    this._initConnections()
   }
 
   get<T>(path: string) {
@@ -28,6 +30,8 @@ export default class Connectable {
   }
 
   audioContext: AudioContext
+
+  audioBuffer: AudioBuffer
 
   /**
    * An array of Connection instances. Determines which AudioNode instances are
@@ -56,7 +60,7 @@ export default class Connectable {
     const connection = this.getConnection(name)
 
     if (connection) {
-      return get(connection, 'node')
+      return get<AudioNodeType>(connection, 'node')
     }
   }
 
@@ -126,17 +130,12 @@ export default class Connectable {
    */
   update(key: string, value: string) {
     this.connections.map((connection) => {
-      console.log(key, value, connection.get('onPlaySetAttrsOnNode'))
       connection.get<NodeAttributes[]>('onPlaySetAttrsOnNode').map((attr) => {
-        console.log('attr', attr)
         const path = get(attr, 'relativePath')
-        console.log('path', path)
         if (key === path) {
-          console.log('key', key)
           const pathChunks = path.split('.')
           const lastChunk = pathChunks.pop()
           if (lastChunk) {
-            console.log('lastChunk', lastChunk)
             const node = get<AudioNode>(connection, 'node')
             get<NodeAttributes>(node, lastChunk).value = value
           }
@@ -154,7 +153,7 @@ export default class Connectable {
    * @method _initConnections
    */
   _initConnections() {
-    console.log('init connections in connectable')
+    // console.log('init connections in connectable')
     const bufferSource = new Connection({
       name: 'audioSource',
       createdOnPlay: true,
@@ -185,8 +184,13 @@ export default class Connectable {
       path: 'audioContext.destination',
     })
 
-    this.connections = observable<Connection[]>([bufferSource, gain, panner, destination])
-    observe(() => this._wireConnections(this.connections))
+    this.connections = observable([bufferSource, gain, panner, destination])
+
+    // console.log(this.connections)
+
+    // observe(() => {
+    //   this.wireConnections('connectable initConnections', this.connections)
+    // })
   }
 
   /**
@@ -201,17 +205,17 @@ export default class Connectable {
    * @return {Array | Connection} Array of Connection instances collected from the
    * connections array, created, connected, and ready to play.
    */
-  _wireConnections(connections: Connection[]) {
+  wireConnections(caller: string) {
     const createNode = this._createNode.bind(this)
     const setAttrsOnNode = this._setAttrsOnNode.bind(this)
     const wireConnection = this._wireConnection
 
-    if (!connections) {
+    if (!this.connections) {
       warn('wire connections called with no connections')
       return
     }
 
-    connections.map(createNode).map(setAttrsOnNode).map(wireConnection)
+    this.connections.map(createNode).map(setAttrsOnNode).map(wireConnection)
   }
 
   /**
@@ -281,8 +285,6 @@ export default class Connectable {
     this._setConnectionValues(connection, 'linearRampToValuesAtTime')
     this._setConnectionValues(connection, 'setValuesAtTime')
     this._setConnectionValues(connection, 'startingValues', 'setValueAtTime')
-
-    console.log(connection)
 
     return connection
   }

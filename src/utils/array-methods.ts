@@ -1,5 +1,3 @@
-import { observable } from '@nx-js/observer-util'
-
 /**
  * @public
  * @class utils

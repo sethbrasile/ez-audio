@@ -1,4 +1,4 @@
-import { get, set } from './utils'
+import { get, set } from '@utils/prop-access'
 
 export interface NodeAttributes {
   attrNameOnNode: string
@@ -13,9 +13,9 @@ export interface NodeAttributesOptions {
   endTime?: number
 }
 
-type AudioNodeType = AudioBufferSourceNode | AudioBuffer | GainNode | OscillatorNode | DelayNode | WaveShaperNode | PannerNode | StereoPannerNode | AnalyserNode
+export type AudioNodeType = AudioBufferSourceNode | AudioBuffer | GainNode | OscillatorNode | DelayNode | WaveShaperNode | PannerNode | StereoPannerNode | AnalyserNode
 
-type CreateCommand = 'createBuffer' | 'createBufferSource' | 'createGain' | 'createOscillator' | 'createDelay' | 'createBiquadFilter' | 'createWaveShaper' | 'createPanner' | 'createStereoPanner' | 'createAnalyser' | ''
+export type CreateCommand = 'createBuffer' | 'createBufferSource' | 'createGain' | 'createOscillator' | 'createDelay' | 'createBiquadFilter' | 'createWaveShaper' | 'createPanner' | 'createStereoPanner' | 'createAnalyser' | ''
 
 interface ConnectionOptions {
   name: string
@@ -87,6 +87,8 @@ class Connection {
    * @property name
    */
   name: string
+
+  audioBuffer: AudioBuffer
 
   /**
    * If an AudioNode instance already exists and is accessible to the Sound

@@ -1,4 +1,4 @@
-import withinRange from './within-range'
+import withinRange from '@utils/within-range'
 
 export default function exponentialRatio(value: number) {
   const ratio = (Math.exp(value) - 1) / (Math.E - 1)
