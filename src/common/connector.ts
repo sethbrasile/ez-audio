@@ -15,9 +15,10 @@ const { warn } = console
  * array can have methods like addConnection, removeConnection, addFilter, disableNode
  */
 export class Connector {
-  constructor(context: AudioContext, opts) {
+  constructor(context: AudioContext, opts?: any) {
     this.audioContext = context
     this.audioBuffer = opts.audioBuffer
+    this.nodeAttributes = opts.nodeAttributes
     this._initConnections()
   }
 
@@ -32,6 +33,8 @@ export class Connector {
   audioContext: AudioContext
 
   audioBuffer: AudioBuffer
+
+  nodeAttributes: NodeAttributes
 
   /**
    * An array of Connection instances. Determines which AudioNode instances are
@@ -206,6 +209,7 @@ export class Connector {
    * connections array, created, connected, and ready to play.
    */
   wireConnections(caller: string) {
+    console.log('called by: ', caller)
     const createNode = this._createNode.bind(this)
     const setAttrsOnNode = this._setAttrsOnNode.bind(this)
     const wireConnection = this._wireConnection
@@ -247,8 +251,7 @@ export class Connector {
       connection.node = this.get(path)
     }
     else if (createCommand && source) {
-      const newNode = this.get<AudioContext>(source)[createCommand]()
-      connection.node = newNode
+      connection.node = this.get<AudioContext>(source)[createCommand]()
     }
     else if (!connection.node) {
       throw new Error(
@@ -275,7 +278,9 @@ export class Connector {
   _setAttrsOnNode(connection: Connection) {
     connection.get<NodeAttributes[]>('onPlaySetAttrsOnNode').map((attr) => {
       const { attrNameOnNode, relativePath, value } = attr
-      const attrValue = relativePath && this.get(relativePath) ? this.get(relativePath) : value
+      const attrValue = relativePath && get(this.nodeAttributes, relativePath) ? get(this.nodeAttributes, relativePath) : value
+      if (!attrValue)
+        warn(`ez-audio: The ${attrNameOnNode} attr on the ${connection.name} node is being set to ${attrValue}.`)
       if (connection.node && attrNameOnNode && attrValue) {
         set(connection.node, attrNameOnNode, attrValue)
       }

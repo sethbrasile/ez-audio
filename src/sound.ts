@@ -1,6 +1,6 @@
 import createTimeObject from '@utils/create-time-object'
-import { Connector } from '@common/connector'
-import { Player } from '@common/player'
+import { GainControl } from './audio-service'
+// TODO: add filters to sounds
 
 /**
  * The Sound class provides the core functionality for
@@ -18,21 +18,21 @@ import { Player } from '@common/player'
  * @uses Playable
  */
 export class Sound {
-  constructor(audioContext: AudioContext, opts: any) {
-    this.audioBuffer = opts.audioBuffer
-    this.name = opts.name || ''
-    this.player = new Player(audioContext, new Connector(audioContext, opts), opts)
+  constructor(audioContext: AudioContext, opts: { audioBuffer: AudioBuffer }) {
+    const bufferSource = audioContext.createBufferSource()
+    const gainNode = audioContext.createGain()
+
+    bufferSource.buffer = opts.audioBuffer
+
+    bufferSource.connect(gainNode)
+    gainNode.connect(audioContext.destination)
+
+    this.gainNode = gainNode
+    this.bufferSourceNode = bufferSource
   }
 
-  /**
-   * When using the {{#crossLink "Audio-Service"}}{{/crossLink}}, The name that
-   * this Sound instance is registered as on it's parent register.
-   *
-   * @public
-   * @property name
-   * @type {string}
-   */
-  name: string
+  private gainNode: GainNode
+  private bufferSourceNode: AudioBufferSourceNode
 
   /**
    * The AudioBuffer instance that provides audio data to the bufferSource connection.
@@ -41,12 +41,13 @@ export class Sound {
    * @property audioBuffer
    * @type {AudioBuffer}
    */
-  audioBuffer: AudioBuffer
-
-  player: Player
 
   play() {
-    this.player.play()
+    this.bufferSourceNode.start()
+  }
+
+  stop() {
+    this.bufferSourceNode.stop()
   }
 
   /**
@@ -65,14 +66,45 @@ export class Sound {
    *       }
    *     }
    *
-   * @public
    * @property duration
-   * @type {object}
    */
-  get duration() {
-    const { duration } = this.audioBuffer
+  public get duration() {
+    const buffer = this.bufferSourceNode.buffer
+    if (buffer === null)
+      return createTimeObject(0, 0, 0)
+    const { duration } = buffer
     const min = Math.floor(duration / 60)
     const sec = duration % 60
     return createTimeObject(duration, min, sec)
   }
+
+  getConnection(type: 'audioSource' | 'gain') {
+    // if (type === 'audioSource') {
+    //   return new BufferControl(this.bufferSourceNode)
+    // }
+    if (type === 'gain') {
+      return new GainControl(this.gainNode)
+    }
+    else {
+      throw new Error('Unsupported connection type')
+    }
+  }
 }
+
+// export class BufferControl {
+//   constructor(private buffer: AudioBufferSourceNode) {}
+//   public onPlayRamp(param: string) {
+//     // const context = this.oscillator.context
+//     return {
+//       from: (startValue: number) => ({
+//         to: (endValue: number) => ({
+//           in: (duration: number) => {
+//             // const currentTime = context.currentTime
+
+//             // this.oscillator.frequency.exponentialRampToValueAtTime(endValue, currentTime + duration)
+//           },
+//         }),
+//       }),
+//     }
+//   }
+// }

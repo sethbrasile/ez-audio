@@ -88,7 +88,7 @@ class Connection {
    */
   name: string
 
-  audioBuffer: AudioBuffer
+  // audioBuffer: AudioBuffer
 
   /**
    * If an AudioNode instance already exists and is accessible to the Sound
@@ -308,103 +308,6 @@ class Connection {
    * @default false
    */
   createdOnPlay = false
-
-  /**
-   * Allows an AudioNode's values to be set at a specific time
-   * relative to the moment that it is played, every time it is played.
-   *
-   * Especially useful for creating/shaping an "envelope" (think "ADSR").
-   *
-   * @example
-   *     // results in an oscillator that starts at 150Hz and quickly drops
-   *     // down to 0.01Hz each time it's played
-   *     const kick = audio.createOscillator({ name: 'kick' });
-   *     const osc = kick.getConnection('audioSource');
-   *
-   *     osc.onPlaySet('frequency').to(150).at(0);
-   *     osc.onPlaySet('frequency').to(0.01).at(0.1);
-   *
-   * @public
-   * @method onPlaySet
-   * @todo document 'exponential' and 'linear' options
-   */
-  onPlaySet(key: string) {
-    const exponentialValues = this.exponentialRampToValuesAtTime
-    const linearValues = this.linearRampToValuesAtTime
-    const valuesAtTime = this.setValuesAtTime
-    const startingValues = this.startingValues
-
-    return {
-      to(value: number) {
-        const startValue = { key, value }
-        startingValues.push(startValue)
-        return {
-          at(startTime: number) {
-            const index = startingValues.indexOf(startValue)
-            if (index === -1)
-              return
-            startingValues.splice(index, 1)
-            valuesAtTime.push({ key, value, startTime })
-          },
-          endingAt(endTime: number, type: 'exponential' | 'linear' = 'exponential') {
-            const index = valuesAtTime.indexOf(startValue)
-            if (index === -1)
-              return
-            valuesAtTime.splice(index, 1)
-            switch (type) {
-              case 'exponential':
-                exponentialValues.push({ key, value, endTime })
-                break
-              case 'linear':
-                linearValues.push({ key, value, endTime })
-                break
-              default:
-                throw new Error(
-                  `Invalid ramp type: ${type}. Must be 'exponential' or 'linear'`,
-                )
-            }
-          },
-        }
-      },
-    }
-  }
-
-  /**
-   * Convenience method that uses
-   * {{#crossLink "Connection/onPlaySet:method"}}{{/crossLink}} twice to set an
-   * initial value, and a ramped value in succession.
-   *
-   * Especially useful for creating/shaping an "envelope" (think "ADSR").
-   *
-   * @example
-   *     // results in an oscillator that starts at 150Hz and quickly drops
-   *     // down to 0.01Hz each time it's played
-   *     const kick = audio.createOscillator({ name: 'kick' });
-   *     const osc = kick.getConnection('audioSource');
-   *
-   *     osc.onPlayRamp('frequency').from(150).to(0.01).in(0.1);
-   *
-   * @public
-   * @method onPlaySet
-   */
-  onPlayRamp(key: string) {
-    const onPlaySet = this.onPlaySet.bind(this)
-
-    return {
-      from(startValue: number) {
-        return {
-          to(endValue: number) {
-            return {
-              in(endTime: number) {
-                onPlaySet(key).to(startValue)
-                onPlaySet(key).to(endValue).endingAt(endTime)
-              },
-            }
-          },
-        }
-      },
-    }
-  }
 }
 
 export default Connection

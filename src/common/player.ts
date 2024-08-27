@@ -25,7 +25,6 @@ import type { Connector } from '@common/connector'
  * @public
  * @class Playable
  */
-
 export class Player {
   constructor(context: AudioContext, connector: Connector, opts: { startOffset?: number } | OscillatorOptions) {
     this.audioContext = context
