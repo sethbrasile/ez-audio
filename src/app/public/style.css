@@ -39,7 +39,6 @@ h1 {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
 }
 
 .logo {
@@ -93,4 +92,25 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.docs {
+  padding: 2rem 0;
+}
+
+.beat-pad {
+  display: inline-block;
+  height: 100px;
+  width: 100px;
+  text-align: center;
+}
+
+.beat-pad .pad {
+  background-color: #2d2d2d;
+  display: block;
+  height: 100%;
+}
+
+[role="button"] {
+  cursor: pointer;
 }

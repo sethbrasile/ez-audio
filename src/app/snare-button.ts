@@ -26,7 +26,7 @@ export function setupSnareButton(element: HTMLButtonElement) {
     element.removeEventListener('click', setup)
 
     // add a listener to play the note again when the button is clicked for the rest of the document's life
-    element.addEventListener('click', () => {
+    element.addEventListener('click', (e) => {
       playSnare()
     })
   }
