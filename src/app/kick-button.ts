@@ -7,7 +7,7 @@ export function setupKickButton(element: HTMLButtonElement) {
     const audioService = AudioService.instance
 
     function playKick() {
-      const kick = audioService.createOscillator({ name: 'kick' })
+      const kick = audioService.createOscillator('kick')
       const osc = kick.getConnection('audioSource')
       const gain = kick.getConnection('gain')
       osc.onPlayRamp('frequency').from(150).to(0.01).in(0.3)

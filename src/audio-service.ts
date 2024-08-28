@@ -1,5 +1,6 @@
 import { Oscillator } from './oscillator'
 import { Sound } from './sound'
+import type { Player } from '@/players/player'
 
 export default class AudioService {
   static #instance: AudioService
@@ -24,7 +25,14 @@ export default class AudioService {
 
   private _oscillators: Map<string, Oscillator> = new Map()
 
-  public createOscillator(name: string, options?: OscillatorOptions): AudioSource {
+  public static async init(): Promise<AudioService> {
+    const service = AudioService.instance
+    // await service.audioContext.audioWorklet.addModule('worklet/oscillator.js')
+    await service.audioContext.resume()
+    return service
+  }
+
+  public createOscillator(name: string, options?: OscillatorOptions): Player {
     const osc = new Oscillator(this.audioContext, options || {})
     this._oscillators.set(name, osc)
     return osc
@@ -34,7 +42,7 @@ export default class AudioService {
     return this._oscillators.get(name)
   }
 
-  public createWhiteNoise(): AudioSource {
+  public createWhiteNoise(): Player {
     const audioContext = this.audioContext
     const bufferSize = audioContext.sampleRate
     const audioBuffer = audioContext.createBuffer(1, bufferSize, bufferSize)
@@ -61,7 +69,8 @@ export interface ParameterController {
 export class GainControl {
   constructor(private gainNode: GainNode) {}
 
-  public onPlayRamp(param: string) {
+  // TODO: gaincontrol only ramps gain so no longer need param
+  public onPlayRamp(_: string) {
     const context = this.gainNode.context
     return {
       from: (startValue: number) => ({
@@ -77,8 +86,4 @@ export class GainControl {
   }
 }
 
-export interface AudioSource {
-  getConnection: (type: 'audioSource' | 'gain') => ParameterController
-  play: () => void
-  stop: () => void
-}
+export type ConnectionType = 'audioSource' | 'gain'

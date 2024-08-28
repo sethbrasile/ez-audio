@@ -1,18 +1,6 @@
 import customTimeout from '@utils/timeout'
 import type { Connector } from '@common/connector'
 
-// export interface Playable {
-//   start: (when: number) => void
-//   playIn: (when: number) => void
-//   playFor: (duration: number) => void
-//   playInAndStopAfter: (playIn: number, stopAfter: number) => void
-//   stop: (when: number) => void
-//   stopIn: (seconds: number) => void
-//   stopAt: (time: number) => void
-//   stopAfter: (duration: number) => void
-//   isPlaying: () => boolean
-// }
-
 /**
  * A mixin that allows an object to start and stop an audio source, now or in
  * the future, as well as track whether the audio source is currently playing or

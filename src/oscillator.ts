@@ -1,8 +1,13 @@
-import { GainControl } from './audio-service'
+import createTimeObject from './utils/create-time-object'
+import { GainControl } from '@/audio-service'
 
+// TODO: consider if we need the "player" concept or if it will always just be a pass through..
+// Maybe "player" is just an interface
 export class OscillatorControl {
+  // TODO: oscillatorControl only ramps frequency so no longer need param
+  // TODO: implement more controls
   constructor(private oscillator: OscillatorNode) {}
-  public onPlayRamp(param: string) {
+  public onPlayRamp(_: string) {
     const context = this.oscillator.context
     return {
       from: (startValue: number) => ({
@@ -54,5 +59,11 @@ export class Oscillator {
 
   stop() {
     this.oscillator.stop()
+  }
+
+  // TODO: implement isPlaying and duration
+  isPlaying = false
+  get duration() {
+    return createTimeObject(0, 0, 0)
   }
 }
