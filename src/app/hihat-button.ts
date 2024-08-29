@@ -1,6 +1,6 @@
 import AudioService from '../audio-service'
 import { LayeredSound } from '@/layered-sound'
-import type { Player } from '@/players/player'
+import type { Playable } from '@/playable'
 
 function createHihatOscillator(ratio: number) {
   const audioService = AudioService.instance
@@ -14,7 +14,7 @@ function createHihatOscillator(ratio: number) {
   })
 }
 
-function createHihatEnvelope(oscillator: Player) {
+function createHihatEnvelope(oscillator: Playable) {
   oscillator.onPlayRamp('gain').from(0.00001).to(1).in(0.02)
   oscillator.onPlaySet('gain').to(0.3).endingAt(0.03)
   oscillator.onPlaySet('gain').to(0.00001).endingAt(0.3)

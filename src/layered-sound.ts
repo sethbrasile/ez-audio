@@ -1,4 +1,4 @@
-import type { Player } from './players/player'
+import type { Playable } from './playable'
 
 /**
  * Allows multiple instances of anything that uses
@@ -9,7 +9,7 @@ import type { Player } from './players/player'
  * @class LayeredSound
  */
 export class LayeredSound {
-  constructor(sounds: Player[] = []) {
+  constructor(sounds: Playable[] = []) {
     this.sounds = sounds
   }
 
@@ -18,7 +18,7 @@ export class LayeredSound {
    * {{#crossLink "Playable"}}{{/crossLink}} can be added to this register.
    * If not set on instantiation, set to `A()` via `_initSounds`.
    */
-  sounds: Player[]
+  sounds: Playable[]
 
   /**
    * Maps through objects in `sounds` and calls `play` on each
