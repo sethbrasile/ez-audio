@@ -2,7 +2,7 @@ import { get } from '@utils/prop-access'
 import createTimeObject from './utils/create-time-object'
 import type { Playable } from './playable'
 import { BaseAdjuster } from '@/adjuster'
-import type { Adjuster, ControlType, ParamValue, ValueAtTime } from '@/adjuster'
+import type { Adjuster, ControlType, ParamValue, RampType, ValueAtTime } from '@/adjuster'
 
 export interface OscillatorOptionsFilterValues {
   frequency?: number
@@ -61,8 +61,8 @@ export class Oscillator implements Playable {
     return this.adjuster.onPlaySet(type)
   }
 
-  onPlayRamp(type: ControlType) {
-    return this.adjuster.onPlayRamp(type)
+  onPlayRamp(type: ControlType, rampType?: RampType) {
+    return this.adjuster.onPlayRamp(type, rampType)
   }
 
   public wireConnections() {

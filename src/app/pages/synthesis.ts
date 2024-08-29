@@ -1,6 +1,7 @@
-import { setupSnareButton } from '@app/snare-button.ts'
-import { setupKickButton } from '@app/kick-button.ts'
-import { setupHihatButton } from '../hihat-button'
+import { setupSnareButton } from '@app/snare-button'
+import { setupKickButton } from '@app/kick-button'
+import { setupHihatButton } from '@app/hihat-button'
+import { setupBassDropButton } from '@app/bass-drop-button'
 import { codeBlock } from '../utils'
 
 const playKick = `
@@ -12,26 +13,23 @@ kick.play()
 `
 
 const playBassDrop = `
-playBassDrop() {
-  const audio = this.get('audio');
-  const bassDrop = audio.createOscillator();
-  const osc = bassDrop.getConnection('audioSource');
-  const gain = bassDrop.getConnection('gain');
+const audioService = AudioService.instance
+const drop = audioService.createOscillator('kick')
+drop.onPlayRamp('frequency').from(100).to(0.01).in(20)
 
-  // We can specify 'linear' to get a linear ramp instead of an exponential one
-  osc.onPlayRamp('frequency', 'linear').from(100).to(0.01).in(10);
+// We can specify 'linear' to get a linear ramp instead of an exponential one
+// We automate gain as well, so we don't end up with a loud click when the audio stops
+drop.onPlayRamp('gain', 'linear').from(1).to(0.01).in(4)
 
-  // We automate gain as well, so we don't end up with a loud click when the audio stops
-  gain.onPlayRamp('gain').from(1).to(0.01).in(10);
-
-  bassDrop.playFor(10);
-}`
+drop.playFor(4)
+`
 
 const Synthesis = {
   setup() {
     setupKickButton(document.querySelector<HTMLButtonElement>('#play_kick')!)
     setupSnareButton(document.querySelector<HTMLButtonElement>('#play_snare')!)
     setupHihatButton(document.querySelector<HTMLButtonElement>('#play_hihat')!)
+    setupBassDropButton(document.querySelector<HTMLButtonElement>('#play_bass_drop')!)
   },
   html: `
 <h1>Synthesis</h1>
@@ -66,6 +64,8 @@ const Synthesis = {
     <p>We can make some adjustments and end up with a "bass drop."</p>
 
     <p>(If your speakers are turned up, you should probably turn them down, and you probably can't even hear this if you're on a laptop :D)</p>
+
+    <button id="play_bass_drop" type="button">Play</button>
 
     ${codeBlock(playBassDrop)}
 </div>

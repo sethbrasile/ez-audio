@@ -15,7 +15,7 @@ export interface Adjuster {
       endingAt: (time: number, rampType?: RampType) => void
     }
   }
-  onPlayRamp: (type: ControlType) => {
+  onPlayRamp: (type: ControlType, rampType?: RampType) => {
     from: (startValue: number) => {
       to: (endValue: number) => {
         in: (endTime: number) => void

@@ -20,7 +20,7 @@ export interface Playable {
     }
   }
 
-  onPlayRamp: (type: ControlType) => {
+  onPlayRamp: (type: ControlType, rampType?: RampType) => {
     from: (startValue: number) => {
       to: (endValue: number) => {
         in: (endTime: number) => void

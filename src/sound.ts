@@ -1,7 +1,7 @@
 import createTimeObject from '@utils/create-time-object'
 import customTimeout from '@utils/timeout'
 import { BaseAdjuster } from './adjuster'
-import type { Adjuster, ControlType, ParamValue, ValueAtTime } from './adjuster'
+import type { Adjuster, ControlType, ParamValue, RampType, ValueAtTime } from './adjuster'
 import type { Playable } from './playable'
 
 /**
@@ -45,8 +45,8 @@ export class Sound implements Playable {
     return this.adjuster.onPlaySet(type)
   }
 
-  onPlayRamp(type: ControlType) {
-    return this.adjuster.onPlayRamp(type)
+  onPlayRamp(type: ControlType, rampType?: RampType) {
+    return this.adjuster.onPlayRamp(type, rampType)
   }
 
   play() {
