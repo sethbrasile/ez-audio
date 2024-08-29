@@ -26,22 +26,19 @@ export function setupSnareButton(element: HTMLButtonElement) {
 
     element.classList.remove('loading')
 
-    function playSnare() {
-      const osc = createSnareOscillator()
-      const noise = createSnareNoise()
-      const snare = new LayeredSound([noise, osc])
-      snare.play()
-    }
+    const osc = createSnareOscillator()
+    const noise = createSnareNoise()
+    const snare = new LayeredSound([noise, osc])
 
     // This plays the note upon first user interaction
-    playSnare()
+    snare.playFor(0.1)
 
     // remove the setup listener
     element.removeEventListener('click', setup)
 
     // add a listener to play the note again when the button is clicked for the rest of the document's life
     element.addEventListener('click', () => {
-      playSnare()
+      snare.playFor(0.1)
     })
   }
 

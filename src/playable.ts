@@ -4,7 +4,7 @@ import type { ControlType, RampType } from '@/adjuster'
 export interface Playable {
   play: () => void
   // playIn: (when: number) => void
-  // playFor: (duration: number) => void
+  playFor: (duration: number) => void
   // playInAndStopAfter: (playIn: number, stopAfter: number) => void
   stop: () => void
   // stopIn: (seconds: number) => void

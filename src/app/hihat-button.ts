@@ -34,7 +34,7 @@ function playHihat() {
 
   // Layer them all together
   const hihat = new LayeredSound(oscillators)
-  hihat.play()
+  hihat.playFor(0.3)
 }
 
 export function setupHihatButton(element: HTMLButtonElement) {

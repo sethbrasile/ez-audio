@@ -50,7 +50,19 @@ export class Sound implements Playable {
   }
 
   play() {
+    this.playAt(this.audioContext.currentTime)
+  }
+
+  playFor(duration: number) {
     const { setTimeout } = customTimeout(this.audioContext)
+    this.playAt(this.audioContext.currentTime)
+    setTimeout(() => this.stop(), duration * 1000)
+  }
+
+  playAt(time: number) {
+    const { audioContext } = this
+    const { currentTime } = audioContext
+    const { setTimeout } = customTimeout(audioContext)
 
     // schedule _isPlaying to false after duration
     setTimeout(() => this._isPlaying = false, this.duration.pojo.seconds * 1000)
@@ -58,8 +70,17 @@ export class Sound implements Playable {
     this.wireConnections()
     this.adjuster.setValuesAtTimes(this.bufferSourceNode, this.gainNode)
 
-    this.bufferSourceNode.start()
+    this.bufferSourceNode.start(time)
     this._isPlaying = true
+
+    if (time <= currentTime) {
+      this._isPlaying = true
+    }
+    else {
+      setTimeout(() => {
+        this._isPlaying = true
+      }, (time - currentTime) * 1000)
+    }
   }
 
   stop() {

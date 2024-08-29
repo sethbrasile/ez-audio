@@ -29,6 +29,10 @@ export class LayeredSound {
     this.sounds.map(sound => sound.play())
   }
 
+  playFor(seconds: number) {
+    this.sounds.map(sound => sound.playFor(seconds))
+  }
+
   /**
    * Maps through objects in `sounds` and calls `playAt` on each, passing
    * through the `time` param to each sound.

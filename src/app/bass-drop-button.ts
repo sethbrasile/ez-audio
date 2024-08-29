@@ -11,14 +11,14 @@ export function setupBassDropButton(element: HTMLButtonElement) {
     drop.onPlayRamp('gain', 'linear').from(1).to(0.01).in(4)
 
     // This plays the note upon first user interaction
-    drop.play()
+    drop.playFor(4)
 
     // remove the setup listener
     element.removeEventListener('click', setup)
 
     // add a listener to play the note again when the button is clicked for the rest of the document's life
     element.addEventListener('click', () => {
-      drop.play()
+      drop.playFor(4)
     })
   }
 

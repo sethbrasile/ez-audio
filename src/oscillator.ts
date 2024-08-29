@@ -1,6 +1,7 @@
 import { get } from '@utils/prop-access'
 import createTimeObject from './utils/create-time-object'
 import type { Playable } from './playable'
+import customTimeout from './utils/timeout'
 import { BaseAdjuster } from '@/adjuster'
 import type { Adjuster, ControlType, ParamValue, RampType, ValueAtTime } from '@/adjuster'
 
@@ -91,16 +92,45 @@ export class Oscillator implements Playable {
   }
 
   play() {
+    this.playAt(this.audioContext.currentTime)
+  }
+
+  playFor(duration: number) {
+    const { setTimeout } = customTimeout(this.audioContext)
+    this.playAt(this.audioContext.currentTime)
+    setTimeout(() => this.stop(), duration * 1000)
+  }
+
+  // playAt is the underlying play method behind all play methods
+  playAt(time: number) {
+    const { audioContext } = this
+    const { currentTime } = audioContext
+    const { setTimeout } = customTimeout(audioContext)
+
     this.wireConnections()
-    this.oscillator.start()
+    this.oscillator.start(time)
+
+    if (time <= currentTime) {
+      this._isPlaying = true
+    }
+    else {
+      setTimeout(() => {
+        this._isPlaying = true
+      }, (time - currentTime) * 1000)
+    }
   }
 
   stop() {
+    this._isPlaying = false
     this.oscillator.stop()
   }
 
-  // TODO: implement isPlaying and duration
-  isPlaying = false
+  private _isPlaying = false
+  get isPlaying() {
+    return this._isPlaying
+  }
+
+  // TODO: implement duration
   get duration() {
     return createTimeObject(0, 0, 0)
   }

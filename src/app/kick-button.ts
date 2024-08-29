@@ -11,7 +11,7 @@ export function setupKickButton(element: HTMLButtonElement) {
     kick.onPlayRamp('gain').from(1).to(0.01).in(0.1)
 
     // This plays the note upon first user interaction
-    kick.play()
+    kick.playFor(0.1)
 
     // remove the setup listener
     element.removeEventListener('click', setup)
