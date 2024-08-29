@@ -49,7 +49,7 @@ export class BaseAdjuster {
     }
   }
 
-  public onPlayRamp(type: ControlType) {
+  public onPlayRamp(type: ControlType, rampType?: RampType) {
     return {
       from: (startValue: number) => {
         return {
@@ -57,7 +57,7 @@ export class BaseAdjuster {
             return {
               in: (endTime: number) => {
                 this.onPlaySet(type).to(startValue)
-                this.onPlaySet(type).to(endValue).endingAt(endTime)
+                this.onPlaySet(type).to(endValue).endingAt(endTime, rampType)
               },
             }
           },

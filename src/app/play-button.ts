@@ -5,7 +5,7 @@ export function setupPlayButton(element: HTMLButtonElement) {
     // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     const audioService = AudioService.instance
-    const note = await audioService.load('Eb5.mp3').asSound('note')
+    const note = await audioService.load('Eb5.mp3').asSound()
 
     if (note) {
       // remove the setup listener

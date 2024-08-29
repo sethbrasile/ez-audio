@@ -24,10 +24,22 @@ export default class AudioService {
     return AudioService.#instance
   }
 
+  // To suit loading animations while initializing the audio context
   public static async init(): Promise<AudioService> {
     const service = AudioService.instance
     await service.audioContext.resume()
     return service
+  }
+
+  public load(url: string) {
+    return {
+      asSound: async () => {
+        const response = await fetch(url)
+        const arrayBuffer = await response.arrayBuffer()
+        const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
+        return new Sound(this.audioContext, new SoundAdjuster(), audioBuffer)
+      },
+    }
   }
 
   public createOscillator(_: string, options?: OscillatorOptions): Playable {

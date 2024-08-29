@@ -10,19 +10,15 @@ export function setupKickButton(element: HTMLButtonElement) {
     kick.onPlayRamp('frequency').from(150).to(0.01).in(0.1)
     kick.onPlayRamp('gain').from(1).to(0.01).in(0.1)
 
-    function playKick() {
-      kick.play()
-    }
-
     // This plays the note upon first user interaction
-    playKick()
+    kick.play()
 
     // remove the setup listener
     element.removeEventListener('click', setup)
 
     // add a listener to play the note again when the button is clicked for the rest of the document's life
     element.addEventListener('click', () => {
-      playKick()
+      kick.play()
     })
   }
 

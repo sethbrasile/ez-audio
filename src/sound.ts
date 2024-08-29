@@ -20,21 +20,24 @@ import type { Playable } from './playable'
  */
 export class Sound implements Playable {
   private gainNode: GainNode
+  private audioBuffer: AudioBuffer
   private bufferSourceNode: AudioBufferSourceNode
   private _isPlaying: boolean = false
 
   constructor(private audioContext: AudioContext, private adjuster: Adjuster, audioBuffer: AudioBuffer) {
-    const bufferSource = audioContext.createBufferSource()
     const gainNode = audioContext.createGain()
-
-    bufferSource.buffer = audioBuffer
-
+    const bufferSourceNode = this.audioContext.createBufferSource()
     this.gainNode = gainNode
-    this.bufferSourceNode = bufferSource
+    this.bufferSourceNode = bufferSourceNode
+    this.audioBuffer = audioBuffer
   }
 
   wireConnections() {
-    this.bufferSourceNode.connect(this.gainNode)
+    const bufferSourceNode = this.audioContext.createBufferSource()
+    bufferSourceNode.buffer = this.audioBuffer
+    this.bufferSourceNode = bufferSourceNode
+
+    bufferSourceNode.connect(this.gainNode)
     this.gainNode.connect(this.audioContext.destination)
   }
 
