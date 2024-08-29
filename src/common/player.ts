@@ -1,5 +1,6 @@
 import customTimeout from '@utils/timeout'
 import type { Connector } from '@common/connector'
+import type { OscillatorOptions } from '@/oscillator'
 
 /**
  * A mixin that allows an object to start and stop an audio source, now or in

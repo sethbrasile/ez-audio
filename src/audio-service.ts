@@ -1,5 +1,6 @@
 import { Oscillator } from './oscillator'
 import { Sound } from './sound'
+import type { OscillatorOptions } from './oscillator'
 import type { Player } from '@/players/player'
 
 export default class AudioService {
@@ -32,7 +33,7 @@ export default class AudioService {
     return service
   }
 
-  public createOscillator(name: string, options?: OscillatorOptions): Player {
+  public createOscillator(name: string, options?: OscillatorOptions): Oscillator {
     const osc = new Oscillator(this.audioContext, options || {})
     this._oscillators.set(name, osc)
     return osc
@@ -56,8 +57,54 @@ export default class AudioService {
   }
 }
 
+export type ControllerType = 'frequency' | 'gain'
+
 export interface ParameterController {
-  onPlayRamp: (param: string) => {
+  /**
+   * Allows an AudioNode's values to be set at a specific time
+   * relative to the moment that it is played, every time it is played.
+   *
+   * Especially useful for creating/shaping an "envelope" (think "ADSR").
+   *
+   * @example
+   *     // results in an oscillator that starts at 150Hz and quickly drops
+   *     // down to 0.01Hz each time it's played
+   *     const kick = audio.createOscillator({ name: 'kick' });
+   *     const osc = kick.getConnection('audioSource');
+   *
+   *     osc.onPlaySet('frequency').to(150).at(0);
+   *     osc.onPlaySet('frequency').to(0.01).at(0.1);
+   *
+   * @public
+   * @method onPlaySet
+   * @todo document 'exponential' and 'linear' options
+   */
+  onPlaySet: (type: ControllerType) => {
+    to: (startValue: number) => {
+      at: (time: number) => void
+      endingAt: (duration: number) => void
+    }
+  }
+
+  /**
+   * Convenience method that uses
+   * {{#crossLink "Connection/onPlaySet:method"}}{{/crossLink}} twice to set an
+   * initial value, and a ramped value in succession.
+   *
+   * Especially useful for creating/shaping an "envelope" (think "ADSR").
+   *
+   * @example
+   *     // results in an oscillator that starts at 150Hz and quickly drops
+   *     // down to 0.01Hz each time it's played
+   *     const kick = audio.createOscillator({ name: 'kick' });
+   *     const osc = kick.getConnection('audioSource');
+   *
+   *     osc.onPlayRamp('frequency').from(150).to(0.01).in(0.1);
+   *
+   * @public
+   * @method onPlayRamp
+   */
+  onPlayRamp: (type: ControllerType) => {
     from: (startValue: number) => {
       to: (endValue: number) => {
         in: (duration: number) => void
@@ -66,19 +113,35 @@ export interface ParameterController {
   }
 }
 
-export class GainControl {
+export class GainControl implements ParameterController {
   constructor(private gainNode: GainNode) {}
 
-  // TODO: gaincontrol only ramps gain so no longer need param
-  public onPlayRamp(_: string) {
-    const context = this.gainNode.context
+  public onPlaySet() {
+    return {
+      to: (value: number) => {
+        const currentTime = this.gainNode.context.currentTime
+        const originalValue = this.gainNode.gain.value
+        // this.gainNode.gain.setValueAtTime(value, currentTime)
+        return {
+          at: (time: number) => {
+            this.gainNode.gain.setValueAtTime(originalValue, currentTime)
+            this.gainNode.gain.setValueAtTime(value, currentTime + time)
+          },
+          endingAt: (duration: number) => {
+            this.gainNode.gain.linearRampToValueAtTime(value, currentTime + duration)
+          },
+        }
+      },
+    }
+  }
+
+  public onPlayRamp() {
     return {
       from: (startValue: number) => ({
         to: (endValue: number) => ({
-          in: (duration: number) => {
-            const currentTime = context.currentTime
-            this.gainNode.gain.setValueAtTime(startValue, currentTime)
-            this.gainNode.gain.exponentialRampToValueAtTime(endValue, currentTime + duration)
+          in: (endTime: number) => {
+            this.onPlaySet().to(startValue)
+            this.onPlaySet().to(endValue).endingAt(endTime)
           },
         }),
       }),

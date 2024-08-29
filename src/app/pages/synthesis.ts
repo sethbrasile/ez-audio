@@ -1,5 +1,6 @@
 import { setupSnareButton } from '@app/snare-button.ts'
 import { setupKickButton } from '@app/kick-button.ts'
+import { setupHihatButton } from '../hihat-button'
 import { codeBlock } from '../utils'
 
 const playKick = `
@@ -33,6 +34,7 @@ const Synthesis = {
   setup() {
     setupKickButton(document.querySelector<HTMLButtonElement>('#play_kick')!)
     setupSnareButton(document.querySelector<HTMLButtonElement>('#play_snare')!)
+    setupHihatButton(document.querySelector<HTMLButtonElement>('#play_hihat')!)
   },
   html: `
 <h1>Synthesis</h1>
