@@ -7,7 +7,7 @@ export interface ParamValue {
 export interface ValueAtTime extends ParamValue {
   time: number
 }
-export interface Adjuster {
+export interface ParamController {
   setValuesAtTimes: (...nodes: any[]) => void
   onPlaySet: (type: ControlType) => {
     to: (value: number) => {
@@ -24,7 +24,7 @@ export interface Adjuster {
   }
 }
 
-export class BaseAdjuster {
+export class BaseParamController {
   protected startingValues: ParamValue[] = []
   protected valuesAtTime: ValueAtTime[] = []
   protected exponentialValues: ValueAtTime[] = []

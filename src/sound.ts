@@ -1,8 +1,12 @@
 import createTimeObject from '@utils/create-time-object'
-import customTimeout from '@utils/timeout'
-import { BaseAdjuster } from './adjuster'
-import type { Adjuster, ControlType, ParamValue, RampType, ValueAtTime } from './adjuster'
-import type { Playable } from './playable'
+import audioContextAwareTimeout from '@utils/timeout'
+import type Playable from '@interfaces/playable'
+import type { ControlType, ParamController, ParamValue, RampType, ValueAtTime } from '@/param-controller'
+import { BaseParamController } from '@/param-controller'
+
+// interface Connectable {
+//   connect: (node: AudioNode, output?: number, input?: number) => void
+// }
 
 /**
  * The Sound class provides the core functionality for
@@ -24,7 +28,9 @@ export class Sound implements Playable {
   private bufferSourceNode: AudioBufferSourceNode
   private _isPlaying: boolean = false
 
-  constructor(private audioContext: AudioContext, private adjuster: Adjuster, audioBuffer: AudioBuffer) {
+  public connections: AudioNode[] = []
+
+  constructor(private audioContext: AudioContext, private controller: ParamController, audioBuffer: AudioBuffer) {
     const gainNode = audioContext.createGain()
     const bufferSourceNode = this.audioContext.createBufferSource()
     this.gainNode = gainNode
@@ -37,16 +43,31 @@ export class Sound implements Playable {
     bufferSourceNode.buffer = this.audioBuffer
     this.bufferSourceNode = bufferSourceNode
 
-    bufferSourceNode.connect(this.gainNode)
+    // always start with the audio source
+    const conns: AudioNode[] = [bufferSourceNode]
+
+    // add the nodes from connections property
+    for (let i = 0; i < this.connections.length; i++) {
+      conns.push(this.connections[i])
+    }
+
+    // add the gain node
+    conns.push(this.gainNode)
+
+    // connect them all together
+    for (let i = 0; i < conns.length - 1; i++) {
+      conns[i].connect(conns[i + 1])
+    }
+
     this.gainNode.connect(this.audioContext.destination)
   }
 
   onPlaySet(type: ControlType) {
-    return this.adjuster.onPlaySet(type)
+    return this.controller.onPlaySet(type)
   }
 
   onPlayRamp(type: ControlType, rampType?: RampType) {
-    return this.adjuster.onPlayRamp(type, rampType)
+    return this.controller.onPlayRamp(type, rampType)
   }
 
   play() {
@@ -54,7 +75,7 @@ export class Sound implements Playable {
   }
 
   playFor(duration: number) {
-    const { setTimeout } = customTimeout(this.audioContext)
+    const { setTimeout } = audioContextAwareTimeout(this.audioContext)
     this.playAt(this.audioContext.currentTime)
     setTimeout(() => this.stop(), duration * 1000)
   }
@@ -62,14 +83,12 @@ export class Sound implements Playable {
   playAt(time: number) {
     const { audioContext } = this
     const { currentTime } = audioContext
-    const { setTimeout } = customTimeout(audioContext)
+    const { setTimeout } = audioContextAwareTimeout(audioContext)
 
     // schedule _isPlaying to false after duration
     setTimeout(() => this._isPlaying = false, this.duration.pojo.seconds * 1000)
-
     this.wireConnections()
-    this.adjuster.setValuesAtTimes(this.bufferSourceNode, this.gainNode)
-
+    this.controller.setValuesAtTimes(this.bufferSourceNode, this.gainNode)
     this.bufferSourceNode.start(time)
     this._isPlaying = true
 
@@ -103,7 +122,7 @@ export class Sound implements Playable {
   }
 }
 
-export class SoundAdjuster extends BaseAdjuster implements Adjuster {
+export class SoundAdjuster extends BaseParamController implements ParamController {
   public setValuesAtTimes(sourceNode: AudioBufferSourceNode, gainNode: GainNode) {
     const currentTime = sourceNode.context.currentTime
 

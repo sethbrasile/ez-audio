@@ -5,7 +5,7 @@ interface Task {
 }
 
 // AudioContext-aware and AudioContext-precise setTimeout and clearTimeout.
-export default function customTimeout(audioContext: AudioContext) {
+export default function audioContextAwareTimeout(audioContext: AudioContext) {
   let tasks: Task[] = []
   let nextTaskId = 1
 

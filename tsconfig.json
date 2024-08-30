@@ -14,7 +14,7 @@
       "@app/*": ["src/app/*"],
       "@common/*": ["src/common/*"],
       "@utils/*": ["src/utils/*"],
-      "@players/*": ["src/players/*"]
+      "@interfaces/*": ["src/interfaces/*"]
     },
     "allowImportingTsExtensions": true,
 
@@ -25,8 +25,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noEmit": true,
+    "outDir": "./dist",
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "include": ["src", "src/players/buffer-source.ts"]
+  "include": ["src"]
 }

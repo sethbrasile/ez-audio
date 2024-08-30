@@ -1,7 +1,7 @@
-import { Oscillator, OscillatorAdjuster } from './oscillator'
-import { Sound, SoundAdjuster } from './sound'
-import type { OscillatorOptions } from './oscillator'
-import type { Playable } from './playable'
+import type Playable from '@interfaces/playable'
+import { Oscillator, OscillatorAdjuster } from '@/oscillator'
+import { Sound, SoundAdjuster } from '@/sound'
+import type { OscillatorOptions } from '@/oscillator'
 
 export default class AudioService {
   static #instance: AudioService

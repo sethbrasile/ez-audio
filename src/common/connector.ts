@@ -1,4 +1,4 @@
-import { isObservable, observable, observe } from '@nx-js/observer-util'
+import { observable } from '@nx-js/observer-util'
 import { get, set } from '@utils/prop-access'
 import Connection from '@common/connection'
 import type { AudioNodeType, NodeAttributes } from '@common/connection'

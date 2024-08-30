@@ -1,9 +1,10 @@
 import { get } from '@utils/prop-access'
-import createTimeObject from './utils/create-time-object'
-import type { Playable } from './playable'
-import customTimeout from './utils/timeout'
-import { BaseAdjuster } from '@/adjuster'
-import type { Adjuster, ControlType, ParamValue, RampType, ValueAtTime } from '@/adjuster'
+import type Playable from '@interfaces/playable'
+import type Connectable from '@interfaces/connectable'
+import createTimeObject from '@utils/create-time-object'
+import audioContextAwareTimeout from '@utils/timeout'
+import { BaseParamController } from '@/param-controller'
+import type { ControlType, ParamController, ParamValue, RampType, ValueAtTime } from '@/param-controller'
 
 export interface OscillatorOptionsFilterValues {
   frequency?: number
@@ -36,13 +37,13 @@ const FILTERS = [
   'allpass',
 ]
 
-export class Oscillator implements Playable {
+export class Oscillator implements Playable, Connectable {
   private filters: BiquadFilterNode[] = []
   private connections: AudioNode[] = []
   private type: OscillatorType
   private frequency: number
 
-  constructor(private audioContext: AudioContext, private adjuster: Adjuster, private oscillator: OscillatorNode, options: OscillatorOptions) {
+  constructor(private audioContext: AudioContext, private controller: ParamController, private oscillator: OscillatorNode, options: OscillatorOptions) {
     this.type = options.type || 'sine'
     this.frequency = options.frequency || 440
 
@@ -59,11 +60,11 @@ export class Oscillator implements Playable {
   }
 
   onPlaySet(type: ControlType) {
-    return this.adjuster.onPlaySet(type)
+    return this.controller.onPlaySet(type)
   }
 
   onPlayRamp(type: ControlType, rampType?: RampType) {
-    return this.adjuster.onPlayRamp(type, rampType)
+    return this.controller.onPlayRamp(type, rampType)
   }
 
   public wireConnections() {
@@ -88,7 +89,7 @@ export class Oscillator implements Playable {
     lastNode.connect(gainNode)
     gainNode.connect(this.audioContext.destination)
 
-    this.adjuster.setValuesAtTimes(oscillator, gainNode)
+    this.controller.setValuesAtTimes(oscillator, gainNode)
   }
 
   play() {
@@ -96,7 +97,7 @@ export class Oscillator implements Playable {
   }
 
   playFor(duration: number) {
-    const { setTimeout } = customTimeout(this.audioContext)
+    const { setTimeout } = audioContextAwareTimeout(this.audioContext)
     this.playAt(this.audioContext.currentTime)
     setTimeout(() => this.stop(), duration * 1000)
   }
@@ -105,7 +106,7 @@ export class Oscillator implements Playable {
   playAt(time: number) {
     const { audioContext } = this
     const { currentTime } = audioContext
-    const { setTimeout } = customTimeout(audioContext)
+    const { setTimeout } = audioContextAwareTimeout(audioContext)
 
     this.wireConnections()
     this.oscillator.start(time)
@@ -136,7 +137,7 @@ export class Oscillator implements Playable {
   }
 }
 
-export class OscillatorAdjuster extends BaseAdjuster implements Adjuster {
+export class OscillatorAdjuster extends BaseParamController implements ParamController {
   public setValuesAtTimes(oscillator: OscillatorNode, gainNode: GainNode) {
     const currentTime = oscillator.context.currentTime
 
