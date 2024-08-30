@@ -9,18 +9,18 @@ const audioService = AudioService.instance
 const kick = audioService.createOscillator()
 kick.onPlayRamp('frequency').from(150).to(0.01).in(0.1)
 kick.onPlayRamp('gain').from(1).to(0.01).in(0.1)
-kick.play()
+// In synthesis, it's important to use 'playFor' or call 'stop' because
+// with 'play' these notes would keep playing until the page is reloaded
+kick.playFor(0.1)
 `
 
 const playBassDrop = `
 const audioService = AudioService.instance
 const drop = audioService.createOscillator('kick')
 drop.onPlayRamp('frequency').from(100).to(0.01).in(20)
-
 // We can specify 'linear' to get a linear ramp instead of an exponential one
 // We automate gain as well, so we don't end up with a loud click when the audio stops
 drop.onPlayRamp('gain', 'linear').from(1).to(0.01).in(4)
-
 drop.playFor(4)
 `
 
