@@ -1,6 +1,6 @@
+import type Playable from '@interfaces/playable'
 import AudioService from '../audio-service'
 import { LayeredSound } from '@/layered-sound'
-import type { Playable } from '@/interfaces/playable'
 
 function createHihatOscillator(ratio: number) {
   const audioService = AudioService.instance
