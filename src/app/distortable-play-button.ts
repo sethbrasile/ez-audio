@@ -30,7 +30,7 @@ function addDistortion(sound: Sound) {
   sound.update('gain').to(0.1).from('ratio')
 
   // Set distortionNode's curve to enable distortion
-  const node = sound.getNode<WaveShaperNode>(NAME)
+  const node = sound.getNodeFrom<WaveShaperNode>(NAME)
   if (node) {
     node.curve = curve
   }
@@ -43,7 +43,7 @@ function removeDistortion(sound: Sound) {
   sound.update('gain').to(1).from('ratio')
 
   // Set distortionNode's curve to an empty Float32Array to disable distortion
-  const node = sound.getNode<WaveShaperNode>(NAME)
+  const node = sound.getNodeFrom<WaveShaperNode>(NAME)
   if (node) {
     node.curve = new Float32Array()
   }
@@ -59,7 +59,7 @@ export function setupDistortablePlayButton(element: HTMLButtonElement) {
     const audioNode = audio.getContext().createWaveShaper()
     audioNode.curve = new Float32Array()
 
-    sound.note.addNode({
+    sound.note.addConnection({
       audioNode,
       name: NAME,
     })

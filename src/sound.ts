@@ -66,17 +66,32 @@ export class Sound implements Playable, Connectable {
     gainNode.connect(this.audioContext.destination)
   }
 
-  addNode(node: Connection) {
-    this.connections.push(node)
+  addConnection(connection: Connection) {
+    this.connections.push(connection)
     this.wireConnections()
+  }
+
+  removeConnection(name: string) {
+    const connection = this.getConnection(name)
+    if (connection) {
+      const index = this.connections.indexOf(connection)
+      if (index > -1) {
+        this.connections.splice(index, 1)
+        this.wireConnections()
+      }
+    }
+  }
+
+  getConnection(name: string): Connection | undefined {
+    return this.connections.find(c => c.name === name)
+  }
+
+  getNodeFrom<T extends AudioNode>(connectionName: string): T | undefined {
+    return this.getConnection(connectionName)?.audioNode as T | undefined
   }
 
   update(type: ControlType) {
     return this.controller.update(type)
-  }
-
-  getNode<T extends AudioNode>(name: string): T | undefined {
-    return this.connections.find(c => c.name === name)?.audioNode as T | undefined
   }
 
   onPlaySet(type: ControlType) {
