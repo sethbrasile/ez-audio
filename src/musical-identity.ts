@@ -1,4 +1,5 @@
-import { frequencyMap, get } from '../utils'
+import frequencyMap from '@utils/frequency-map'
+import { get } from '@utils/prop-access'
 
 type Letter = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G'
 type Accidental = '' | 'b' | '#'

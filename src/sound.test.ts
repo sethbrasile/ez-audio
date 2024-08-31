@@ -1,11 +1,11 @@
 import { expect, it } from 'vitest'
 import { AudioContext as Mock } from 'standardized-audio-context-mock'
-import { Sound, SoundAdjuster } from '@/sound'
+import { Sound } from '@/sound'
 
 function createSound() {
   const context = new Mock() as unknown as AudioContext
   const audioBuffer = context.createBuffer(1, 1, 1)
-  return new Sound(context, new SoundAdjuster(), audioBuffer)
+  return new Sound(context, audioBuffer)
 }
 
 it('exists', () => {
