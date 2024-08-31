@@ -1,5 +1,5 @@
 import { observable, observe, unobserve } from '@nx-js/observer-util'
-import AudioService from '../audio-service'
+import { audio, loadSound } from '@/index'
 import type { Sound } from '@/sound'
 
 const NAME = 'distortion'
@@ -53,9 +53,10 @@ export function setupDistortablePlayButton(element: HTMLButtonElement) {
   const setup = async () => {
     // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    const audioService = AudioService.instance
-    sound.note = await audioService.load('Eb5.mp3').asSound()
-    const audioNode = audioService.audioContext.createWaveShaper()
+    await audio.init()
+    // we placed the note inside an nx-js observable so that we can make UI updates to reflect the state of the note
+    sound.note = await loadSound('Eb5.mp3')
+    const audioNode = audio.getContext().createWaveShaper()
     audioNode.curve = new Float32Array()
 
     sound.note.addNode({

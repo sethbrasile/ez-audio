@@ -23,5 +23,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <a href="/synthesis" id="synthesis">SYNTHESIS</a>
 <div id="main-page"></div>
 `
-
+setupNav(document.querySelector<HTMLAnchorElement>('#index')!)
+setupNav(document.querySelector<HTMLAnchorElement>('#routing')!)
 setupNav(document.querySelector<HTMLAnchorElement>('#synthesis')!)

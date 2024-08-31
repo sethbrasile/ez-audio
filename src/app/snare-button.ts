@@ -1,17 +1,15 @@
-import AudioService from '../audio-service'
+import { audio, createOscillator, createWhiteNoise } from '@/index'
 import { LayeredSound } from '@/layered-sound'
 
 export function createSnareOscillator() {
-  const audioService = AudioService.instance
-  const snare = audioService.createOscillator('snare')
+  const snare = createOscillator()
   snare.onPlayRamp('frequency').from(100).to(60).in(0.1)
   snare.onPlayRamp('gain').from(1).to(0.01).in(0.1)
   return snare
 }
 
 export function createSnareNoise() {
-  const audioService = AudioService.instance
-  const noise = audioService.createWhiteNoise()
+  const noise = createWhiteNoise()
   noise.onPlayRamp('gain').from(1).to(0.001).in(0.1)
   return noise
 }
@@ -22,7 +20,7 @@ export function setupSnareButton(element: HTMLButtonElement) {
 
     // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await AudioService.init()
+    await audio.init()
 
     element.classList.remove('loading')
 

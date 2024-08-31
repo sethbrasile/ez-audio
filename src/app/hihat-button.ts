@@ -1,12 +1,11 @@
 import type Playable from '@interfaces/playable'
-import AudioService from '../audio-service'
+import { audio, createOscillator } from '@/index'
 import { LayeredSound } from '@/layered-sound'
 
 function createHihatOscillator(ratio: number) {
-  const audioService = AudioService.instance
   const fundamental = 40
 
-  return audioService.createOscillator('hihat', {
+  return createOscillator({
     type: 'square',
     highpass: { frequency: 7000 },
     bandpass: { frequency: 10000 },
@@ -43,7 +42,7 @@ export function setupHihatButton(element: HTMLButtonElement) {
 
     // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await AudioService.init()
+    await audio.init()
 
     element.classList.remove('loading')
 

@@ -2,9 +2,9 @@ import { setupDistortablePlayButton, setupToggleDistortion } from '@app/distorta
 import { codeBlock } from '../utils'
 
 const codeExample = `
-import { AudioService } from 'ez-audio'
-const audioService = await AudioService.init()
-const note = await audioService.load('Eb5.mp3').asSound()
+import { audio, loadSound } from 'ez-audio'
+await audio.init()
+const note = await loadSound('Eb5.mp3')
 note.play()
 `
 

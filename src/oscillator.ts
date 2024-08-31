@@ -46,9 +46,9 @@ export class Oscillator implements Playable, Connectable {
   private gainNode: GainNode
   public connections: Connection[] = []
 
-  constructor(private audioContext: AudioContext, options: OscillatorOptions) {
-    this.type = options.type || 'sine'
-    this.frequency = options.frequency || 440
+  constructor(private audioContext: AudioContext, options?: OscillatorOptions) {
+    this.type = options?.type || 'sine'
+    this.frequency = options?.frequency || 440
 
     // This is just to keep the null checks down, this oscillator instance will never be used
     this.oscillator = this.audioContext.createOscillator()
