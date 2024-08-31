@@ -1,6 +1,6 @@
 import type Playable from '@interfaces/playable'
-import { Oscillator, OscillatorAdjuster } from '@/oscillator'
-import { Sound, SoundAdjuster } from '@/sound'
+import { Oscillator } from '@/oscillator'
+import { Sound } from '@/sound'
 import type { OscillatorOptions } from '@/oscillator'
 
 export default class AudioService {
@@ -37,13 +37,13 @@ export default class AudioService {
         const response = await fetch(url)
         const arrayBuffer = await response.arrayBuffer()
         const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
-        return new Sound(this.audioContext, new SoundAdjuster(), audioBuffer)
+        return new Sound(this.audioContext, audioBuffer)
       },
     }
   }
 
   public createOscillator(_: string, options?: OscillatorOptions): Playable {
-    return new Oscillator(this.audioContext, new OscillatorAdjuster(), this.audioContext.createOscillator(), options || {})
+    return new Oscillator(this.audioContext, options || {})
   }
 
   public createWhiteNoise(): Playable {
@@ -56,6 +56,6 @@ export default class AudioService {
       output[i] = Math.random() * 2 - 1
     }
 
-    return new Sound(audioContext, new SoundAdjuster(), audioBuffer)
+    return new Sound(audioContext, audioBuffer)
   }
 }

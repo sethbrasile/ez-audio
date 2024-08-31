@@ -1,12 +1,9 @@
 import createTimeObject from '@utils/create-time-object'
 import audioContextAwareTimeout from '@utils/timeout'
 import type Playable from '@interfaces/playable'
+import type { Connectable, Connection } from '@interfaces/connectable'
 import type { ControlType, ParamController, ParamValue, RampType, ValueAtTime } from '@/param-controller'
 import { BaseParamController } from '@/param-controller'
-
-// interface Connectable {
-//   connect: (node: AudioNode, output?: number, input?: number) => void
-// }
 
 /**
  * The Sound class provides the core functionality for
@@ -14,7 +11,7 @@ import { BaseParamController } from '@/param-controller'
  * all other {{#crossLinkModule "Audio"}}{{/crossLinkModule}} types. It prepares
  * an audio source, provides various methods for interacting with the audio source,
  * creates {{#crossLink "AudioNode"}}AudioNodes{{/crossLink}} from the
- * connections array, sets up the necessary connections/routing between them,
+ * nodes array, sets up the necessary nodes/routing between them,
  * and provides some methods to {{#crossLink "Playable/play:method"}}{{/crossLink}}
  * and {{#crossLink "Sound/stop:method"}}{{/crossLink}} the audio source.
  *
@@ -22,44 +19,64 @@ import { BaseParamController } from '@/param-controller'
  * @class Sound
  * @implements Playable
  */
-export class Sound implements Playable {
+export class Sound implements Playable, Connectable {
   private gainNode: GainNode
   private audioBuffer: AudioBuffer
   private bufferSourceNode: AudioBufferSourceNode
   private _isPlaying: boolean = false
+  private controller: ParamController
+  public connections: Connection[] = []
 
-  public connections: AudioNode[] = []
-
-  constructor(private audioContext: AudioContext, private controller: ParamController, audioBuffer: AudioBuffer) {
+  constructor(private audioContext: AudioContext, audioBuffer: AudioBuffer) {
     const gainNode = audioContext.createGain()
     const bufferSourceNode = this.audioContext.createBufferSource()
     this.gainNode = gainNode
     this.bufferSourceNode = bufferSourceNode
     this.audioBuffer = audioBuffer
+
+    this.controller = new SoundAdjuster(bufferSourceNode, gainNode)
   }
 
-  wireConnections() {
+  private setup() {
     const bufferSourceNode = this.audioContext.createBufferSource()
     bufferSourceNode.buffer = this.audioBuffer
     this.bufferSourceNode = bufferSourceNode
+    this.wireConnections()
+    this.controller.setValuesAtTimes()
+  }
 
+  public wireConnections() {
     // always start with the audio source
-    const conns: AudioNode[] = [bufferSourceNode]
+    const nodes: AudioNode[] = [this.bufferSourceNode]
+    const { connections, gainNode } = this
 
-    // add the nodes from connections property
-    for (let i = 0; i < this.connections.length; i++) {
-      conns.push(this.connections[i])
+    // add the nodes from nodes property
+    for (let i = 0; i < connections.length; i++) {
+      nodes.push(connections[i].audioNode)
     }
 
     // add the gain node
-    conns.push(this.gainNode)
+    nodes.push(gainNode)
 
     // connect them all together
-    for (let i = 0; i < conns.length - 1; i++) {
-      conns[i].connect(conns[i + 1])
+    for (let i = 0; i < nodes.length - 1; i++) {
+      nodes[i].connect(nodes[i + 1])
     }
 
-    this.gainNode.connect(this.audioContext.destination)
+    gainNode.connect(this.audioContext.destination)
+  }
+
+  addNode(node: Connection) {
+    this.connections.push(node)
+    this.wireConnections()
+  }
+
+  update(type: ControlType) {
+    return this.controller.update(type)
+  }
+
+  getNode<T extends AudioNode>(name: string): T | undefined {
+    return this.connections.find(c => c.name === name)?.audioNode as T | undefined
   }
 
   onPlaySet(type: ControlType) {
@@ -87,8 +104,7 @@ export class Sound implements Playable {
 
     // schedule _isPlaying to false after duration
     setTimeout(() => this._isPlaying = false, this.duration.pojo.seconds * 1000)
-    this.wireConnections()
-    this.controller.setValuesAtTimes(this.bufferSourceNode, this.gainNode)
+    this.setup()
     this.bufferSourceNode.start(time)
     this._isPlaying = true
 
@@ -123,23 +139,71 @@ export class Sound implements Playable {
 }
 
 export class SoundAdjuster extends BaseParamController implements ParamController {
-  public setValuesAtTimes(sourceNode: AudioBufferSourceNode, gainNode: GainNode) {
-    const currentTime = sourceNode.context.currentTime
+  constructor(private bufferSourceNode: AudioBufferSourceNode, private gainNode: GainNode) { super() }
 
-    this.applyValues(this.startingValues, currentTime, sourceNode, gainNode)
-    this.applyValues(this.valuesAtTime, currentTime, sourceNode, gainNode)
-    this.applyRampValues(this.exponentialValues, currentTime, sourceNode, gainNode, 'exponential')
-    this.applyRampValues(this.linearValues, currentTime, sourceNode, gainNode, 'linear')
+  public updateAudioSource(source: AudioBufferSourceNode) {
+    this.bufferSourceNode = source
   }
 
-  private applyValues(values: ParamValue[], currentTime: number, sourceNode: AudioBufferSourceNode, gainNode: GainNode) {
+  public updateGainNode(gainNode: GainNode) {
+    this.gainNode = gainNode
+  }
+
+  public update(type: ControlType) {
+    return {
+      to: (value: number) => {
+        return {
+          from: (method: 'ratio' | 'inverseRatio' | 'percent') => {
+            switch (method) {
+              case 'ratio':
+                this._update(type, value)
+                break
+              case 'inverseRatio':
+                this._update(type, 1 - value)
+                break
+              case 'percent':
+                this._update(type, value / 100)
+                break
+              default:
+                throw new Error(`Sound update does not support method: ${method}`)
+            }
+          },
+        }
+      },
+    }
+  }
+
+  private _update(type: ControlType, value: number) {
+    switch (type) {
+      case 'gain':
+        this.gainNode.gain.value = value
+        break
+      case 'detune':
+        this.bufferSourceNode.detune.value = value
+        break
+      default:
+        throw new Error(`Sound does not support control type: ${type}`)
+    }
+  }
+
+  public setValuesAtTimes() {
+    const { bufferSourceNode } = this
+    const currentTime = bufferSourceNode.context.currentTime
+
+    this.applyValues(this.startingValues, currentTime)
+    this.applyValues(this.valuesAtTime, currentTime)
+    this.applyRampValues(this.exponentialValues, currentTime, 'exponential')
+    this.applyRampValues(this.linearValues, currentTime, 'linear')
+  }
+
+  private applyValues(values: ParamValue[], currentTime: number) {
     values.forEach((item) => {
       switch (item.type) {
         case 'detune':
-          sourceNode.detune.setValueAtTime(item.value, currentTime)
+          this.bufferSourceNode.detune.setValueAtTime(item.value, currentTime)
           break
         case 'gain':
-          gainNode.gain.setValueAtTime(item.value, currentTime)
+          this.gainNode.gain.setValueAtTime(item.value, currentTime)
           break
         default:
           throw new Error(`Unsupported control type: ${item.type}`)
@@ -147,17 +211,17 @@ export class SoundAdjuster extends BaseParamController implements ParamControlle
     })
   }
 
-  private applyRampValues(values: ValueAtTime[], currentTime: number, sourceNode: AudioBufferSourceNode, gainNode: GainNode, rampType: 'exponential' | 'linear') {
+  private applyRampValues(values: ValueAtTime[], currentTime: number, rampType: 'exponential' | 'linear') {
     values.forEach((item) => {
       const time = currentTime + item.time
       switch (item.type) {
         case 'detune':
           switch (rampType) {
             case 'exponential':
-              sourceNode.detune.exponentialRampToValueAtTime(item.value, time)
+              this.bufferSourceNode.detune.exponentialRampToValueAtTime(item.value, time)
               break
             case 'linear':
-              sourceNode.detune.linearRampToValueAtTime(item.value, time)
+              this.bufferSourceNode.detune.linearRampToValueAtTime(item.value, time)
               break
             default:
               throw new Error(`Unsupported ramp type: ${rampType}`)
@@ -166,10 +230,10 @@ export class SoundAdjuster extends BaseParamController implements ParamControlle
         case 'gain':
           switch (rampType) {
             case 'exponential':
-              gainNode.gain.exponentialRampToValueAtTime(item.value, time)
+              this.gainNode.gain.exponentialRampToValueAtTime(item.value, time)
               break
             case 'linear':
-              gainNode.gain.linearRampToValueAtTime(item.value, time)
+              this.gainNode.gain.linearRampToValueAtTime(item.value, time)
               break
             default:
               throw new Error(`Unsupported ramp type: ${rampType}`)

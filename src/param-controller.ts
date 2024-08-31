@@ -8,7 +8,10 @@ export interface ValueAtTime extends ParamValue {
   time: number
 }
 export interface ParamController {
-  setValuesAtTimes: (...nodes: any[]) => void
+  setValuesAtTimes: () => void
+  updateAudioSource: (source: any) => void
+  updateGainNode: (gainNode: GainNode) => void
+  update: (type: ControlType) => any
   onPlaySet: (type: ControlType) => {
     to: (value: number) => {
       at: (time: number) => void

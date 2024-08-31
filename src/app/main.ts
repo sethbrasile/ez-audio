@@ -18,8 +18,9 @@ import { setupNav } from './setup-nav.ts'
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <a href="/" id="index">INDEX</a>
 |
+<a href="/routing" id="routing">AUDIO ROUTING</a>
+|
 <a href="/synthesis" id="synthesis">SYNTHESIS</a>
-
 <div id="main-page"></div>
 `
 

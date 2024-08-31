@@ -1,11 +1,13 @@
 import Index from '@app/pages/index'
 import Prism from 'prismjs'
 import Synthesis from './pages/synthesis'
+import Routing from './pages/routing'
 
 const routes = {
   '404': '/pages/404.html',
   '/': 'index',
   '/synthesis': 'synthesis',
+  '/routing': 'routing',
 }
 
 function handleLocation() {
@@ -25,9 +27,13 @@ function handleLocation() {
       main.innerHTML = Synthesis.html
       Synthesis.setup()
       break
-    // default:
-    //   main.innerHTML = NotFound()
-    //   break
+    case 'routing':
+      main.innerHTML = Routing.html
+      Routing.setup()
+      break
+    default:
+      main.innerHTML = 'Not Found'
+      break
   }
 
   Prism.highlightAll()

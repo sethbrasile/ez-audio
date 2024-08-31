@@ -1,6 +1,6 @@
 import { get } from '@utils/prop-access'
 import type Playable from '@interfaces/playable'
-import type Connectable from '@interfaces/connectable'
+import type { Connectable, Connection } from '@interfaces/connectable'
 import createTimeObject from '@utils/create-time-object'
 import audioContextAwareTimeout from '@utils/timeout'
 import { BaseParamController } from '@/param-controller'
@@ -39,13 +39,21 @@ const FILTERS = [
 
 export class Oscillator implements Playable, Connectable {
   private filters: BiquadFilterNode[] = []
-  private connections: AudioNode[] = []
   private type: OscillatorType
   private frequency: number
+  private controller: ParamController
+  private oscillator: OscillatorNode
+  private gainNode: GainNode
+  public connections: Connection[] = []
 
-  constructor(private audioContext: AudioContext, private controller: ParamController, private oscillator: OscillatorNode, options: OscillatorOptions) {
+  constructor(private audioContext: AudioContext, options: OscillatorOptions) {
     this.type = options.type || 'sine'
     this.frequency = options.frequency || 440
+
+    // This is just to keep the null checks down, this oscillator instance will never be used
+    this.oscillator = this.audioContext.createOscillator()
+    this.gainNode = this.audioContext.createGain()
+    this.controller = new OscillatorAdjuster(this.oscillator, this.gainNode)
 
     FILTERS.forEach((filter) => {
       const vals = get<OscillatorOptionsFilterValues | undefined>(options, filter)
@@ -67,29 +75,63 @@ export class Oscillator implements Playable, Connectable {
     return this.controller.onPlayRamp(type, rampType)
   }
 
-  public wireConnections() {
+  private setup() {
+    // Create a new oscillator on every play
     const oscillator = this.audioContext.createOscillator()
-    const gainNode = this.audioContext.createGain()
     oscillator.type = this.type || 'sine'
     oscillator.frequency.setValueAtTime(this.frequency || 440, this.audioContext.currentTime)
-
     this.oscillator = oscillator
-    this.connections = [oscillator]
 
-    const nodes = this.connections.concat(this.filters)
-    const lastNode = nodes[nodes.length - 1]
+    // Create a new gain node on every play
+    const gainNode = this.audioContext.createGain()
+    this.gainNode = gainNode
 
-    // Connect all the nodes together
-    nodes.forEach((node, i, nodes) => {
-      if (i > 0) {
-        nodes[i - 1].connect(node)
-      }
-    })
+    // give the controller the new nodes
+    this.controller.updateAudioSource(oscillator)
+    this.controller.updateGainNode(gainNode)
 
-    lastNode.connect(gainNode)
+    // wire everything up
+    this.wireConnections()
+    this.controller.setValuesAtTimes()
+  }
+
+  wireConnections() {
+    // always start with the audio source
+    const nodes: AudioNode[] = [this.oscillator]
+    const { connections, filters, gainNode } = this
+
+    // Add all the filters
+    for (let i = 0; i < filters.length; i++) {
+      nodes.push(filters[i])
+    }
+
+    // add the nodes from connections array
+    for (let i = 0; i < connections.length; i++) {
+      nodes.push(connections[i].audioNode)
+    }
+
+    // add the gain node
+    nodes.push(gainNode)
+
+    // connect them all together
+    for (let i = 0; i < nodes.length - 1; i++) {
+      nodes[i].connect(nodes[i + 1])
+    }
+
     gainNode.connect(this.audioContext.destination)
+  }
 
-    this.controller.setValuesAtTimes(oscillator, gainNode)
+  addNode(node: Connection) {
+    this.connections.push(node)
+    this.wireConnections()
+  }
+
+  update(type: ControlType) {
+    return this.controller.update(type)
+  }
+
+  getNode<T extends AudioNode>(name: string): T | undefined {
+    return this.connections.find(c => c.name === name)?.audioNode as T | undefined
   }
 
   play() {
@@ -108,7 +150,7 @@ export class Oscillator implements Playable, Connectable {
     const { currentTime } = audioContext
     const { setTimeout } = audioContextAwareTimeout(audioContext)
 
-    this.wireConnections()
+    this.setup()
     this.oscillator.start(time)
 
     if (time <= currentTime) {
@@ -138,16 +180,66 @@ export class Oscillator implements Playable, Connectable {
 }
 
 export class OscillatorAdjuster extends BaseParamController implements ParamController {
-  public setValuesAtTimes(oscillator: OscillatorNode, gainNode: GainNode) {
-    const currentTime = oscillator.context.currentTime
+  constructor(private oscillator: OscillatorNode, private gainNode: GainNode) { super() }
 
-    this.applyValues(this.startingValues, currentTime, oscillator, gainNode)
-    this.applyValues(this.valuesAtTime, currentTime, oscillator, gainNode)
-    this.applyRampValues(this.exponentialValues, currentTime, oscillator, gainNode, 'exponential')
-    this.applyRampValues(this.linearValues, currentTime, oscillator, gainNode, 'linear')
+  public updateAudioSource(oscillator: OscillatorNode) {
+    this.oscillator = oscillator
   }
 
-  private applyValues(values: ParamValue[], currentTime: number, oscillator: OscillatorNode, gainNode: GainNode) {
+  public updateGainNode(gainNode: GainNode) {
+    this.gainNode = gainNode
+  }
+
+  public update(type: ControlType) {
+    return {
+      to: (value: number) => {
+        return {
+          from: (method: 'ratio' | 'inverseRatio' | 'percent') => {
+            switch (method) {
+              case 'ratio':
+                this._update(type, value)
+                break
+              case 'inverseRatio':
+                this._update(type, 1 - value)
+                break
+              case 'percent':
+                this._update(type, value / 100)
+                break
+              default:
+                throw new Error(`Sound update does not support method: ${method}`)
+            }
+          },
+        }
+      },
+    }
+  }
+
+  private _update(type: ControlType, value: number) {
+    switch (type) {
+      case 'frequency':
+        this.oscillator.frequency.value = value
+        break
+      case 'gain':
+        this.gainNode.gain.value = value
+        break
+      case 'detune':
+        this.oscillator.detune.value = value
+        break
+      default:
+        throw new Error(`Sound does not support control type: ${type}`)
+    }
+  }
+
+  public setValuesAtTimes() {
+    const { oscillator: { context: { currentTime } } } = this
+    this.applyValues(this.startingValues, currentTime)
+    this.applyValues(this.valuesAtTime, currentTime)
+    this.applyRampValues(this.exponentialValues, currentTime, 'exponential')
+    this.applyRampValues(this.linearValues, currentTime, 'linear')
+  }
+
+  private applyValues(values: ParamValue[], currentTime: number) {
+    const { oscillator, gainNode } = this
     values.forEach((item) => {
       switch (item.type) {
         case 'frequency':
@@ -162,7 +254,8 @@ export class OscillatorAdjuster extends BaseParamController implements ParamCont
     })
   }
 
-  private applyRampValues(values: ValueAtTime[], currentTime: number, oscillator: OscillatorNode, gainNode: GainNode, rampType: 'exponential' | 'linear') {
+  private applyRampValues(values: ValueAtTime[], currentTime: number, rampType: 'exponential' | 'linear') {
+    const { oscillator, gainNode } = this
     values.forEach((item) => {
       const time = currentTime + item.time
       switch (item.type) {

@@ -18,7 +18,7 @@ export function setupKickButton(element: HTMLButtonElement) {
 
     // add a listener to play the note again when the button is clicked for the rest of the document's life
     element.addEventListener('click', () => {
-      kick.play()
+      kick.playFor(0.1)
     })
   }
 
