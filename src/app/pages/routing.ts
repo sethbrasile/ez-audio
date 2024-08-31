@@ -2,6 +2,10 @@ import { setupDistortablePlayButton, setupToggleDistortion } from '@app/distorta
 import { codeBlock } from '../utils'
 
 const codeExample = `
+await audio.init()
+const sound = await loadSound('Eb5.mp3')
+let distortionEnabled = false
+
 function makeDistortionCurve(amount: number) {
   // I stole this straight from the Mozilla Web Audio API docs site
   const k = typeof amount === 'number' ? amount : 50
@@ -17,7 +21,7 @@ function makeDistortionCurve(amount: number) {
   return curve
 }
 
-function addDistortion(sound: Sound) {
+function addDistortion() {
   const curve = makeDistortionCurve(400)
 
   distortionEnabled = true
@@ -32,7 +36,7 @@ function addDistortion(sound: Sound) {
   }
 }
 
-function removeDistortion(sound: Sound) {
+function removeDistortion() {
   distortionEnabled = false
 
   // raise note's gain because clean signal has much less apparent volume
@@ -44,6 +48,19 @@ function removeDistortion(sound: Sound) {
     node.curve = new Float32Array()
   }
 }
+
+function toggleDistortion(button) {
+  if (distortionEnabled) {
+    removeDistortion(sound)
+    button.textContent = 'Enable distortion'
+  }
+  else {
+    addDistortion(sound)
+    button.textContent = 'Disable distortion'
+  }
+}
+
+distortionButton.addEventListener('click', toggleDistortion)
 `
 
 const Routing = {
