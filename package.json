@@ -11,11 +11,9 @@
     "lint:fix": "eslint . --fix",
     "test": "vitest"
   },
-  "dependencies": {
-    "@nx-js/observer-util": "^4.2.2"
-  },
   "devDependencies": {
     "@antfu/eslint-config": "^2.26.0",
+    "@nx-js/observer-util": "^4.2.2",
     "@types/prismjs": "^1.26.4",
     "eslint": "9.5.0",
     "happy-dom": "^15.7.0",

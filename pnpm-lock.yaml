@@ -7,14 +7,13 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@nx-js/observer-util':
-        specifier: ^4.2.2
-        version: 4.2.2
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^2.26.0
         version: 2.26.0(@typescript-eslint/utils@8.1.0(eslint@9.5.0)(typescript@5.5.4))(@vue/compiler-sfc@3.4.38)(eslint@9.5.0)(typescript@5.5.4)(vitest@2.0.5(happy-dom@15.7.0))
+      '@nx-js/observer-util':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@types/prismjs':
         specifier: ^1.26.4
         version: 1.26.4
