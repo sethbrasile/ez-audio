@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     tsconfigPaths(),
     prismjs({
-      languages: ['javascript'],
+      languages: ['javascript', 'html'],
       plugins: ['line-numbers'],
       theme: 'tomorrow',
       css: true,

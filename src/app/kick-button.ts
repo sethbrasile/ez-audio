@@ -1,7 +1,7 @@
 import { audio, createOscillator } from '@/index'
 
 export function setupKickButton(element: HTMLButtonElement) {
-  const setup = async () => {
+  async function setup() {
     // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
 
@@ -18,9 +18,7 @@ export function setupKickButton(element: HTMLButtonElement) {
     element.removeEventListener('click', setup)
 
     // add a listener to play the note again when the button is clicked for the rest of the document's life
-    element.addEventListener('click', () => {
-      kick.playFor(0.1)
-    })
+    element.addEventListener('click', () => kick.playFor(0.1))
   }
 
   element.addEventListener('click', setup)

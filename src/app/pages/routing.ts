@@ -2,8 +2,11 @@ import { setupDistortablePlayButton, setupToggleDistortion } from '@app/distorta
 import { codeBlock } from '../utils'
 
 const codeExample = `
+const NAME = 'distortion'
+
 await audio.init()
 const sound = await loadSound('Eb5.mp3')
+
 let distortionEnabled = false
 
 function makeDistortionCurve(amount: number) {
@@ -29,6 +32,7 @@ function addDistortion() {
   // lower note's gain because distorted signal has much more apparent volume
   sound.update('gain').to(0.1).from('ratio')
 
+  // To adjust properties directly on an audio node, we can get that node by name from the sound
   // Set distortionNode's curve to enable distortion
   const node = sound.getNodeFrom<WaveShaperNode>(NAME)
   if (node) {
@@ -51,11 +55,11 @@ function removeDistortion() {
 
 function toggleDistortion(button) {
   if (distortionEnabled) {
-    removeDistortion(sound)
+    removeDistortion()
     button.textContent = 'Enable distortion'
   }
   else {
-    addDistortion(sound)
+    addDistortion()
     button.textContent = 'Disable distortion'
   }
 }
@@ -75,7 +79,6 @@ const Routing = {
 <button id="toggle" type="button" disabled>Toggle Distortion</button>
 
 <p>The signal path in the Web Audio API works by allowing one to stitch together various audio "nodes." An audio node works just like a guitar pedal; It has an input, it does some stuff to whatever goes into that input, and it has an output.</p>
-
 <p>By default, a Sound instance is routed through 4 audio nodes:</p>
 
 <ol>
@@ -87,11 +90,8 @@ const Routing = {
 </ol>
 
 <p>There are many more AudioNode types provided by the Web Audio API than the ones that are represented here. Take a look at the Web Audio API Documentation to learn about all of the available AudioNode types.</p>
-
 <p>It is possible to customize routing by adding and removing audio nodes from a Sound instance's connections array.</p>
-
-<p>The connections array is just an array so it is easily manipulated using it's prototype methods such as insertAt and removeAt.</p>
-
+<p>The connections array is just an array so it is easily manipulated using standard array methods.</p>
 <p>A Sound instance also has a convenience method called removeConnection that allows one to remove a connection by it's name.</p>
 
 

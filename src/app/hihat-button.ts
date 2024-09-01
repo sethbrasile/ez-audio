@@ -1,6 +1,6 @@
-import type Playable from '@interfaces/playable'
 import { audio, createOscillator } from '@/index'
 import { LayeredSound } from '@/layered-sound'
+import type { Oscillator } from '@/oscillator'
 
 function createHihatOscillator(ratio: number) {
   const fundamental = 40
@@ -13,14 +13,14 @@ function createHihatOscillator(ratio: number) {
   })
 }
 
-function createHihatEnvelope(oscillator: Playable) {
+function createHihatEnvelope(oscillator: Oscillator) {
   oscillator.onPlayRamp('gain').from(0.00001).to(1).in(0.02)
   oscillator.onPlaySet('gain').to(0.3).endingAt(0.03)
   oscillator.onPlaySet('gain').to(0.00001).endingAt(0.3)
   return oscillator
 }
 
-function playHihat() {
+function createHihat() {
   // http://joesul.li/van/synthesizing-hi-hats/
   const overtones = [2, 3, 4.16, 5.43, 6.79, 8.21]
 
@@ -32,12 +32,11 @@ function playHihat() {
     .map(createHihatEnvelope)
 
   // Layer them all together
-  const hihat = new LayeredSound(oscillators)
-  hihat.playFor(0.3)
+  return new LayeredSound(oscillators)
 }
 
 export function setupHihatButton(element: HTMLButtonElement) {
-  const setup = async () => {
+  async function setup() {
     element.classList.add('loading')
 
     // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
@@ -46,16 +45,16 @@ export function setupHihatButton(element: HTMLButtonElement) {
 
     element.classList.remove('loading')
 
+    const hihat = createHihat()
+
     // This plays the note upon first user interaction
-    playHihat()
+    hihat.playFor(0.3)
 
     // remove the setup listener
     element.removeEventListener('click', setup)
 
     // add a listener to play the note again when the button is clicked for the rest of the document's life
-    element.addEventListener('click', () => {
-      playHihat()
-    })
+    element.addEventListener('click', () => hihat.playFor(0.3))
   }
 
   element.addEventListener('click', setup)

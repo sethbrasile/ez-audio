@@ -21,4 +21,17 @@ export function setupPlayButton(element: HTMLButtonElement) {
   }
 
   element.addEventListener('click', setup)
+
+  // The below version (from the docs) works just as well, the above is just trying to reduce the work needed upon playback.
+  // I don't know if it actually improves performance or not... have not benchmarked
+  // async function playSound() {
+  //   // 1. Initialize the audio context
+  //   await audio.init()
+  //   // 2. Load a sound from a URL
+  //   const note = await loadSound('Eb5.mp3')
+  //   // 3. Play the sound
+  //   note.play()
+  // }
+
+  // element.addEventListener('click', playSound)
 }

@@ -3,9 +3,17 @@ import { codeBlock } from '../utils'
 
 const codeExample = `
 import { audio, loadSound } from 'ez-audio'
-await audio.init()
-const note = await loadSound('Eb5.mp3')
-note.play()
+
+function playSound() {
+  // 1. Initialize the audio context
+  await audio.init()
+  // 2. Load a sound from a URL
+  const note = await loadSound('Eb5.mp3')
+  // 3. Play the sound
+  note.play()
+}
+
+someButton.addEventListener('click', playSound)
 `
 
 const Index = {
