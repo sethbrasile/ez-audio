@@ -5,9 +5,9 @@ import Routing from './pages/routing'
 
 const routes = {
   '404': '/pages/404.html',
-  '/': 'index',
-  '/synthesis': 'synthesis',
-  '/routing': 'routing',
+  '/ez-audio/': 'index',
+  '/ez-audio/synthesis': 'synthesis',
+  '/ez-audio/routing': 'routing',
 }
 
 function handleLocation() {

@@ -16,11 +16,11 @@ import { setupNav } from './setup-nav.ts'
 //   <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
 // </a>
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<a href="/" id="index">INDEX</a>
+<a href="/ez-audio/" id="index">INDEX</a>
 |
-<a href="/routing" id="routing">AUDIO ROUTING</a>
+<a href="/ez-audio/routing" id="routing">AUDIO ROUTING</a>
 |
-<a href="/synthesis" id="synthesis">SYNTHESIS</a>
+<a href="/ez-audio/synthesis" id="synthesis">SYNTHESIS</a>
 <div id="main-page"></div>
 `
 setupNav(document.querySelector<HTMLAnchorElement>('#index')!)
