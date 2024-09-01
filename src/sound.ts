@@ -154,14 +154,10 @@ export class Sound implements Playable, Connectable {
 }
 
 export class SoundAdjuster extends BaseParamController implements ParamController {
-  constructor(private bufferSourceNode: AudioBufferSourceNode, private gainNode: GainNode) { super() }
+  constructor(private bufferSourceNode: AudioBufferSourceNode, protected gainNode: GainNode) { super(gainNode) }
 
   public updateAudioSource(source: AudioBufferSourceNode) {
     this.bufferSourceNode = source
-  }
-
-  public updateGainNode(gainNode: GainNode) {
-    this.gainNode = gainNode
   }
 
   public update(type: ControlType) {

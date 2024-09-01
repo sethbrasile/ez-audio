@@ -28,10 +28,16 @@ export interface ParamController {
 }
 
 export class BaseParamController {
+  constructor(protected gainNode: GainNode) {}
+
   protected startingValues: ParamValue[] = []
   protected valuesAtTime: ValueAtTime[] = []
   protected exponentialValues: ValueAtTime[] = []
   protected linearValues: ValueAtTime[] = []
+
+  public updateGainNode(gainNode: GainNode) {
+    this.gainNode = gainNode
+  }
 
   public onPlaySet(type: ControlType) {
     return {

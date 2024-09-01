@@ -195,14 +195,10 @@ export class Oscillator implements Playable, Connectable {
 }
 
 export class OscillatorAdjuster extends BaseParamController implements ParamController {
-  constructor(private oscillator: OscillatorNode, private gainNode: GainNode) { super() }
+  constructor(private oscillator: OscillatorNode, protected gainNode: GainNode) { super(gainNode) }
 
   public updateAudioSource(oscillator: OscillatorNode) {
     this.oscillator = oscillator
-  }
-
-  public updateGainNode(gainNode: GainNode) {
-    this.gainNode = gainNode
   }
 
   public update(type: ControlType) {
