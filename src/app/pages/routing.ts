@@ -94,8 +94,6 @@ const Routing = {
 <p>The connections array is just an array so it is easily manipulated using standard array methods.</p>
 <p>A Sound instance also has a convenience method called removeConnection that allows one to remove a connection by it's name.</p>
 
-
-
 ${codeBlock(codeExample)}
 `,
 }
