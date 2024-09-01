@@ -195,49 +195,19 @@ export class Oscillator implements Playable, Connectable {
 }
 
 export class OscillatorAdjuster extends BaseParamController implements ParamController {
-  constructor(private oscillator: OscillatorNode, protected gainNode: GainNode) { super(gainNode) }
+  constructor(private oscillator: OscillatorNode, protected gainNode: GainNode) { super(oscillator, gainNode) }
 
   public updateAudioSource(oscillator: OscillatorNode) {
     this.oscillator = oscillator
   }
 
-  public update(type: ControlType) {
-    return {
-      to: (value: number) => {
-        return {
-          from: (method: 'ratio' | 'inverseRatio' | 'percent') => {
-            switch (method) {
-              case 'ratio':
-                this._update(type, value)
-                break
-              case 'inverseRatio':
-                this._update(type, 1 - value)
-                break
-              case 'percent':
-                this._update(type, value / 100)
-                break
-              default:
-                throw new Error(`Sound update does not support method: ${method}`)
-            }
-          },
-        }
-      },
-    }
-  }
-
-  private _update(type: ControlType, value: number) {
+  protected _update(type: ControlType, value: number) {
     switch (type) {
       case 'frequency':
         this.oscillator.frequency.value = value
         break
-      case 'gain':
-        this.gainNode.gain.value = value
-        break
-      case 'detune':
-        this.oscillator.detune.value = value
-        break
       default:
-        throw new Error(`Sound does not support control type: ${type}`)
+        super._update(type, value)
     }
   }
 

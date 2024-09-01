@@ -154,47 +154,10 @@ export class Sound implements Playable, Connectable {
 }
 
 export class SoundAdjuster extends BaseParamController implements ParamController {
-  constructor(private bufferSourceNode: AudioBufferSourceNode, protected gainNode: GainNode) { super(gainNode) }
+  constructor(private bufferSourceNode: AudioBufferSourceNode, protected gainNode: GainNode) { super(bufferSourceNode, gainNode) }
 
   public updateAudioSource(source: AudioBufferSourceNode) {
     this.bufferSourceNode = source
-  }
-
-  public update(type: ControlType) {
-    return {
-      to: (value: number) => {
-        return {
-          from: (method: 'ratio' | 'inverseRatio' | 'percent') => {
-            switch (method) {
-              case 'ratio':
-                this._update(type, value)
-                break
-              case 'inverseRatio':
-                this._update(type, 1 - value)
-                break
-              case 'percent':
-                this._update(type, value / 100)
-                break
-              default:
-                throw new Error(`Sound update does not support method: ${method}`)
-            }
-          },
-        }
-      },
-    }
-  }
-
-  private _update(type: ControlType, value: number) {
-    switch (type) {
-      case 'gain':
-        this.gainNode.gain.value = value
-        break
-      case 'detune':
-        this.bufferSourceNode.detune.value = value
-        break
-      default:
-        throw new Error(`Sound does not support control type: ${type}`)
-    }
   }
 
   public setValuesAtTimes() {

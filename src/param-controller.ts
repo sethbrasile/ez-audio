@@ -27,8 +27,18 @@ export interface ParamController {
   }
 }
 
+interface AudioSource {
+  detune: {
+    value: number
+  }
+  frequency?: {
+    value: number
+  }
+  // Add other properties as needed
+}
+
 export class BaseParamController {
-  constructor(protected gainNode: GainNode) {}
+  constructor(protected audioSource: AudioSource, protected gainNode: GainNode) {}
 
   protected startingValues: ParamValue[] = []
   protected valuesAtTime: ValueAtTime[] = []
@@ -37,6 +47,45 @@ export class BaseParamController {
 
   public updateGainNode(gainNode: GainNode) {
     this.gainNode = gainNode
+  }
+
+  protected _update(type: ControlType, value: number) {
+    switch (type) {
+      case 'gain':
+        this.gainNode.gain.value = value
+        break
+      case 'detune':
+        if (!this.audioSource.detune)
+          throw new Error('Audio source does not support detune')
+        this.audioSource.detune.value = value
+        break
+      default:
+        throw new Error(`Control type '${type}' not supported`)
+    }
+  }
+
+  public update(type: ControlType) {
+    return {
+      to: (value: number) => {
+        return {
+          from: (method: 'ratio' | 'inverseRatio' | 'percent') => {
+            switch (method) {
+              case 'ratio':
+                this._update(type, value)
+                break
+              case 'inverseRatio':
+                this._update(type, 1 - value)
+                break
+              case 'percent':
+                this._update(type, value / 100)
+                break
+              default:
+                throw new Error(`Control method '${method}' not supported`)
+            }
+          },
+        }
+      },
+    }
   }
 
   public onPlaySet(type: ControlType) {
