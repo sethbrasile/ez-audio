@@ -231,7 +231,7 @@ export function setupHihatButton(element: HTMLButtonElement) {
 }
 `
 
-const Synthesis = {
+const Content = {
   setup() {
     setupKickButton(document.querySelector<HTMLButtonElement>('#play_kick')!)
     setupSnareButton(document.querySelector<HTMLButtonElement>('#play_snare')!)
@@ -299,4 +299,4 @@ const Synthesis = {
 `,
 }
 
-export default Synthesis
+export default Content

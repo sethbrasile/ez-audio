@@ -27,7 +27,7 @@ function playBothNotes() {
 }
 `
 
-const Routing = {
+const Content = {
   setup() {
     setupNoteButton(document.querySelector<HTMLButtonElement>('#left')!, 'left')
     setupNoteButton(document.querySelector<HTMLButtonElement>('#right')!, 'right')
@@ -49,4 +49,4 @@ ${codeBlock(codeExample)}
 `,
 }
 
-export default Routing
+export default Content

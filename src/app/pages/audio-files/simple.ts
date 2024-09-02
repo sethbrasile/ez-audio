@@ -27,7 +27,7 @@ function playBothNotes() {
 }
 `
 
-const Simple = {
+const Content = {
   setup() {
     setupNoteButton(document.querySelector<HTMLButtonElement>('#left')!, 'left')
     setupNoteButton(document.querySelector<HTMLButtonElement>('#right')!, 'right')
@@ -50,4 +50,4 @@ ${codeBlock(codeExample)}
 `,
 }
 
-export default Simple
+export default Content

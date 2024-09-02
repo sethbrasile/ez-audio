@@ -42,7 +42,7 @@ export function route(event: Event) {
   handleLocation()
 }
 
-export function setupNav(element: HTMLAnchorElement) {
+export function setupRouter(element: HTMLAnchorElement) {
   const setup = async (event: Event) => {
     event.preventDefault()
     route(event)

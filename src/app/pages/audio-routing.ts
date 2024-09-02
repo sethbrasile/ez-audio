@@ -67,13 +67,13 @@ function toggleDistortion(button) {
 distortionButton.addEventListener('click', toggleDistortion)
 `
 
-const Routing = {
+const Content = {
   setup() {
     setupDistortablePlayButton(document.querySelector<HTMLButtonElement>('#play')!)
     setupToggleDistortion(document.querySelector<HTMLButtonElement>('#toggle')!)
   },
   html: `
-<h1>Routing</h1>
+<h1>Audio Routing</h1>
 
 <button id="play" type="button">Play</button>
 <button id="toggle" type="button" disabled>Toggle Distortion</button>
@@ -98,4 +98,4 @@ ${codeBlock(codeExample)}
 `,
 }
 
-export default Routing
+export default Content

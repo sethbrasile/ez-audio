@@ -16,7 +16,7 @@ function playSound() {
 someButton.addEventListener('click', playSound)
 `
 
-const Index = {
+const Content = {
   setup() {
     setupPlayButton(document.querySelector<HTMLButtonElement>('#play')!)
   },
@@ -36,4 +36,4 @@ which was developed before vue and react rose to prominence.</p>
 ${codeBlock(codeExample)}
 `,
 }
-export default Index
+export default Content

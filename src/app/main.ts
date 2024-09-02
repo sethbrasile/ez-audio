@@ -1,5 +1,5 @@
 import './public/style.css'
-import { setupNav } from './setup-nav.ts'
+import { setupRouter } from './router'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <a href="/ez-audio/" id="index">Home</a>
@@ -13,6 +13,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <div id="main-page"></div>
 `
 
-setupNav(document.querySelector<HTMLAnchorElement>('#index')!)
-setupNav(document.querySelector<HTMLAnchorElement>('#audio-routing')!)
-setupNav(document.querySelector<HTMLAnchorElement>('#synthesis')!)
+setupRouter(document.querySelector<HTMLAnchorElement>('#index')!)
+setupRouter(document.querySelector<HTMLAnchorElement>('#audio-routing')!)
+setupRouter(document.querySelector<HTMLAnchorElement>('#synthesis')!)
