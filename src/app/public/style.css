@@ -70,9 +70,10 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #337ab7;
   cursor: pointer;
   transition: border-color 0.25s;
+  color: #ffffff;
 }
 button:hover {
   border-color: #646cff;
@@ -82,17 +83,8 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button.green {
+  background-color: #5cb85c;
 }
 
 .docs {
@@ -107,11 +99,24 @@ button:focus-visible {
 }
 
 .beat-pad .pad {
-  background-color: #2d2d2d;
+  background-color: #393939;
   display: block;
   height: 100%;
 }
 
 [role="button"] {
   cursor: pointer;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #f3f3f3;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  .beat-pad .pad {
+    background-color: #d5d5d5;
+  }
 }

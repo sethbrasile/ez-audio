@@ -21,6 +21,7 @@ import { BaseParamController } from '@/param-controller'
  */
 export class Sound implements Playable, Connectable {
   private gainNode: GainNode
+  private pannerNode: StereoPannerNode
   private audioBuffer: AudioBuffer
   private bufferSourceNode: AudioBufferSourceNode
   private _isPlaying: boolean = false
@@ -28,13 +29,15 @@ export class Sound implements Playable, Connectable {
   public connections: Connection[] = []
 
   constructor(private audioContext: AudioContext, audioBuffer: AudioBuffer) {
-    const gainNode = audioContext.createGain()
     const bufferSourceNode = this.audioContext.createBufferSource()
+    const gainNode = audioContext.createGain()
+    const pannerNode = audioContext.createStereoPanner()
     this.gainNode = gainNode
+    this.pannerNode = pannerNode
     this.bufferSourceNode = bufferSourceNode
     this.audioBuffer = audioBuffer
 
-    this.controller = new SoundAdjuster(bufferSourceNode, gainNode)
+    this.controller = new SoundAdjuster(bufferSourceNode, gainNode, pannerNode)
   }
 
   private setup() {
@@ -48,22 +51,23 @@ export class Sound implements Playable, Connectable {
   public wireConnections() {
     // always start with the audio source
     const nodes: AudioNode[] = [this.bufferSourceNode]
-    const { connections, gainNode } = this
+    const { connections, pannerNode } = this
 
     // add the nodes from nodes property
     for (let i = 0; i < connections.length; i++) {
       nodes.push(connections[i].audioNode)
     }
 
-    // add the gain node
-    nodes.push(gainNode)
+    // add the gain node and panner node
+    nodes.push(this.gainNode)
+    nodes.push(pannerNode)
 
     // connect them all together
     for (let i = 0; i < nodes.length - 1; i++) {
       nodes[i].connect(nodes[i + 1])
     }
 
-    gainNode.connect(this.audioContext.destination)
+    pannerNode.connect(this.audioContext.destination)
   }
 
   addConnection(connection: Connection) {
@@ -82,16 +86,22 @@ export class Sound implements Playable, Connectable {
     }
   }
 
+  // Allows you to get any user created connection in the connections array
   getConnection(name: string): Connection | undefined {
     return this.connections.find(c => c.name === name)
   }
 
-  getNodeFrom<T extends AudioNode>(connectionName: string): T | undefined {
+  // Allows you to get node from any user created connection in the connections array
+  getNodeFrom<T extends AudioNode | StereoPannerNode>(connectionName: string): T | undefined {
     return this.getConnection(connectionName)?.audioNode as T | undefined
   }
 
   update(type: ControlType) {
     return this.controller.update(type)
+  }
+
+  changePanTo(value: number) {
+    this.controller.pan(value)
   }
 
   onPlaySet(type: ControlType) {
@@ -154,7 +164,9 @@ export class Sound implements Playable, Connectable {
 }
 
 export class SoundAdjuster extends BaseParamController implements ParamController {
-  constructor(private bufferSourceNode: AudioBufferSourceNode, protected gainNode: GainNode) { super(bufferSourceNode, gainNode) }
+  constructor(private bufferSourceNode: AudioBufferSourceNode, protected gainNode: GainNode, protected pannerNode: StereoPannerNode) {
+    super(bufferSourceNode, gainNode, pannerNode)
+  }
 
   public updateAudioSource(source: AudioBufferSourceNode) {
     this.bufferSourceNode = source

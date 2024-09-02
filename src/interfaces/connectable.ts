@@ -8,4 +8,5 @@ export interface Connectable {
   addConnection: (connection: Connection, name: string) => void
   removeConnection: (name: string) => void
   getConnection: (name: string) => Connection | undefined
+  changePanTo: (value: number) => void
 }

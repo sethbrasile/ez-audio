@@ -1,41 +1,35 @@
 import Index from '@app/pages/index'
 import Prism from 'prismjs'
 import Synthesis from './pages/synthesis'
-import Routing from './pages/routing'
+import AudioRouting from './pages/audio-routing'
+import AudioFilesSimple from './pages/audio-files/simple'
+import AudioFilesMp3 from './pages/audio-files/mp3-player'
+import AudioFilesDrumKit from './pages/audio-files/drum-kit'
 
 const routes = {
-  '404': '/pages/404.html',
-  '/ez-audio/': 'index',
-  '/ez-audio/synthesis': 'synthesis',
-  '/ez-audio/routing': 'routing',
+  '/ez-audio/': Index,
+  '/ez-audio/synthesis': Synthesis,
+  '/ez-audio/audio-routing': AudioRouting,
+  '/ez-audio/audio-files': AudioFilesSimple,
+  '/ez-audio/audio-files/mp3-player': AudioFilesMp3,
+  '/ez-audio/audio-files/drum-kit': AudioFilesDrumKit,
 }
 
 function handleLocation() {
   const path = window.location.pathname as keyof typeof routes
-  const route = routes[path] || routes[404]
+  const route = routes[path]
 
   const main = document.getElementById('main-page')
   if (!main)
     return
 
-  switch (route) {
-    case 'index':
-      main.innerHTML = Index.html
-      Index.setup()
-      break
-    case 'synthesis':
-      main.innerHTML = Synthesis.html
-      Synthesis.setup()
-      break
-    case 'routing':
-      main.innerHTML = Routing.html
-      Routing.setup()
-      break
-    default:
-      main.innerHTML = 'Not Found'
-      break
+  if (!route) {
+    main.innerHTML = 'Not Found'
+    return
   }
 
+  main.innerHTML = route.html
+  route.setup()
   Prism.highlightAll()
 }
 
@@ -57,7 +51,6 @@ export function setupNav(element: HTMLAnchorElement) {
   element.addEventListener('click', setup)
 
   window.onpopstate = handleLocation
-  // window.route = route
 
   handleLocation()
 }

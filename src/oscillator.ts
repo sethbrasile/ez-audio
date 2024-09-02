@@ -44,6 +44,7 @@ export class Oscillator implements Playable, Connectable {
   private controller: ParamController
   private oscillator: OscillatorNode
   private gainNode: GainNode
+  private pannerNode: StereoPannerNode
   public connections: Connection[] = []
 
   constructor(private audioContext: AudioContext, options?: OscillatorOptions) {
@@ -51,9 +52,10 @@ export class Oscillator implements Playable, Connectable {
     this.frequency = options?.frequency || 440
 
     // This is just to keep the null checks down, this oscillator instance will never be used
-    this.oscillator = this.audioContext.createOscillator()
-    this.gainNode = this.audioContext.createGain()
-    this.controller = new OscillatorAdjuster(this.oscillator, this.gainNode)
+    this.oscillator = audioContext.createOscillator()
+    this.gainNode = audioContext.createGain()
+    this.pannerNode = audioContext.createStereoPanner()
+    this.controller = new OscillatorAdjuster(this.oscillator, this.gainNode, this.pannerNode)
 
     FILTERS.forEach((filter) => {
       const vals = get<OscillatorOptionsFilterValues | undefined>(options, filter)
@@ -98,7 +100,7 @@ export class Oscillator implements Playable, Connectable {
   wireConnections() {
     // always start with the audio source
     const nodes: AudioNode[] = [this.oscillator]
-    const { connections, filters, gainNode } = this
+    const { connections, filters, pannerNode } = this
 
     // Add all the filters
     for (let i = 0; i < filters.length; i++) {
@@ -110,15 +112,16 @@ export class Oscillator implements Playable, Connectable {
       nodes.push(connections[i].audioNode)
     }
 
-    // add the gain node
-    nodes.push(gainNode)
+    // add the gain and panner node
+    nodes.push(this.gainNode)
+    nodes.push(pannerNode)
 
     // connect them all together
     for (let i = 0; i < nodes.length - 1; i++) {
       nodes[i].connect(nodes[i + 1])
     }
 
-    gainNode.connect(this.audioContext.destination)
+    pannerNode.connect(this.audioContext.destination)
   }
 
   addConnection(connection: Connection) {
@@ -147,6 +150,10 @@ export class Oscillator implements Playable, Connectable {
 
   update(type: ControlType) {
     return this.controller.update(type)
+  }
+
+  changePanTo(value: number) {
+    this.controller.pan(value)
   }
 
   play() {
@@ -195,7 +202,9 @@ export class Oscillator implements Playable, Connectable {
 }
 
 export class OscillatorAdjuster extends BaseParamController implements ParamController {
-  constructor(private oscillator: OscillatorNode, protected gainNode: GainNode) { super(oscillator, gainNode) }
+  constructor(private oscillator: OscillatorNode, protected gainNode: GainNode, protected pannerNode: StereoPannerNode) {
+    super(oscillator, gainNode, pannerNode)
+  }
 
   public updateAudioSource(oscillator: OscillatorNode) {
     this.oscillator = oscillator
