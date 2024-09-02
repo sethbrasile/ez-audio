@@ -81,7 +81,7 @@ export class Sampler {
    * @param {number} seconds Number of seconds from "now" that the next Sound
    * should be played.
    */
-  playIn(seconds: number) {
+  playIn(_: number) {
     // this._getNextSound().playIn(seconds)
   }
 

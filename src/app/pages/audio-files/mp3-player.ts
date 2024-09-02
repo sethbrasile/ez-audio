@@ -1,10 +1,7 @@
-import { codeBlock } from '../../utils'
 import nav from './nav'
-import { setupNoteButton } from './note-buttons'
 
-const codeExample = `
-
-`
+// const codeExample = `
+// `
 
 const Content = {
   setup() {
