@@ -1,4 +1,5 @@
 import { codeBlock } from '../../utils'
+import nav from './nav'
 import { setupNoteButton } from './note-buttons'
 
 const codeExample = `
@@ -34,11 +35,8 @@ const Content = {
     setupNoteButton(document.querySelector<HTMLButtonElement>('#both')!, 'both')
   },
   html: `
-<a href="/ez-audio/audio-files" id="audio-files">Simple</a>
-|
-<a href="/ez-audio/mp3-player" id="mp3">MP3 Player</a>
-|
-<a href="/ez-audio/drum-kit" id="drum-kit">Drum Kit</a>
+
+${nav}
 
 <h1>A Simple Example</h1>
 

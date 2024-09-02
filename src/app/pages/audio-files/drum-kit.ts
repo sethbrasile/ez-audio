@@ -1,51 +1,66 @@
-import { codeBlock } from '../../utils'
-import { setupNoteButton } from './note-buttons'
+import { codeBlock, htmlBlock } from '../../utils'
+import nav from './nav'
+import { setupDrumSamplerButton } from './drum-sampler-button'
+
+const htmlExample = `
+<div class="beat-pad">
+  <span role="label">Kick</span>
+  <span class="pad" role="button" id="play_kick"></span>
+</div>
+<div class="beat-pad">
+  <span role="label">Snare</span>
+  <span class="pad" role="button" id="play_snare"></span>
+</div>
+<div class="beat-pad">
+  <span role="label">Hihat</span>
+  <span class="pad" role="button" id="play_hihat"></span>
+</div>
+`
 
 const codeExample = `
-import { audio, loadSound } from 'ez-audio'
-
-const url = 'https://raw.githubusercontent.com/mudcube/MIDI.js/master/examples/soundfont/acoustic_grand_piano-mp3/B5.mp3'
-
 await audio.init()
-const leftNote = await loadSound('Eb5.mp3')
-const rightNote = await loadSound(url)
 
-leftNote.changePanTo(-0.7)
-rightNote.changePanTo(0.7)
+const samplesPaths = [
+  'some-path/hihat1.wav', 
+  'some-path/hihat2.wav', 
+  'some-path/hihat3.wav',
+]
 
-function playLeftNote() {
-  leftNote.play()
-}
+const hihat = await createSampler(samplesPaths)
 
-function playRightNote() {
-  rightNote.play()
-}
-
-function playBothNotes() {
-  leftNote.play()
-  rightNote.play()
-}
+hihat.play()
 `
 
 const Content = {
   setup() {
-    setupNoteButton(document.querySelector<HTMLButtonElement>('#left')!, 'left')
-    setupNoteButton(document.querySelector<HTMLButtonElement>('#right')!, 'right')
-    setupNoteButton(document.querySelector<HTMLButtonElement>('#both')!, 'both')
+    setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_kick')!, 'kick')
+    setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_snare')!, 'snare')
+    setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_hihat')!, 'hihat')
   },
   html: `
-<a href="/ez-audio/audio-files" id="audio-files">Simple</a>
-|
-<a href="/ez-audio/mp3-player" id="mp3">MP3 Player</a>
-|
-<a href="/ez-audio/drum-kit" id="drum-kit">Drum Kit</a>
+${nav}
 
-<h1>A Simple Example</h1>
-<button id="left" type="button">Play Note Panned Left</button>
-<button id="right" type="button" disabled>Play Note Panned Right</button>
-<button id="both" type="button" disabled>Play Both Notes</button>
+<h1>Multisampled Drum Kit Example</h1>
 
-${codeBlock(codeExample)}
+<p>Go ahead and hit the hihat a few times... Notice how each sample sounds slightly different? That's multisampling, baby.</p>
+
+<div class="beat-pad">
+  <span role="label">Kick</span>
+  <span class="pad" role="button" id="play_kick"></span>
+</div>
+<div class="beat-pad">
+  <span role="label">Snare</span>
+  <span class="pad" role="button" id="play_snare"></span>
+</div>
+<div class="beat-pad">
+  <span role="label">Hihat</span>
+  <span class="pad" role="button" id="play_hihat"></span>
+</div>
+
+<div class="docs">
+  ${htmlBlock(htmlExample)}
+  ${codeBlock(codeExample)}
+</div>
 `,
 }
 

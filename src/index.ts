@@ -1,3 +1,4 @@
+import { Sampler } from '@/sampler'
 import { Oscillator } from '@/oscillator'
 import { Sound } from '@/sound'
 // TODO: naming collision OscillatorOptions
@@ -26,6 +27,11 @@ export async function loadSound(url: string) {
   const arrayBuffer = await response.arrayBuffer()
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
   return new Sound(audioContext, audioBuffer)
+}
+
+export async function createSampler(urls: string[]) {
+  const sounds = await Promise.all(urls.map(async url => loadSound(url)))
+  return new Sampler(sounds)
 }
 
 export function createOscillator(options?: OscillatorOptions) {

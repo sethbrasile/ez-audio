@@ -9,3 +9,7 @@ export function codeBlock(code: string) {
 export function htmlBlock(code: string) {
   return `<div class="card"><pre><code class="language-html">${escapeHTML(code.trim())}</code></pre></div>`
 }
+
+export function getSamplesPaths(instrument: string) {
+  return [1, 2, 3].map(num => `/ez-audio/drum-samples/${instrument}${num}.wav`)
+}

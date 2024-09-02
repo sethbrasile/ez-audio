@@ -1,6 +1,6 @@
 import Index from '@app/pages/index'
 import Prism from 'prismjs'
-import Synthesis from './pages/synthesis'
+import Synthesis from './pages/synthesis/synthesis'
 import AudioRouting from './pages/audio-routing'
 import AudioFilesSimple from './pages/audio-files/simple'
 import AudioFilesMp3 from './pages/audio-files/mp3-player'

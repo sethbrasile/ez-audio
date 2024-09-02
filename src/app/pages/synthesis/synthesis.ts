@@ -1,8 +1,8 @@
-import { setupSnareButton, setupSnareCrackButton, setupSnareMeatButton } from '@app/snare-button'
-import { setupKickButton } from '@app/kick-button'
-import { setupHihatButton } from '@app/hihat-button'
-import { setupBassDropButton } from '@app/bass-drop-button'
-import { codeBlock, htmlBlock } from '../utils'
+import { codeBlock, htmlBlock } from '@app/utils'
+import { setupSnareButton, setupSnareCrackButton, setupSnareMeatButton } from './snare-button'
+import { setupHihatButton } from './hihat-button'
+import { setupBassDropButton } from './bass-drop-button'
+import { setupKickButton } from './kick-button'
 
 const playKick = `
 import { audio, createOscillator, createWhiteNoise, LayeredSound } from 'ez-audio'
