@@ -51,7 +51,7 @@ function removeDistortion(sound: Sound) {
 
 export function setupDistortablePlayButton(element: HTMLButtonElement) {
   const setup = async () => {
-    // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
+    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
     // we placed the note inside an nx-js observable so that we can make UI updates to reflect the state of the note

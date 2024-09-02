@@ -68,7 +68,7 @@ export function octaveShift(octaves: Note[][]) {
   const secondOctaveNames = octaves[0].map(note => note.name)
   // Get the note name of the last note in the first octave
   const lastNote = firstOctave[firstOctave.length - 1].name
-  // Get the index of the occurrence of the last note from the first
+  // Get the index of the occurence of the last note from the first
   // octave, in the second octave
   const indexToShiftAt = secondOctaveNames.lastIndexOf(lastNote) + 1
   // Split the octave array at that point, and move the first chunk to the end

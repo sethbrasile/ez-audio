@@ -119,7 +119,7 @@ import { audio, createOscillator } from 'ez-audio'
 // user interaction like a button press. Then once we have the oscillator, we set up another listener that just plays it.
 export function setupKickButton(element: HTMLButtonElement) {
   async function setup() {
-    // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
+    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
 

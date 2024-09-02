@@ -39,7 +39,7 @@ export function setupHihatButton(element: HTMLButtonElement) {
   async function setup() {
     element.classList.add('loading')
 
-    // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
+    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
 

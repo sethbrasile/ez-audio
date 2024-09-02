@@ -4,7 +4,7 @@ const url = 'https://raw.githubusercontent.com/mudcube/MIDI.js/master/examples/s
 
 export function setupNoteButton(element: HTMLButtonElement, direction: 'right' | 'left' | 'both') {
   const setup = async () => {
-    // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
+    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
     const leftNote = await loadSound('Eb5.mp3')

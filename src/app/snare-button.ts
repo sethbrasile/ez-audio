@@ -18,7 +18,7 @@ export function setupSnareButton(element: HTMLButtonElement) {
   async function setup() {
     element.classList.add('loading')
 
-    // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
+    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
 
@@ -44,7 +44,7 @@ export function setupSnareButton(element: HTMLButtonElement) {
 export function setupSnareCrackButton(element: HTMLButtonElement) {
   async function setup() {
     element.classList.add('loading')
-    // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
+    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
     element.classList.remove('loading')
@@ -67,7 +67,7 @@ export function setupSnareCrackButton(element: HTMLButtonElement) {
 export function setupSnareMeatButton(element: HTMLButtonElement) {
   async function setup() {
     element.classList.add('loading')
-    // AudioContext setup must occurr in response to user interaction, so this is why we do setup in click handler
+    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
     element.classList.remove('loading')
