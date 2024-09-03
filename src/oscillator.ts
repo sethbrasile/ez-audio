@@ -148,12 +148,20 @@ export class Oscillator implements Playable, Connectable {
     return this.getConnection(connectionName)?.audioNode as T | undefined
   }
 
+  get audioSourceNode() {
+    return this.oscillator
+  }
+
   update(type: ControlType) {
     return this.controller.update(type)
   }
 
   changePanTo(value: number) {
-    this.controller.pan(value)
+    this.controller.update('pan').to(value).from('ratio')
+  }
+
+  changeGainTo(value: number) {
+    this.controller.update('gain').to(value).from('ratio')
   }
 
   play() {

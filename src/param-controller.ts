@@ -1,6 +1,7 @@
-export type ControlType = 'frequency' | 'gain' | 'detune'
+export type ControlType = 'frequency' | 'gain' | 'detune' | 'pan'
 export type RatioType = 'ratio' | 'inverseRatio' | 'percent'
 export type RampType = 'linear' | 'exponential'
+export type SeekType = RatioType | 'seconds'
 export interface ParamValue {
   type: ControlType
   value: number
@@ -12,7 +13,7 @@ export interface ParamController {
   setValuesAtTimes: () => void
   updateAudioSource: (source: any) => void
   updateGainNode: (gainNode: GainNode) => void
-  pan: (value: number) => void
+  updatePannerNode: (pannerNode: StereoPannerNode) => void
   update: (type: ControlType) => {
     to: (value: number) => {
       from: (method: RatioType) => void
@@ -59,13 +60,11 @@ export class BaseParamController {
     this.pannerNode = pannerNode
   }
 
-  // value is a number between -1 and 1
-  public pan(value: number) {
-    this.pannerNode.pan.value = value
-  }
-
   protected _update(type: ControlType, value: number) {
     switch (type) {
+      case 'pan':
+        this.pannerNode.pan.value = value
+        break
       case 'gain':
         this.gainNode.gain.value = value
         break
@@ -79,6 +78,7 @@ export class BaseParamController {
     }
   }
 
+  // TODO: Consider changeing 'from' to be something like 'using' or 'as'
   public update(type: ControlType) {
     return {
       to: (value: number) => {
