@@ -125,6 +125,15 @@ button.green {
   display: none;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
+.selected {
+  color: gray;
+  font-size: 1.2em;
+}
+
 .spinner {
   width: 50px;
   height: 40px;

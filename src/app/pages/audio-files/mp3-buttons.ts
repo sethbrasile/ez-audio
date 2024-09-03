@@ -82,7 +82,6 @@ async function updateUi() {
 }
 
 let progressObserver: (() => void) | null = null
-// let gainObserver: (() => void) | null = null
 
 async function updateTrackSelectionUi() {
   // if any of the UI elements are missing, throw an error
@@ -98,10 +97,6 @@ async function updateTrackSelectionUi() {
     unobserve(progressObserver)
   }
 
-  // if (gainObserver) {
-  //   unobserve(gainObserver)
-  // }
-
   // There is a selected song
   if (!selectedSong.trackInstance) {
     // There is no track instance, so we need to load it
@@ -115,11 +110,6 @@ async function updateTrackSelectionUi() {
   progressObserver = observe(() => {
     progress.style.width = `${selectedSong.trackInstance?.percentPlayed}%`
   })
-
-  // gainObserver = observe(() => {
-  //   console.log(selectedSong.trackInstance?.percentGain)
-  //   volDisplay.style.height = `${selectedSong.trackInstance?.percentGain}%`
-  // })
 
   updateUi()
 }
@@ -161,7 +151,7 @@ function volAction(e: MouseEvent) {
   volDisplay.style.height = `${selectedSong.trackInstance?.percentGain}%`
 }
 
-function selectAction(name: SongName) {
+function selectAction(name: SongName, el: HTMLButtonElement) {
   if (selectedSong && selectedSong.name === name) {
     // if the song was already selected, do nothing
     return
@@ -174,6 +164,8 @@ function selectAction(name: SongName) {
 
   // if the song was not selected, select it and update UI
   selectedSong = songs.find(song => song.name === name)!
+  document.querySelector('.selected')?.classList.remove('selected')
+  el.classList.add('selected')
   updateTrackSelectionUi()
 }
 
@@ -196,7 +188,7 @@ export function setupMp3Buttons(element: HTMLButtonElement, type: 'seek' | 'play
       element.addEventListener('click', seekAction)
       break
     case 'select':
-      element.addEventListener('click', () => selectAction(name!))
+      element.addEventListener('click', () => selectAction(name!, element))
       break
     case 'vol':
       element.addEventListener('click', volAction)

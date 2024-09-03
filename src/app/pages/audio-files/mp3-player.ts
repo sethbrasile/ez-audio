@@ -32,10 +32,10 @@ ${nav}
   <div class="select">
     <table>
       <tbody>
-        <tr id="select-do-wah-diddy">
+        <tr class="pointer" id="select-do-wah-diddy">
           <td>Do Wah Diddy</td>
         </tr>
-        <tr id="select-barely-there">
+        <tr class="pointer" id="select-barely-there">
           <td>Barely There</td>
         </tr>
       </tbody>
