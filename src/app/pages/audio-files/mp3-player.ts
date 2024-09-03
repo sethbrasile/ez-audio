@@ -1,8 +1,10 @@
 import nav from './nav'
 import { setupIndicators, setupMp3Buttons } from './mp3-buttons'
+import { codeBlock } from '@/app/utils'
 
-// const codeExample = `
-// `
+const codeExample = `
+// [code is WIP]
+`
 
 const Content = {
   setup() {
@@ -74,6 +76,8 @@ ${nav}
     </div>
   </div>
 </div>
+
+${codeBlock(codeExample)}
 `,
 }
 
