@@ -1,4 +1,4 @@
-import MusicalIdentity from '@/musical-identity'
+import { MusicallyAware } from '@/musical-identity'
 
 /**
  * A class that represents a musical note, but does not carry any audio data.
@@ -10,4 +10,4 @@ import MusicalIdentity from '@/musical-identity'
  * @class Note
  * @uses MusicalIdentity
  */
-export default class Note extends MusicalIdentity {}
+export default class Note extends MusicallyAware(class {}) {}

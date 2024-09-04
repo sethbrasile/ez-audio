@@ -1,7 +1,6 @@
 import { observable, observe, unobserve } from '@nx-js/observer-util'
 import { audio, createTrack } from '@/index'
 import type { Track } from '@/track'
-import audioContextAwareTimeout from '@/utils/timeout'
 
 type SongName = 'do-wah-diddy' | 'barely-there'
 
