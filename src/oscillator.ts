@@ -6,24 +6,24 @@ import audioContextAwareTimeout from '@utils/timeout'
 import { BaseParamController } from '@/param-controller'
 import type { ControlType, ParamController, ParamValue, RampType, ValueAtTime } from '@/param-controller'
 
-export interface OscillatorOptionsFilterValues {
+export interface OscillatorOptsFilterValues {
   frequency?: number
   q?: number
 }
 
-export interface OscillatorOptions {
+export interface OscillatorOpts {
   startOffset?: number
   frequency?: number
   detune?: number
   type?: OscillatorType
-  highpass?: OscillatorOptionsFilterValues
-  bandpass?: OscillatorOptionsFilterValues
-  lowpass?: OscillatorOptionsFilterValues
-  lowshelf?: OscillatorOptionsFilterValues
-  highshelf?: OscillatorOptionsFilterValues
-  peaking?: OscillatorOptionsFilterValues
-  notch?: OscillatorOptionsFilterValues
-  allpass?: OscillatorOptionsFilterValues
+  highpass?: OscillatorOptsFilterValues
+  bandpass?: OscillatorOptsFilterValues
+  lowpass?: OscillatorOptsFilterValues
+  lowshelf?: OscillatorOptsFilterValues
+  highshelf?: OscillatorOptsFilterValues
+  peaking?: OscillatorOptsFilterValues
+  notch?: OscillatorOptsFilterValues
+  allpass?: OscillatorOptsFilterValues
 }
 
 const FILTERS = [
@@ -47,7 +47,7 @@ export class Oscillator implements Playable, Connectable {
   private pannerNode: StereoPannerNode
   public connections: Connection[] = []
 
-  constructor(private audioContext: AudioContext, options?: OscillatorOptions) {
+  constructor(private audioContext: AudioContext, options?: OscillatorOpts) {
     this.type = options?.type || 'sine'
     this.frequency = options?.frequency || 440
 
@@ -58,7 +58,7 @@ export class Oscillator implements Playable, Connectable {
     this.controller = new OscillatorAdjuster(this.oscillator, this.gainNode, this.pannerNode)
 
     FILTERS.forEach((filter) => {
-      const vals = get<OscillatorOptionsFilterValues | undefined>(options, filter)
+      const vals = get<OscillatorOptsFilterValues | undefined>(options, filter)
       if (vals) {
         const filterNode = audioContext.createBiquadFilter()
         filterNode.type = filter as any

@@ -2,8 +2,7 @@ import { Sampler } from '@/sampler'
 import { Oscillator } from '@/oscillator'
 import { Sound } from '@/sound'
 import { Track } from '@/track'
-// TODO: naming collision OscillatorOptions
-import type { OscillatorOptions } from '@/oscillator'
+import type { OscillatorOpts } from '@/oscillator'
 
 const CONTEXT_NOT_EXIST_ERROR = new Error('The audio context does not exist yet! You must call `audio.init()` in response to a user interaction before performing this action.')
 let audioContext: AudioContext
@@ -52,7 +51,7 @@ export async function createSampler(urls: string[]) {
   return new Sampler(sounds)
 }
 
-export function createOscillator(options?: OscillatorOptions) {
+export function createOscillator(options?: OscillatorOpts) {
   throwIfContextNotExist()
   return new Oscillator(audioContext, options)
 }
