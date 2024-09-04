@@ -4,11 +4,10 @@ import { Sound } from '@/sound'
 import { Track } from '@/track'
 import type { OscillatorOpts } from '@/oscillator'
 
-const CONTEXT_NOT_EXIST_ERROR = new Error('The audio context does not exist yet! You must call `audio.init()` in response to a user interaction before performing this action.')
 let audioContext: AudioContext
 function throwIfContextNotExist() {
   if (!audioContext) {
-    throw CONTEXT_NOT_EXIST_ERROR
+    throw new Error('The audio context does not exist yet! You must call `audio.init()` in response to a user interaction before performing this action.')
   }
 }
 
