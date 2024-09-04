@@ -62,7 +62,7 @@ export function setupIndicators(element: HTMLDivElement, type: 'duration' | 'pro
   }
 }
 
-async function updateUi() {
+async function updateIndicators() {
   const track = selectedSong.trackInstance
   if (!track) {
     throw new Error('Cannot update UI, selectedSong.trackInstance is null')
@@ -83,7 +83,7 @@ async function updateUi() {
 
 let progressObserver: (() => void) | null = null
 
-async function updateTrackSelectionUi() {
+async function updateTrackSelectionUi(el: HTMLButtonElement) {
   // if any of the UI elements are missing, throw an error
   if (!duration || !progress || !current || !description || !loading || !player) {
     throw new Error('Cannot update mp3 player, Missing UI elements')
@@ -96,6 +96,11 @@ async function updateTrackSelectionUi() {
   if (progressObserver) {
     unobserve(progressObserver)
   }
+
+  // remove any existing selected items
+  document.querySelector('.selected')?.classList.remove('selected')
+  // add selected class to the new item
+  el.classList.add('selected')
 
   // There is a selected song
   if (!selectedSong.trackInstance) {
@@ -111,7 +116,7 @@ async function updateTrackSelectionUi() {
     progress.style.width = `${selectedSong.trackInstance?.percentPlayed}%`
   })
 
-  updateUi()
+  updateIndicators()
 }
 
 function playAction() {
@@ -127,7 +132,7 @@ function playAction() {
     track.play()
   }
 
-  updateUi()
+  updateIndicators()
 }
 
 function seekAction(e: MouseEvent) {
@@ -164,9 +169,8 @@ function selectAction(name: SongName, el: HTMLButtonElement) {
 
   // if the song was not selected, select it and update UI
   selectedSong = songs.find(song => song.name === name)!
-  document.querySelector('.selected')?.classList.remove('selected')
-  el.classList.add('selected')
-  updateTrackSelectionUi()
+
+  updateTrackSelectionUi(el)
 }
 
 export function setupMp3Buttons(element: HTMLButtonElement, type: 'seek' | 'play' | 'vol' | 'select', name?: SongName) {
@@ -194,7 +198,4 @@ export function setupMp3Buttons(element: HTMLButtonElement, type: 'seek' | 'play
       element.addEventListener('click', volAction)
       break
   }
-
-  // add a listener to play the note again when the button is clicked for the rest of the document's life
-  // element.addEventListener('click', () => drum.play())
 }
