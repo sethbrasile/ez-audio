@@ -203,9 +203,13 @@ export class Oscillator implements Playable, Connectable {
     return this._isPlaying
   }
 
-  // TODO: implement duration
+  // TODO: implement duration... can I? I think duration is too dynamic? any way to infer from asdr? or if there is a sheduled stop?
   get duration() {
     return createTimeObject(0, 0, 0)
+  }
+
+  public get percentGain() {
+    return this.gainNode.gain.value * 100
   }
 }
 

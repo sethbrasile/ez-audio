@@ -5,7 +5,7 @@ const codeExample = `
 const NAME = 'distortion'
 
 await audio.init()
-const sound = await loadSound('Eb5.mp3')
+const sound = await createSound('Eb5.mp3')
 
 let distortionEnabled = false
 

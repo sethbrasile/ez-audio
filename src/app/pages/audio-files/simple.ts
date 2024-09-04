@@ -3,13 +3,13 @@ import nav from './nav'
 import { setupNoteButton } from './note-buttons'
 
 const codeExample = `
-import { audio, loadSound } from 'ez-audio'
+import { audio, createSound } from 'ez-audio'
 
 const url = 'https://raw.githubusercontent.com/mudcube/MIDI.js/master/examples/soundfont/acoustic_grand_piano-mp3/B5.mp3'
 
 await audio.init()
-const leftNote = await loadSound('Db5.mp3')
-const rightNote = await loadSound(url)
+const leftNote = await createSound('Db5.mp3')
+const rightNote = await createSound(url)
 
 leftNote.changePanTo(-0.7)
 rightNote.changePanTo(0.7)

@@ -30,7 +30,7 @@ export const audio = {
   },
 }
 
-export async function loadSound(url: string) {
+export async function createSound(url: string) {
   throwIfContextNotExist()
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
@@ -38,7 +38,7 @@ export async function loadSound(url: string) {
   return new Sound(audioContext, audioBuffer)
 }
 
-export async function loadTrack(url: string) {
+export async function createTrack(url: string) {
   throwIfContextNotExist()
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
@@ -48,7 +48,7 @@ export async function loadTrack(url: string) {
 
 export async function createSampler(urls: string[]) {
   throwIfContextNotExist()
-  const sounds = await Promise.all(urls.map(async url => loadSound(url)))
+  const sounds = await Promise.all(urls.map(async url => createSound(url)))
   return new Sampler(sounds)
 }
 

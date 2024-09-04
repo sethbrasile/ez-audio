@@ -2,13 +2,13 @@ import { setupPlayButton } from '@app/play-button.ts'
 import { codeBlock } from '../utils'
 
 const codeExample = `
-import { audio, loadSound } from 'ez-audio'
+import { audio, createSound } from 'ez-audio'
 
 function playSound() {
   // 1. Initialize the audio context
   await audio.init()
   // 2. Load a sound from a URL
-  const note = await loadSound('Eb5.mp3')
+  const note = await createSound('Eb5.mp3')
   // 3. Play the sound
   note.play()
 }

@@ -1,11 +1,11 @@
-import { audio, loadSound } from '@/index'
+import { audio, createSound } from '@/index'
 
 export function setupPlayButton(element: HTMLButtonElement) {
   const setup = async () => {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
-    const note = await loadSound('Eb5.mp3')
+    const note = await createSound('Eb5.mp3')
 
     if (note) {
       // remove the setup listener
@@ -28,7 +28,7 @@ export function setupPlayButton(element: HTMLButtonElement) {
   //   // 1. Initialize the audio context
   //   await audio.init()
   //   // 2. Load a sound from a URL
-  //   const note = await loadSound('Eb5.mp3')
+  //   const note = await createSound('Eb5.mp3')
   //   // 3. Play the sound
   //   note.play()
   // }

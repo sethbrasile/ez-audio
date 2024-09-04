@@ -1,4 +1,4 @@
-import { audio, loadSound } from '@/index'
+import { audio, createSound } from '@/index'
 
 const url = 'https://raw.githubusercontent.com/mudcube/MIDI.js/master/examples/soundfont/acoustic_grand_piano-mp3/B5.mp3'
 
@@ -7,8 +7,8 @@ export function setupNoteButton(element: HTMLButtonElement, direction: 'right' |
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
-    const leftNote = await loadSound('Eb5.mp3')
-    const rightNote = await loadSound(url)
+    const leftNote = await createSound('Eb5.mp3')
+    const rightNote = await createSound(url)
 
     leftNote.changePanTo(-0.7)
     rightNote.changePanTo(0.7)
