@@ -16,6 +16,7 @@
     "@nx-js/observer-util": "^4.2.2",
     "@types/prismjs": "^1.26.4",
     "eslint": "9.5.0",
+    "eslint-plugin-tsdoc": "^0.3.0",
     "happy-dom": "^15.7.0",
     "prismjs": "^1.29.0",
     "standardized-audio-context": "^25.3.76",
