@@ -1,4 +1,3 @@
-import './public/style.css'
 import { setupRouter } from './router'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
