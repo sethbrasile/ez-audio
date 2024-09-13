@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . -c eslint.config.js",
     "lint:fix": "eslint . --fix",
     "test": "vitest"
   },
@@ -17,7 +17,6 @@
     "@nx-js/observer-util": "^4.2.2",
     "@types/prismjs": "^1.26.4",
     "eslint": "9.5.0",
-    "eslint-plugin-tsdoc": "^0.3.0",
     "happy-dom": "^15.7.0",
     "prismjs": "^1.29.0",
     "standardized-audio-context": "^25.3.76",
