@@ -33,7 +33,7 @@ let duration: HTMLDivElement,
   loading: HTMLDivElement,
   player: HTMLDivElement
 
-export function setupIndicators(element: HTMLDivElement, type: 'duration' | 'progress' | 'current' | 'description' | 'loading' | 'player' | 'vol') {
+export function setupIndicators(element: HTMLDivElement, type: 'duration' | 'progress' | 'current' | 'description' | 'loading' | 'player' | 'vol'): void {
   switch (type) {
     case 'duration':
       duration = element
@@ -61,7 +61,7 @@ export function setupIndicators(element: HTMLDivElement, type: 'duration' | 'pro
   }
 }
 
-async function updateIndicators() {
+async function updateIndicators(): Promise<void> {
   const track = selectedSong.trackInstance
   if (!track) {
     throw new Error('Cannot update UI, selectedSong.trackInstance is null')
@@ -82,7 +82,7 @@ async function updateIndicators() {
 
 let progressObserver: (() => void) | null = null
 
-async function updateTrackSelectionUi(el: HTMLButtonElement) {
+async function updateTrackSelectionUi(el: HTMLButtonElement): Promise<void> {
   // if any of the UI elements are missing, throw an error
   if (!duration || !progress || !current || !description || !loading || !player) {
     throw new Error('Cannot update mp3 player, Missing UI elements')
@@ -118,7 +118,7 @@ async function updateTrackSelectionUi(el: HTMLButtonElement) {
   updateIndicators()
 }
 
-function playAction() {
+function playAction(): void {
   if (!selectedSong.trackInstance) {
     throw new Error('Cannot play song, selectedSong.trackInstance is null')
   }
@@ -134,14 +134,14 @@ function playAction() {
   updateIndicators()
 }
 
-function seekAction(e: MouseEvent) {
+function seekAction(e: MouseEvent): void {
   // @ts-expect-error typescript is wrong
   const width = e.target?.offsetParent.offsetWidth as number
   const newPosition = e.offsetX / width
   selectedSong.trackInstance?.seek(newPosition).from('ratio')
 }
 
-function volAction(e: MouseEvent) {
+function volAction(e: MouseEvent): void {
   // @ts-expect-error typescript is wrong
   const height = e.target.offsetParent.offsetHeight
   // @ts-expect-error typescript is wrong
@@ -155,7 +155,7 @@ function volAction(e: MouseEvent) {
   volDisplay.style.height = `${selectedSong.trackInstance?.percentGain}%`
 }
 
-function selectAction(name: SongName, el: HTMLButtonElement) {
+function selectAction(name: SongName, el: HTMLButtonElement): void {
   if (selectedSong && selectedSong.name === name) {
     // if the song was already selected, do nothing
     return
@@ -172,8 +172,8 @@ function selectAction(name: SongName, el: HTMLButtonElement) {
   updateTrackSelectionUi(el)
 }
 
-export function setupMp3Buttons(element: HTMLButtonElement, type: 'seek' | 'play' | 'vol' | 'select', name?: SongName) {
-  async function setup() {
+export function setupMp3Buttons(element: HTMLButtonElement, type: 'seek' | 'play' | 'vol' | 'select', name?: SongName): void {
+  async function setup(): Promise<void> {
     await audio.init()
     // remove the setup listener
     element.removeEventListener('click', setup)

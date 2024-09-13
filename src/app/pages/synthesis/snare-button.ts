@@ -1,21 +1,23 @@
 import { audio, createOscillator, createWhiteNoise } from '@/index'
 import { LayeredSound } from '@/layered-sound'
+import type { Oscillator } from '@/oscillator'
+import type { Sound } from '@/sound'
 
-function createSnareOscillator() {
+function createSnareOscillator(): Oscillator {
   const snare = createOscillator()
   snare.onPlayRamp('frequency').from(100).to(60).in(0.1)
   snare.onPlayRamp('gain').from(1).to(0.01).in(0.1)
   return snare
 }
 
-function createSnareNoise() {
+function createSnareNoise(): Sound {
   const noise = createWhiteNoise()
   noise.onPlayRamp('gain').from(1).to(0.001).in(0.1)
   return noise
 }
 
-export function setupSnareButton(element: HTMLButtonElement) {
-  async function setup() {
+export function setupSnareButton(element: HTMLButtonElement): void {
+  async function setup(): Promise<void> {
     element.classList.add('loading')
 
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
@@ -41,8 +43,8 @@ export function setupSnareButton(element: HTMLButtonElement) {
   element.addEventListener('click', setup)
 }
 
-export function setupSnareCrackButton(element: HTMLButtonElement) {
-  async function setup() {
+export function setupSnareCrackButton(element: HTMLButtonElement): void {
+  async function setup(): Promise<void> {
     element.classList.add('loading')
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
@@ -64,8 +66,8 @@ export function setupSnareCrackButton(element: HTMLButtonElement) {
   element.addEventListener('click', setup)
 }
 
-export function setupSnareMeatButton(element: HTMLButtonElement) {
-  async function setup() {
+export function setupSnareMeatButton(element: HTMLButtonElement): void {
+  async function setup(): Promise<void> {
     element.classList.add('loading')
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.

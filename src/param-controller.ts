@@ -52,15 +52,15 @@ export class BaseParamController {
   protected exponentialValues: ValueAtTime[] = []
   protected linearValues: ValueAtTime[] = []
 
-  public updateGainNode(gainNode: GainNode) {
+  public updateGainNode(gainNode: GainNode): void {
     this.gainNode = gainNode
   }
 
-  public updatePannerNode(pannerNode: StereoPannerNode) {
+  public updatePannerNode(pannerNode: StereoPannerNode): void {
     this.pannerNode = pannerNode
   }
 
-  protected _update(type: ControlType, value: number) {
+  protected _update(type: ControlType, value: number): void {
     switch (type) {
       case 'pan':
         this.pannerNode.pan.value = value
@@ -78,8 +78,8 @@ export class BaseParamController {
     }
   }
 
-  // TODO: Consider changeing 'from' to be something like 'using' or 'as'
-  public update(type: ControlType) {
+  // TODO: Consider changing 'from' to be something like 'using' or 'as'
+  public update(type: ControlType): { to: (value: number) => { from: (method: RatioType) => void } } {
     return {
       to: (value: number) => {
         return {
@@ -103,7 +103,7 @@ export class BaseParamController {
     }
   }
 
-  public onPlaySet(type: ControlType) {
+  public onPlaySet(type: ControlType): { to: (value: number) => { at: (time: number) => void, endingAt: (time: number, rampType?: RampType) => void } } {
     return {
       to: (value: number) => {
         const paramValue: ParamValue = { type, value }
@@ -122,7 +122,7 @@ export class BaseParamController {
     }
   }
 
-  public onPlayRamp(type: ControlType, rampType?: RampType) {
+  public onPlayRamp(type: ControlType, rampType?: RampType): { from: (startValue: number) => { to: (endValue: number) => { in: (endTime: number) => void } } } {
     return {
       from: (startValue: number) => {
         return {
@@ -139,11 +139,11 @@ export class BaseParamController {
     }
   }
 
-  private removeStartingValue(startValue: ParamValue) {
+  private removeStartingValue(startValue: ParamValue): void {
     this.startingValues = this.startingValues.filter(item => item !== startValue)
   }
 
-  private addRampValue(valueAtTime: ValueAtTime, rampType: RampType) {
+  private addRampValue(valueAtTime: ValueAtTime, rampType: RampType): void {
     switch (rampType) {
       case 'exponential':
         this.exponentialValues.push(valueAtTime)

@@ -2,8 +2,8 @@ import { audio, createSound } from '@/index'
 
 const url = 'https://raw.githubusercontent.com/mudcube/MIDI.js/master/examples/soundfont/acoustic_grand_piano-mp3/B5.mp3'
 
-export function setupNoteButton(element: HTMLButtonElement, direction: 'right' | 'left' | 'both') {
-  const setup = async () => {
+export function setupNoteButton(element: HTMLButtonElement, direction: 'right' | 'left' | 'both'): void {
+  async function setup(): Promise<void> {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()

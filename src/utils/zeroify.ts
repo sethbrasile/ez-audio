@@ -11,7 +11,7 @@
  * @param {number} input A number that should be formatted
  * @return {string} The number formatted and converted to string
  */
-export default function zeroify(input: number) {
+export default function zeroify(input: number): string {
   const num = Math.floor(input)
 
   if (num < 10) {

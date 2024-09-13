@@ -1,9 +1,10 @@
+import type { TimeObject } from '@utils/create-time-object'
 import createTimeObject from '@utils/create-time-object'
 import audioContextAwareTimeout from '@utils/timeout'
 import type Playable from '@interfaces/playable'
 import type { Connectable, Connection } from '@interfaces/connectable'
 import withinRange from './utils/within-range'
-import type { ControlType, ParamController, ParamValue, RampType, SeekType, ValueAtTime } from '@/param-controller'
+import type { ControlType, ParamController, ParamValue, RampType, RatioType, SeekType, ValueAtTime } from '@/param-controller'
 import { BaseParamController } from '@/param-controller'
 
 /**
@@ -43,7 +44,7 @@ export class Sound implements Playable, Connectable {
     this.controller = new SoundController(bufferSourceNode, gainNode, pannerNode)
   }
 
-  private setup() {
+  private setup(): void {
     const bufferSourceNode = this.audioContext.createBufferSource()
     bufferSourceNode.buffer = this.audioBuffer
     this.bufferSourceNode = bufferSourceNode
@@ -51,7 +52,7 @@ export class Sound implements Playable, Connectable {
     this.controller.setValuesAtTimes()
   }
 
-  public wireConnections() {
+  public wireConnections(): void {
     // always start with the audio source
     const nodes: AudioNode[] = [this.bufferSourceNode]
     const { connections, pannerNode } = this
@@ -73,12 +74,12 @@ export class Sound implements Playable, Connectable {
     pannerNode.connect(this.audioContext.destination)
   }
 
-  addConnection(connection: Connection) {
+  addConnection(connection: Connection): void {
     this.connections.push(connection)
     this.wireConnections()
   }
 
-  removeConnection(name: string) {
+  removeConnection(name: string): void {
     const connection = this.getConnection(name)
     if (connection) {
       const index = this.connections.indexOf(connection)
@@ -99,41 +100,58 @@ export class Sound implements Playable, Connectable {
     return this.getConnection(connectionName)?.audioNode as T | undefined
   }
 
-  get audioSourceNode() {
+  get audioSourceNode(): AudioBufferSourceNode {
     return this.bufferSourceNode
   }
 
-  update(type: ControlType) {
+  update(type: ControlType): {
+    to: (value: number) => {
+      from: (method: RatioType) => void
+    }
+  } {
     return this.controller.update(type)
   }
 
-  changePanTo(value: number) {
+  changePanTo(value: number): void {
     this.controller.update('pan').to(value).from('ratio')
   }
 
-  changeGainTo(value: number) {
+  changeGainTo(value: number): {
+    from: (method: RatioType) => void
+  } {
     return this.controller.update('gain').to(value)
   }
 
-  onPlaySet(type: ControlType) {
+  onPlaySet(type: ControlType): {
+    to: (value: number) => {
+      at: (time: number) => void
+      endingAt: (time: number, rampType?: RampType) => void
+    }
+  } {
     return this.controller.onPlaySet(type)
   }
 
-  onPlayRamp(type: ControlType, rampType?: RampType) {
+  onPlayRamp(type: ControlType, rampType?: RampType): {
+    from: (startValue: number) => {
+      to: (endValue: number) => {
+        in: (endTime: number) => void
+      }
+    }
+  } {
     return this.controller.onPlayRamp(type, rampType)
   }
 
-  play() {
+  play(): void {
     this.playAt(this.audioContext.currentTime)
   }
 
-  playFor(duration: number) {
+  playFor(duration: number): void {
     const { setTimeout } = audioContextAwareTimeout(this.audioContext)
     this.playAt(this.audioContext.currentTime)
     setTimeout(() => this.stop(), duration * 1000)
   }
 
-  playAt(time: number) {
+  playAt(time: number): void {
     const { audioContext } = this
     const { currentTime } = audioContext
     const { setTimeout } = audioContextAwareTimeout(audioContext)
@@ -154,16 +172,16 @@ export class Sound implements Playable, Connectable {
     }
   }
 
-  stop() {
+  stop(): void {
     this.bufferSourceNode.stop()
     this._isPlaying = false
   }
 
-  public get isPlaying() {
+  public get isPlaying(): boolean {
     return this._isPlaying
   }
 
-  public get duration() {
+  public get duration(): TimeObject {
     const buffer = this.bufferSourceNode.buffer
     if (buffer === null)
       return createTimeObject(0, 0, 0)
@@ -173,7 +191,7 @@ export class Sound implements Playable, Connectable {
     return createTimeObject(duration, min, sec)
   }
 
-  public get percentGain() {
+  public get percentGain(): number {
     return this.gainNode.gain.value * 100
   }
 
@@ -194,10 +212,10 @@ export class Sound implements Playable, Connectable {
    *
    * @param {number} amount The new play position value.
    */
-  seek(amount: number) {
+  seek(amount: number): { from: (type: SeekType) => void } {
     const duration = this.duration.raw
 
-    const moveToOffset = (offset: number) => {
+    const moveToOffset = (offset: number): void => {
       const _isPlaying = this._isPlaying
       const adjustedOffset = withinRange(offset, 0, duration)
 
@@ -237,11 +255,11 @@ export class SoundController extends BaseParamController implements ParamControl
     super(bufferSourceNode, gainNode, pannerNode)
   }
 
-  public updateAudioSource(source: AudioBufferSourceNode) {
+  public updateAudioSource(source: AudioBufferSourceNode): void {
     this.bufferSourceNode = source
   }
 
-  public setValuesAtTimes() {
+  public setValuesAtTimes(): void {
     const { bufferSourceNode } = this
     const currentTime = bufferSourceNode.context.currentTime
 
@@ -251,7 +269,7 @@ export class SoundController extends BaseParamController implements ParamControl
     this.applyRampValues(this.linearValues, currentTime, 'linear')
   }
 
-  private applyValues(values: ParamValue[], currentTime: number) {
+  private applyValues(values: ParamValue[], currentTime: number): void {
     values.forEach((item) => {
       switch (item.type) {
         case 'detune':
@@ -266,7 +284,7 @@ export class SoundController extends BaseParamController implements ParamControl
     })
   }
 
-  private applyRampValues(values: ValueAtTime[], currentTime: number, rampType: 'exponential' | 'linear') {
+  private applyRampValues(values: ValueAtTime[], currentTime: number, rampType: 'exponential' | 'linear'): void {
     values.forEach((item) => {
       const time = currentTime + item.time
       switch (item.type) {

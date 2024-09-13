@@ -20,45 +20,30 @@ export class Sampler {
   }
 
   /**
-   * Determines the gain applied to each sample.
-   *
-   * @public
    * @property gain
-   * @type {number}
-   * @default 1
+   * Determines the gain applied to each sample.
    */
   gain: number = 1
 
   /**
-   * Determines the stereo pan position of each sample.
-   *
-   * @public
    * @property pan
-   * @type {number}
-   * @default 0
+   * Determines the stereo pan position of each sample.
    */
   pan: number = 0
 
   /**
+   * @property _soundIterator
    * Temporary storage for the iterable that comes from the sounds Set.
    * This iterable is meant to be replaced with a new copy every time it reaches
    * it's end, resulting in an infinite stream of Sound instances.
-   *
-   * @private
-   * @property _soundIterator
-   * @type {Iterator}
-   *
    */
-  _soundIterator: Iterator<Sound>
+  private _soundIterator: Iterator<Sound>
 
   /**
+   * @property sounds
    * Acts as a register for loaded audio sources. Audio sources can be anything
    * that uses {{#crossLink "Playable"}}{{/crossLink}}. If not set on
    * instantiation, automatically set to `new Set()` via `_initSounds`.
-   *
-   * @public
-   * @property sounds
-   * @type {set}
    */
   sounds: Set<Sound>
 
@@ -68,20 +53,18 @@ export class Sampler {
    * @public
    * @method play
    */
-  play() {
+  play(): void {
     this._getNextSound().play()
   }
 
   /**
+   * @method playIn
    * Gets the next Sound and plays it after the specified offset has elapsed.
    *
-   * @public
-   * @method playIn
-   *
-   * @param {number} seconds Number of seconds from "now" that the next Sound
+   * @param {number} _ Number of seconds from "now" that the next Sound
    * should be played.
    */
-  playIn(_: number) {
+  playIn(_: number): void {
     // this._getNextSound().playIn(seconds)
   }
 
@@ -97,7 +80,7 @@ export class Sampler {
    * @public
    * @method playAt
    */
-  playAt(time: number) {
+  playAt(time: number): void {
     this._getNextSound().playAt(time)
   }
 
@@ -110,7 +93,7 @@ export class Sampler {
    * @method _getNextSound
    * @return {Sound}
    */
-  _getNextSound() {
+  _getNextSound(): Sound {
     let soundIterator = this._soundIterator
     let nextSound
 
@@ -134,7 +117,7 @@ export class Sampler {
    * @method _setGainAndPan
    * @return {Sound} The input sound after having it's gain and pan set
    */
-  _setGainAndPan(sound: Sound) {
+  _setGainAndPan(sound: Sound): Sound {
     // sound.changeGainTo(this.gain).from('ratio')
     sound.changePanTo(this.pan)
 

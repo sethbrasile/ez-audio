@@ -13,7 +13,7 @@
  * @param {number} index The index where the split should occur.
  * @return {Array} The swapped/shifted array.
  */
-export function arraySwap<T>(arr: T[], index: number) {
+export function arraySwap<T>(arr: T[], index: number): T[] {
   const endOfArr = arr.slice(0, index)
   const beginOfArr = arr.slice(index, arr.length)
   beginOfArr.push(...endOfArr)
@@ -21,14 +21,6 @@ export function arraySwap<T>(arr: T[], index: number) {
 }
 
 // replaces array so don't use on observable array
-export function unique(arr: any[]) {
+export function unique<T>(arr: T[]): T[] {
   return [...new Set(arr)]
-}
-
-export function removeItem<T>(arr: T[], value: T) {
-  const index = arr.indexOf(value)
-  if (index > -1) {
-    arr.splice(index, 1)
-  }
-  return arr
 }

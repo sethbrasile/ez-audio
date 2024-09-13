@@ -25,11 +25,11 @@ export class LayeredSound {
    *
    * @method play
    */
-  play() {
+  play(): void {
     this.sounds.map(sound => sound.play())
   }
 
-  playFor(seconds: number) {
+  playFor(seconds: number): void {
     this.sounds.map(sound => sound.playFor(seconds))
   }
 

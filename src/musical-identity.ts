@@ -39,6 +39,7 @@ export interface IMusicallyAware {
  * @public
  * @class MusicalIdentity
  */
+// eslint-disable-next-line ts/explicit-function-return-type
 export function MusicallyAware<TBase extends Constructor>(Base: TBase) {
   return class MusicalIdentity extends Base {
     /**
@@ -58,8 +59,9 @@ export function MusicallyAware<TBase extends Constructor>(Base: TBase) {
 
     /**
      * @property name Computed property. Value is `${letter}` or `${letter}${accidental}` if accidental exists.
+     * @todo 'type' letter + accidental
      */
-    get name() {
+    get name(): string {
       const { accidental, letter } = this
 
       if (accidental) {

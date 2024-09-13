@@ -1,10 +1,11 @@
 import { get } from '@utils/prop-access'
 import type Playable from '@interfaces/playable'
 import type { Connectable, Connection } from '@interfaces/connectable'
+import type { TimeObject } from '@utils/create-time-object'
 import createTimeObject from '@utils/create-time-object'
 import audioContextAwareTimeout from '@utils/timeout'
 import { BaseParamController } from '@/param-controller'
-import type { ControlType, ParamController, ParamValue, RampType, ValueAtTime } from '@/param-controller'
+import type { ControlType, ParamController, ParamValue, RampType, RatioType, ValueAtTime } from '@/param-controller'
 
 export interface OscillatorOptsFilterValues {
   frequency?: number
@@ -70,15 +71,15 @@ export class Oscillator implements Playable, Connectable {
     })
   }
 
-  onPlaySet(type: ControlType) {
+  onPlaySet(type: ControlType): { to: (value: number) => { at: (time: number) => void, endingAt: (time: number, rampType?: RampType) => void } } {
     return this.controller.onPlaySet(type)
   }
 
-  onPlayRamp(type: ControlType, rampType?: RampType) {
+  onPlayRamp(type: ControlType, rampType?: RampType): { from: (startValue: number) => { to: (endValue: number) => { in: (endTime: number) => void } } } {
     return this.controller.onPlayRamp(type, rampType)
   }
 
-  private setup() {
+  private setup(): void {
     // Create a new oscillator on every play
     const oscillator = this.audioContext.createOscillator()
     oscillator.type = this.type || 'sine'
@@ -98,7 +99,7 @@ export class Oscillator implements Playable, Connectable {
     this.controller.setValuesAtTimes()
   }
 
-  wireConnections() {
+  wireConnections(): void {
     // always start with the audio source
     const nodes: AudioNode[] = [this.oscillator]
     const { connections, filters, pannerNode } = this
@@ -125,12 +126,12 @@ export class Oscillator implements Playable, Connectable {
     pannerNode.connect(this.audioContext.destination)
   }
 
-  addConnection(connection: Connection) {
+  addConnection(connection: Connection): void {
     this.connections.push(connection)
     this.wireConnections()
   }
 
-  removeConnection(name: string) {
+  removeConnection(name: string): void {
     const connection = this.getConnection(name)
     if (connection) {
       const index = this.connections.indexOf(connection)
@@ -149,40 +150,44 @@ export class Oscillator implements Playable, Connectable {
     return this.getConnection(connectionName)?.audioNode as T | undefined
   }
 
-  get audioSourceNode() {
+  get audioSourceNode(): OscillatorNode {
     return this.oscillator
   }
 
   // convenience method, equivalent longer form would be
   // osc.controller.update(type).to(value).from('ratio')
-  update(type: ControlType) {
+  update(type: ControlType): {
+    to: (value: number) => {
+      from: (method: RatioType) => void
+    }
+  } {
     return this.controller.update(type)
   }
 
   // convenience method, equivalent longer form would be
   // osc.update('pan').to(value).from('ratio')
-  changePanTo(value: number) {
+  changePanTo(value: number): void {
     this.controller.update('pan').to(value).from('ratio')
   }
 
   // convenience method, equivalent longer form would be
   // osc.update('gain').to(value).from('ratio')
-  changeGainTo(value: number) {
+  changeGainTo(value: number): void {
     this.controller.update('gain').to(value).from('ratio')
   }
 
-  play() {
+  play(): void {
     this.playAt(this.audioContext.currentTime)
   }
 
-  playFor(duration: number) {
+  playFor(duration: number): void {
     const { setTimeout } = audioContextAwareTimeout(this.audioContext)
     this.playAt(this.audioContext.currentTime)
     setTimeout(() => this.stop(), duration * 1000)
   }
 
   // playAt is the underlying play method behind all play methods
-  playAt(time: number) {
+  playAt(time: number): void {
     const { audioContext } = this
     const { currentTime } = audioContext
     const { setTimeout } = audioContextAwareTimeout(audioContext)
@@ -200,22 +205,22 @@ export class Oscillator implements Playable, Connectable {
     }
   }
 
-  stop() {
+  stop(): void {
     this._isPlaying = false
     this.oscillator.stop()
   }
 
   private _isPlaying = false
-  get isPlaying() {
+  get isPlaying(): boolean {
     return this._isPlaying
   }
 
   // TODO: implement duration... can I? I think duration is too dynamic? any way to infer from asdr? or if there is a sheduled stop?
-  get duration() {
+  get duration(): TimeObject {
     return createTimeObject(0, 0, 0)
   }
 
-  public get percentGain() {
+  public get percentGain(): number {
     return this.gainNode.gain.value * 100
   }
 }
@@ -225,11 +230,11 @@ export class OscillatorController extends BaseParamController implements ParamCo
     super(oscillator, gainNode, pannerNode)
   }
 
-  public updateAudioSource(oscillator: OscillatorNode) {
+  public updateAudioSource(oscillator: OscillatorNode): void {
     this.oscillator = oscillator
   }
 
-  protected _update(type: ControlType, value: number) {
+  protected _update(type: ControlType, value: number): void {
     switch (type) {
       case 'frequency':
         this.oscillator.frequency.value = value
@@ -239,7 +244,7 @@ export class OscillatorController extends BaseParamController implements ParamCo
     }
   }
 
-  public setValuesAtTimes() {
+  public setValuesAtTimes(): void {
     const { oscillator: { context: { currentTime } } } = this
     this.applyValues(this.startingValues, currentTime)
     this.applyValues(this.valuesAtTime, currentTime)
@@ -247,7 +252,7 @@ export class OscillatorController extends BaseParamController implements ParamCo
     this.applyRampValues(this.linearValues, currentTime, 'linear')
   }
 
-  private applyValues(values: ParamValue[], currentTime: number) {
+  private applyValues(values: ParamValue[], currentTime: number): void {
     const { oscillator, gainNode } = this
     values.forEach((item) => {
       switch (item.type) {
@@ -263,7 +268,7 @@ export class OscillatorController extends BaseParamController implements ParamCo
     })
   }
 
-  private applyRampValues(values: ValueAtTime[], currentTime: number, rampType: 'exponential' | 'linear') {
+  private applyRampValues(values: ValueAtTime[], currentTime: number, rampType: 'exponential' | 'linear'): void {
     const { oscillator, gainNode } = this
     values.forEach((item) => {
       const time = currentTime + item.time

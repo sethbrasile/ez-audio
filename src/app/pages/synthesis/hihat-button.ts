@@ -2,7 +2,7 @@ import { audio, createOscillator } from '@/index'
 import { LayeredSound } from '@/layered-sound'
 import type { Oscillator } from '@/oscillator'
 
-function createHihatOscillator(ratio: number) {
+function createHihatOscillator(ratio: number): Oscillator {
   const fundamental = 40
 
   return createOscillator({
@@ -13,14 +13,14 @@ function createHihatOscillator(ratio: number) {
   })
 }
 
-function createHihatEnvelope(oscillator: Oscillator) {
+function createHihatEnvelope(oscillator: Oscillator): Oscillator {
   oscillator.onPlayRamp('gain').from(0.00001).to(1).in(0.02)
   oscillator.onPlaySet('gain').to(0.3).endingAt(0.03)
   oscillator.onPlaySet('gain').to(0.00001).endingAt(0.3)
   return oscillator
 }
 
-function createHihat() {
+function createHihat(): LayeredSound {
   // http://joesul.li/van/synthesizing-hi-hats/
   const overtones = [2, 3, 4.16, 5.43, 6.79, 8.21]
 
@@ -35,8 +35,8 @@ function createHihat() {
   return new LayeredSound(oscillators)
 }
 
-export function setupHihatButton(element: HTMLButtonElement) {
-  async function setup() {
+export function setupHihatButton(element: HTMLButtonElement): void {
+  async function setup(): Promise<void> {
     element.classList.add('loading')
 
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler

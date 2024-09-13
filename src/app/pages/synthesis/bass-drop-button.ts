@@ -1,7 +1,7 @@
 import { audio, createOscillator } from '@/index'
 
-export function setupBassDropButton(element: HTMLButtonElement) {
-  async function setup() {
+export function setupBassDropButton(element: HTMLButtonElement): void {
+  async function setup(): Promise<void> {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()

@@ -5,15 +5,18 @@ interface Task {
 }
 
 // AudioContext-aware and AudioContext-precise setTimeout and clearTimeout.
-export default function audioContextAwareTimeout(audioContext: AudioContext | BaseAudioContext) {
+export default function audioContextAwareTimeout(audioContext: AudioContext | BaseAudioContext): {
+  setTimeout: (fn: () => void, delayMillis: number) => number
+  clearTimeout: (id: number) => void
+} {
   let tasks: Task[] = []
   let nextTaskId = 1
 
-  function now() {
+  function now(): number {
     return audioContext.currentTime * 1000
   }
 
-  function scheduler() {
+  function scheduler(): void {
     const currentTime = now()
 
     // Call due tasks

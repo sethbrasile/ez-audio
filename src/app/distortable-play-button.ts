@@ -6,7 +6,7 @@ const NAME = 'distortion'
 let distortionEnabled = false
 const sound = observable<{ note: Sound | undefined }>({ note: undefined })
 
-function makeDistortionCurve(amount: number) {
+function makeDistortionCurve(amount: number): Float32Array {
   // I stole this straight from the Mozilla Web Audio API docs site
   const k = typeof amount === 'number' ? amount : 50
   const n_samples = 44100
@@ -21,7 +21,7 @@ function makeDistortionCurve(amount: number) {
   return curve
 }
 
-function addDistortion(sound: Sound) {
+function addDistortion(sound: Sound): void {
   const curve = makeDistortionCurve(400)
 
   distortionEnabled = true
@@ -36,7 +36,7 @@ function addDistortion(sound: Sound) {
   }
 }
 
-function removeDistortion(sound: Sound) {
+function removeDistortion(sound: Sound): void {
   distortionEnabled = false
 
   // raise note's gain because clean signal has much less apparent volume
@@ -49,8 +49,8 @@ function removeDistortion(sound: Sound) {
   }
 }
 
-export function setupDistortablePlayButton(element: HTMLButtonElement) {
-  const setup = async () => {
+export function setupDistortablePlayButton(element: HTMLButtonElement): void {
+  const setup = async (): Promise<void> => {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()
@@ -80,8 +80,8 @@ export function setupDistortablePlayButton(element: HTMLButtonElement) {
   element.addEventListener('click', setup)
 }
 
-export function setupToggleDistortion(element: HTMLButtonElement) {
-  function toggleDistortion() {
+export function setupToggleDistortion(element: HTMLButtonElement): void {
+  function toggleDistortion(): void {
     if (distortionEnabled) {
       removeDistortion(sound.note!)
       element.textContent = 'Enable distortion'
@@ -92,7 +92,7 @@ export function setupToggleDistortion(element: HTMLButtonElement) {
     }
   }
 
-  function enableDistortionButton() {
+  function enableDistortionButton(): void {
     if (sound.note) {
       element.disabled = false
       unobserve(enableDistortionButton)

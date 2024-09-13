@@ -1,6 +1,6 @@
 import { Font } from './font'
 import { mungeSoundFont } from './utils/decode-base64'
-import { createNoteObjectsForFont, extractDecodedKeyValuePairs, sortNotes } from './utils/note-methods'
+import { createNoteObjectsForFont, extractDecodedKeyValuePairs } from './utils/note-methods'
 import frequencyMap from './utils/frequency-map'
 import { Sampler } from '@/sampler'
 import { Oscillator } from '@/oscillator'
@@ -10,7 +10,7 @@ import { Note } from '@/note'
 import type { OscillatorOpts } from '@/oscillator'
 
 let audioContext: AudioContext
-function throwIfContextNotExist() {
+function throwIfContextNotExist(): void {
   if (!audioContext) {
     throw new Error('The audio context does not exist yet! You must call `audio.init()` in response to a user interaction before performing this action.')
   }
@@ -48,7 +48,7 @@ export function createNotes(json?: any): Note[] {
   return notes
 }
 
-export async function createSound(url: string) {
+export async function createSound(url: string): Promise<Sound> {
   throwIfContextNotExist()
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
@@ -56,7 +56,7 @@ export async function createSound(url: string) {
   return new Sound(audioContext, audioBuffer)
 }
 
-export async function createTrack(url: string) {
+export async function createTrack(url: string): Promise<Track> {
   throwIfContextNotExist()
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
@@ -64,18 +64,18 @@ export async function createTrack(url: string) {
   return new Track(audioContext, audioBuffer)
 }
 
-export async function createSampler(urls: string[]) {
+export async function createSampler(urls: string[]): Promise<Sampler> {
   throwIfContextNotExist()
   const sounds = await Promise.all(urls.map(async url => createSound(url)))
   return new Sampler(sounds)
 }
 
-export function createOscillator(options?: OscillatorOpts) {
+export function createOscillator(options?: OscillatorOpts): Oscillator {
   throwIfContextNotExist()
   return new Oscillator(audioContext, options)
 }
 
-export async function createFont(url: string) {
+export async function createFont(url: string): Promise<Font> {
   throwIfContextNotExist()
   const response = await fetch(url)
   const text = await response.text()
@@ -85,7 +85,7 @@ export async function createFont(url: string) {
   return new Font(notes)
 }
 
-export function createWhiteNoise() {
+export function createWhiteNoise(): Sound {
   throwIfContextNotExist()
   const bufferSize = audioContext.sampleRate
   const audioBuffer = audioContext.createBuffer(1, bufferSize, bufferSize)

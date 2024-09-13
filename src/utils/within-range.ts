@@ -18,7 +18,7 @@
  * @param {number} max The maximum allowed value of the `value` param. If `value`
  * is greater than this value, this value will be returned instead.
  */
-export default function withinRange(value: number, min: number, max: number) {
+export default function withinRange(value: number, min: number, max: number): number {
   if (value < min) {
     return min
   }

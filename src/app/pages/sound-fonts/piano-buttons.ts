@@ -1,7 +1,7 @@
 import { audio, createFont } from '@/index'
 import type { Note } from '@/note'
 
-export async function setupPiano(element: HTMLOListElement) {
+export async function setupPiano(element: HTMLOListElement): Promise<void> {
   element.classList.add('loading')
   // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
   // then remove the listener.

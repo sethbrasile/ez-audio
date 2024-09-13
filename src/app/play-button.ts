@@ -1,7 +1,7 @@
 import { audio, createSound } from '@/index'
 
-export function setupPlayButton(element: HTMLButtonElement) {
-  const setup = async () => {
+export function setupPlayButton(element: HTMLButtonElement): void {
+  const setup = async (): Promise<void> => {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
     await audio.init()

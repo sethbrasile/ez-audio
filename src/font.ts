@@ -1,5 +1,5 @@
-import type Playable from './interfaces/playable'
-import type { AcceptableNote, IMusicallyAware } from './musical-identity'
+import type { AcceptableNote } from './musical-identity'
+import type { SampledNote } from './sampled-note'
 
 /**
  * Allows multiple SampledNote instances to be loaded up and played via their
@@ -9,7 +9,7 @@ import type { AcceptableNote, IMusicallyAware } from './musical-identity'
  * @class Font
  */
 export class Font {
-  constructor(public notes: (IMusicallyAware & Playable)[]) {}
+  constructor(public notes: SampledNote[]) {}
 
   /**
    * Gets a note from `notes`, given it's identifier.
@@ -19,7 +19,7 @@ export class Font {
    * returned,
    * @return {SampledNote} The specified Note instance.
    */
-  getNote(identifier: string) {
+  getNote(identifier: string): SampledNote | undefined {
     return this.notes.find(note => note.identifier === identifier)
   }
 
@@ -30,7 +30,7 @@ export class Font {
    * @param {string} identifier The identifier for the note that should be
    * played.
    */
-  play(identifier: AcceptableNote) {
+  play(identifier: AcceptableNote): void {
     this.getNote(identifier)!.play()
   }
 }

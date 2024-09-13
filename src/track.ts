@@ -1,3 +1,4 @@
+import type { TimeObject } from '@utils/create-time-object'
 import createTimeObject from '@utils/create-time-object'
 import { Sound } from './sound'
 
@@ -13,7 +14,7 @@ import { Sound } from './sound'
  */
 export class Track extends Sound {
   /**
-   * Value is an object containing the current play position
+   * @property position Value is an object containing the current play position
    * of the audioBuffer in three formats. The three
    * formats are `raw`, `string`, and `pojo`.
    *
@@ -27,12 +28,8 @@ export class Track extends Sound {
    *         seconds: 0
    *       }
    *     }
-   *
-   * @public
-   * @property position
-   * @type {object}
    */
-  get position() {
+  get position(): TimeObject {
     const offset = this.startOffset
     const min = Math.floor(offset / 60)
     const sec = offset - min * 60
@@ -40,38 +37,31 @@ export class Track extends Sound {
   }
 
   /**
+   * @property percentPlayed
    * Value is the current play position of the
    * audioBuffer, formatted as a percentage.
-   *
-   * @public
-   * @property percentPlayed
-   * @type {number}
    */
-  get percentPlayed() {
+  get percentPlayed(): number {
     const ratio = this.startOffset / this.duration.raw
     return ratio * 100
   }
 
   /**
-   * Plays the audio source immediately.
-   *
-   * @public
    * @method play
+   * Plays the audio source immediately.
    */
-  play() {
+  play(): void {
     super.play()
     this.audioSourceNode.onended = () => this.stop()
     this._trackPlayPosition()
   }
 
   /**
+   * @method pause
    * Pauses the audio source by stopping without
    * setting startOffset back to 0.
-   *
-   * @public
-   * @method pause
    */
-  pause() {
+  pause(): void {
     if (this._isPlaying) {
       const node = this.audioSourceNode
       node.onended = function () {}
@@ -81,13 +71,11 @@ export class Track extends Sound {
   }
 
   /**
+   * @method stop
    * Stops the audio source and sets
    * startOffset to 0.
-   *
-   * @public
-   * @method stop
    */
-  stop() {
+  stop(): void {
     this.startOffset = 0
 
     if (this._isPlaying) {
@@ -97,19 +85,17 @@ export class Track extends Sound {
   }
 
   /**
+   * @method _trackPlayPosition
    * Sets up a `requestAnimationFrame` based loop that updates the
    * startOffset as `audioContext.currentTime` grows.
    * Loop ends when `_isPlaying` is false.
-   *
-   * @method _trackPlayPosition
-   * @private
    */
-  private _trackPlayPosition() {
+  private _trackPlayPosition(): void {
     const ctx = this.audioContext
     const startOffset = this.startOffset
     const startedPlayingAt = this._startedPlayingAt
 
-    const animate = () => {
+    const animate = (): void => {
       if (this._isPlaying) {
         this.startOffset = startOffset + ctx.currentTime - startedPlayingAt
         requestAnimationFrame(animate)

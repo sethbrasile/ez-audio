@@ -3,7 +3,6 @@ import { MusicallyAware } from '@/musical-identity'
 import type { Note } from '@/note'
 import type { OscillatorOpts } from '@/oscillator'
 import { Oscillator } from '@/oscillator'
-import { sortNotes } from '@/utils/note-methods'
 
 class MusicallyAwareOscillator extends MusicallyAware(Oscillator) {
   constructor(context: AudioContext, options: OscillatorOpts) {
@@ -12,7 +11,7 @@ class MusicallyAwareOscillator extends MusicallyAware(Oscillator) {
   }
 }
 
-export async function setupPiano(element: HTMLOListElement) {
+export async function setupPiano(element: HTMLOListElement): Promise<void> {
   element.classList.add('loading')
   // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
   // then remove the listener.

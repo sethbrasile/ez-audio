@@ -1,8 +1,8 @@
 import { getSamplesPaths } from '@app/utils'
 import { audio, createSampler } from '@/index'
 
-export function setupDrumSamplerButton(element: HTMLButtonElement, drumType: 'hihat' | 'snare' | 'kick') {
-  async function setup() {
+export function setupDrumSamplerButton(element: HTMLButtonElement, drumType: 'hihat' | 'snare' | 'kick'): void {
+  async function setup(): Promise<void> {
     element.classList.add('loading')
 
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler

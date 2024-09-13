@@ -36,6 +36,8 @@ export interface TimeObject {
 }
 
 /**
+ * @method createTimeObject
+ * @description
  * Accepts the data from an audiobuffer duration and returns a TimeObject.
  *
  * Example:
@@ -44,10 +46,7 @@ export interface TimeObject {
  * const min = Math.floor(duration / 60)
  * const sec = duration % 60
  * return createTimeObject(duration, min, sec)
- *
- * @public
- * @method createTimeObject
- * @param {number} input A number that should be formatted
+ * @param {number} raw A number that should be formatted
  * @param {number} minutes The number of minutes in the duration
  * @param {number} seconds The number of seconds (in addition to minutes) in the duration
  * @return {TimeObject} A POJO containing the input time in 3 forms

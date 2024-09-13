@@ -23,7 +23,7 @@ const routes = {
   '/ez-audio/sound-fonts/note-objects': SoundFontsNoteObjects,
 }
 
-function handleLocation() {
+function handleLocation(): void {
   const path = window.location.pathname as keyof typeof routes
   const route = routes[path]
 
@@ -41,7 +41,7 @@ function handleLocation() {
   Prism.highlightAll()
 }
 
-export function route(event: Event) {
+export function route(event: Event): void {
   const target = event.target as HTMLAnchorElement
   const href = target.href
   event = event || window.event
@@ -50,8 +50,8 @@ export function route(event: Event) {
   handleLocation()
 }
 
-export function setupRouter(element: HTMLAnchorElement) {
-  const setup = async (event: Event) => {
+export function setupRouter(element: HTMLAnchorElement): void {
+  const setup = (event: Event): void => {
     event.preventDefault()
     route(event)
   }
