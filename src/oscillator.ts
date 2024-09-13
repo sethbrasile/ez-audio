@@ -40,7 +40,7 @@ const FILTERS = [
 export class Oscillator implements Playable, Connectable {
   private filters: BiquadFilterNode[] = []
   private type: OscillatorType
-  private frequency: number
+  protected freq: number
   private controller: ParamController
   private oscillator: OscillatorNode
   private gainNode: GainNode
@@ -49,13 +49,14 @@ export class Oscillator implements Playable, Connectable {
 
   constructor(private audioContext: AudioContext, options?: OscillatorOpts) {
     this.type = options?.type || 'sine'
-    this.frequency = options?.frequency || 440
+    this.freq = options?.frequency || 440
 
     // This is just to keep the null checks down, this oscillator instance will never be used
+    // Because it's created again when connections are established in wireConnections
     this.oscillator = audioContext.createOscillator()
     this.gainNode = audioContext.createGain()
     this.pannerNode = audioContext.createStereoPanner()
-    this.controller = new OscillatorAdjuster(this.oscillator, this.gainNode, this.pannerNode)
+    this.controller = new OscillatorController(this.oscillator, this.gainNode, this.pannerNode)
 
     FILTERS.forEach((filter) => {
       const vals = get<OscillatorOptsFilterValues | undefined>(options, filter)
@@ -81,7 +82,7 @@ export class Oscillator implements Playable, Connectable {
     // Create a new oscillator on every play
     const oscillator = this.audioContext.createOscillator()
     oscillator.type = this.type || 'sine'
-    oscillator.frequency.setValueAtTime(this.frequency || 440, this.audioContext.currentTime)
+    oscillator.frequency.setValueAtTime(this.freq || 440, this.audioContext.currentTime)
     this.oscillator = oscillator
 
     // Create a new gain node on every play
@@ -152,14 +153,20 @@ export class Oscillator implements Playable, Connectable {
     return this.oscillator
   }
 
+  // convenience method, equivalent longer form would be
+  // osc.controller.update(type).to(value).from('ratio')
   update(type: ControlType) {
     return this.controller.update(type)
   }
 
+  // convenience method, equivalent longer form would be
+  // osc.update('pan').to(value).from('ratio')
   changePanTo(value: number) {
     this.controller.update('pan').to(value).from('ratio')
   }
 
+  // convenience method, equivalent longer form would be
+  // osc.update('gain').to(value).from('ratio')
   changeGainTo(value: number) {
     this.controller.update('gain').to(value).from('ratio')
   }
@@ -213,7 +220,7 @@ export class Oscillator implements Playable, Connectable {
   }
 }
 
-export class OscillatorAdjuster extends BaseParamController implements ParamController {
+export class OscillatorController extends BaseParamController implements ParamController {
   constructor(private oscillator: OscillatorNode, protected gainNode: GainNode, protected pannerNode: StereoPannerNode) {
     super(oscillator, gainNode, pannerNode)
   }

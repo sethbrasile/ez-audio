@@ -27,5 +27,4 @@ import { MusicallyAware } from './musical-identity'
  * @uses MusicalIdentity
  */
 export class SampledNote extends MusicallyAware(Sound) {
-
 }

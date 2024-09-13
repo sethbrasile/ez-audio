@@ -1,3 +1,4 @@
+import type { Accidental, IMusicallyAware, NoteLetter, Octave } from '@/musical-identity'
 import { MusicallyAware } from '@/musical-identity'
 
 /**
@@ -6,8 +7,13 @@ import { MusicallyAware } from '@/musical-identity'
  * This class only makes sense when used in the context of a collection, as the
  * only functionality it provides serves to facilitate identification.
  *
- * @public
  * @class Note
- * @uses MusicalIdentity
  */
-export default class Note extends MusicallyAware(class {}) {}
+export class Note extends MusicallyAware(class {}) implements IMusicallyAware {
+  constructor(opts?: { letter?: NoteLetter, accidental?: Accidental, octave?: Octave }) {
+    super()
+    this.letter = opts?.letter || 'A'
+    this.accidental = opts?.accidental || ''
+    this.octave = opts?.octave || '0'
+  }
+}

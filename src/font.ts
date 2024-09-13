@@ -1,5 +1,5 @@
-import type { AcceptableNote } from './musical-identity'
-import type { SampledNote } from './sampled-note'
+import type Playable from './interfaces/playable'
+import type { AcceptableNote, IMusicallyAware } from './musical-identity'
 
 /**
  * Allows multiple SampledNote instances to be loaded up and played via their
@@ -9,7 +9,7 @@ import type { SampledNote } from './sampled-note'
  * @class Font
  */
 export class Font {
-  constructor(public notes: SampledNote[]) {}
+  constructor(public notes: (IMusicallyAware & Playable)[]) {}
 
   /**
    * Gets a note from `notes`, given it's identifier.

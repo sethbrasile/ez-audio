@@ -7,6 +7,15 @@ export type Octave = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8'
 export type AcceptableNote = keyof typeof frequencyMap
 type Constructor<T = any> = new (...args: any[]) => T
 
+export interface IMusicallyAware {
+  letter: NoteLetter
+  accidental: Accidental
+  octave: Octave
+  name: string
+  frequency: number
+  identifier: AcceptableNote
+}
+
 /**
  * This mixin allows an object to have an awareness of it's "musical identity"
  * or "note value" based on western musical standards (a standard piano).
@@ -32,9 +41,9 @@ type Constructor<T = any> = new (...args: any[]) => T
  */
 export function MusicallyAware<TBase extends Constructor>(Base: TBase) {
   return class MusicalIdentity extends Base {
-  /**
-   * @property letter For note `Ab5`, this would be `A`.
-   */
+    /**
+     * @property letter For note `Ab5`, this would be `A`.
+     */
     letter: NoteLetter = 'A'
 
     /**
@@ -67,12 +76,12 @@ export function MusicallyAware<TBase extends Constructor>(Base: TBase) {
      * identifier (i.e. `Ab1`). If this property is set directly, all other
      * properties are updated to reflect the provided frequency.
      */
-    get frequency() {
+    get frequency(): number {
       const { identifier } = this
       if (identifier) {
         return get(frequencyMap, identifier)
       }
-      return ''
+      return 0
     }
 
     set frequency(value) {
@@ -120,7 +129,6 @@ export function MusicallyAware<TBase extends Constructor>(Base: TBase) {
       else {
         accidental = ''
       }
-
       this.letter = letter as NoteLetter
       this.accidental = accidental as Accidental
       this.octave = octave as Octave

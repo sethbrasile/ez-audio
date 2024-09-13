@@ -40,7 +40,7 @@ export class Sound implements Playable, Connectable {
     this.audioBuffer = audioBuffer
     bufferSourceNode.buffer = audioBuffer
 
-    this.controller = new SoundAdjuster(bufferSourceNode, gainNode, pannerNode)
+    this.controller = new SoundController(bufferSourceNode, gainNode, pannerNode)
   }
 
   private setup() {
@@ -232,7 +232,7 @@ export class Sound implements Playable, Connectable {
   }
 }
 
-export class SoundAdjuster extends BaseParamController implements ParamController {
+export class SoundController extends BaseParamController implements ParamController {
   constructor(private bufferSourceNode: AudioBufferSourceNode, protected gainNode: GainNode, protected pannerNode: StereoPannerNode) {
     super(bufferSourceNode, gainNode, pannerNode)
   }

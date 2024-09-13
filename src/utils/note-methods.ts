@@ -1,7 +1,9 @@
 import { arraySwap, unique } from '@utils/array-methods'
-import type Note from '@/note'
+import { base64ToUint8 } from '@utils/decode-base64'
+import type { AcceptableNote, IMusicallyAware } from '@/musical-identity'
+import { SampledNote } from '@/sampled-note'
 
-type NotesTuple = [Note[], string[]]
+type NotesTuple = [IMusicallyAware[], string[]]
 
 /**
  * @public
@@ -19,7 +21,7 @@ type NotesTuple = [Note[], string[]]
  *
  * @return {Array} Array of musically-sorted notes.
  */
-export function sortNotes(notes: Note[]) {
+export function sortNotes(notes: IMusicallyAware[]) {
   // get octaves so that we can sort based on them
   let sortedNotes = extractOctaves(notes)
 
@@ -35,7 +37,6 @@ export function sortNotes(notes: Note[]) {
   // Determine last note of first octave, then for each octave, split at
   // that note, then shift the beginning notes to the end
   octavesWithNotes = octaveShift(octavesWithNotes)
-
   // Flatten array of arrays into a flat array
   return octavesWithNotes.flat()
 }
@@ -61,7 +62,7 @@ export function sortNotes(notes: Note[]) {
  *
  * @return {Array} Input array after having been shifted.
  */
-export function octaveShift(octaves: Note[][]) {
+export function octaveShift(octaves: IMusicallyAware[][]): IMusicallyAware[][] {
   // Pull first octave from beginning of array
   const firstOctave = octaves.shift() || []
   // Get all the note names from the second octave for comparison
@@ -89,7 +90,7 @@ export function octaveShift(octaves: Note[][]) {
  *
  * @return {Array} array of sorted arrays
  */
-export function octaveSort(octaves: Note[][]) {
+export function octaveSort(octaves: IMusicallyAware[][]): IMusicallyAware[][] {
   return octaves.map(octave => octave.sort(noteSort))
 }
 
@@ -105,7 +106,7 @@ export function octaveSort(octaves: Note[][]) {
  * @return {Array} array containing two inner arrays, [0] is the untouched input
  * array, [1] is an array of all the octaves in the original array.
  */
-export function extractOctaves(notes: Note[]): NotesTuple {
+export function extractOctaves(notes: IMusicallyAware[]): NotesTuple {
   return [notes, notes.map(note => note.octave)]
 }
 
@@ -156,7 +157,7 @@ export function createOctavesWithNotes([notes, octaves]: NotesTuple) {
  * @return {number} -1 or 1, depending on whether the current
  * {{#crossLink "Note"}}{{/crossLink}} instance should be sorted left, or right.
  */
-export function noteSort(a: Note, b: Note) {
+export function noteSort(a: IMusicallyAware, b: IMusicallyAware) {
   const aLet = a.letter
   const bLet = b.letter
 
@@ -171,4 +172,61 @@ export function noteSort(a: Note, b: Note) {
   }
 
   return 1
+}
+
+/**
+ * Takes an array of base64 encoded strings (notes) and returns an array of
+ * arrays like [[name, audio], [name, audio]]
+ *
+ * @method extractDecodedKeyValuePairs
+ * @param notes Array of base64 encoded strings.
+ * @return Returns an Array of tuples. Each tuple looks like
+ * `[noteName, decodedAudio]`
+ */
+export function extractDecodedKeyValuePairs(ctx: AudioContext, notes: string[]) {
+  const promises = []
+
+  async function decodeNote(noteName: string, buffer: ArrayBuffer) {
+    // Get web audio api audio data from array buffer
+    const decodedNote = await ctx.decodeAudioData(buffer)
+    return [noteName, decodedNote]
+  }
+
+  for (const noteName in notes) {
+    if (Object.prototype.hasOwnProperty.call(notes, noteName)) {
+      // Transform base64 note value to Uint8Array
+      const noteValue = base64ToUint8(notes[noteName])
+      promises.push(decodeNote(noteName, noteValue.buffer))
+    }
+  }
+
+  // Wait for array of promises to resolve before continuing
+  return Promise.all(promises) as Promise<[AcceptableNote, AudioBuffer][]>
+}
+
+/**
+ * Takes an array of arrays, each inner array acting as
+ * a key-value pair in the form `[noteName, audioData]`. Each inner array is
+ * transformed into a {{#crossLink "Note"}}{{/crossLink}} and the outer array
+ * is returned. This method also sets each note on it's corresponding
+ * instrument {{#crossLink "Map"}}{{/crossLink}} instance by name. Each note
+ * is playable as seen in the example.
+ *
+ * @example
+ *     audioService.getFont('font-name').play('Ab5');
+ *
+ * @method createNoteObjectsForFont
+ * @param audioData Array of tuples, each tuple like
+ * `[noteName, audioData]`.
+ * @return Returns an Array of {{#crossLink "Note"}}Notes{{/crossLink}}
+ */
+export function createNoteObjectsForFont(ctx: AudioContext, audioData: [AcceptableNote, AudioBuffer][]): SampledNote[] {
+  const notes = audioData.map((note) => {
+    const [identifier, audioBuffer] = note
+    const sampledNote = new SampledNote(ctx, audioBuffer)
+    sampledNote.identifier = identifier
+    return sampledNote
+  })
+
+  return sortNotes(notes) as SampledNote[]
 }
