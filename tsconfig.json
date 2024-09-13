@@ -14,7 +14,8 @@
       "@app/*": ["src/app/*"],
       "@common/*": ["src/common/*"],
       "@utils/*": ["src/utils/*"],
-      "@interfaces/*": ["src/interfaces/*"]
+      "@interfaces/*": ["src/interfaces/*"],
+      "@test/*": ["src/test/*"]
     },
     "allowImportingTsExtensions": true,
 
