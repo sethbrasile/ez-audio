@@ -16,6 +16,7 @@ export interface OscillatorOpts {
   startOffset?: number
   frequency?: number
   detune?: number
+  gain?: number
   type?: OscillatorType
   highpass?: OscillatorOptsFilterValues
   bandpass?: OscillatorOptsFilterValues
@@ -58,6 +59,9 @@ export class Oscillator implements Playable, Connectable {
     this.gainNode = audioContext.createGain()
     this.pannerNode = audioContext.createStereoPanner()
     this.controller = new OscillatorController(this.oscillator, this.gainNode, this.pannerNode)
+
+    if (options && options.gain !== undefined)
+      this.changeGainTo(options.gain)
 
     FILTERS.forEach((filter) => {
       const vals = get<OscillatorOptsFilterValues | undefined>(options, filter)

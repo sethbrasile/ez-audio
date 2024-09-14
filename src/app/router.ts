@@ -23,7 +23,12 @@ const routes = {
   '/ez-audio/sound-fonts/note-objects': SoundFontsNoteObjects,
 }
 
+let debouncer = false
+
 function handleLocation(): void {
+  if (debouncer)
+    return
+
   const path = window.location.pathname as keyof typeof routes
   const route = routes[path]
 
@@ -39,6 +44,8 @@ function handleLocation(): void {
   main.innerHTML = route.html
   route.setup()
   Prism.highlightAll()
+
+  debouncer = true
 }
 
 export function route(event: Event): void {
@@ -52,6 +59,7 @@ export function route(event: Event): void {
 
 export function setupRouter(element: HTMLAnchorElement): void {
   const setup = (event: Event): void => {
+    debouncer = false
     event.preventDefault()
     route(event)
   }

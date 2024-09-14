@@ -6,8 +6,8 @@ import { setupKickButton } from './kick-button'
 import nav from './nav'
 
 const playKick = `
-import { audio, createOscillator, createWhiteNoise, LayeredSound } from 'ez-audio'
-await audio.init()
+import { initAudio, createOscillator, createWhiteNoise, LayeredSound } from 'ez-audio'
+await initAudio()
 
 const kick = createOscillator()
 kick.onPlayRamp('frequency').from(150).to(0.01).in(0.1)
@@ -113,7 +113,7 @@ const fullCodeHtml = `
 
 const fullCodeKick = `
 // kick.ts
-import { audio, createOscillator } from 'ez-audio'
+import { initAudio, createOscillator } from 'ez-audio'
 
 // As stated above is slightly simplified, as you can see here, we're creating the oscillator in a setup function upon
 // click, then removing the listener. We do this because we can't create the AudioContext until we are responding to a
@@ -122,7 +122,7 @@ export function setupKickButton(element: HTMLButtonElement) {
   async function setup() {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await audio.init()
+    await initAudio()
 
     const kick = createOscillator()
     kick.onPlayRamp('frequency').from(150).to(0.01).in(0.1)
@@ -144,7 +144,7 @@ export function setupKickButton(element: HTMLButtonElement) {
 `
 const fullCodeSnare = `
 // snare.ts
-import { audio, createOscillator, createWhiteNoise, LayeredSound } from 'ez-audio'
+import { initAudio, createOscillator, createWhiteNoise, LayeredSound } from 'ez-audio'
 
 export function setupSnareButton(element: HTMLButtonElement) {
   function createSnareOscillator() {
@@ -161,7 +161,7 @@ export function setupSnareButton(element: HTMLButtonElement) {
   }
 
   async function setup() {
-    await audio.init()
+    await initAudio()
     const osc = createSnareOscillator()
     const noise = createSnareNoise()
     const snare = new LayeredSound([noise, osc])
@@ -180,7 +180,7 @@ export function setupSnareButton(element: HTMLButtonElement) {
 
 const fullCodeHihat = `
 // hh.ts
-import { audio, createOscillator, createWhiteNoise, LayeredSound } from 'ez-audio'
+import { initAudio, createOscillator, createWhiteNoise, LayeredSound } from 'ez-audio'
 import type { Oscillator } from 'ez-audio'
 
 export function setupHihatButton(element: HTMLButtonElement) {
@@ -218,7 +218,7 @@ export function setupHihatButton(element: HTMLButtonElement) {
   }
 
   async function setup() {
-    await audio.init()
+    await initAudio()
     const hihat = createHihat()
 
     hihat.playFor(0.3)

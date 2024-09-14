@@ -12,25 +12,23 @@ import type { OscillatorOpts } from '@/oscillator'
 let audioContext: AudioContext
 function throwIfContextNotExist(): void {
   if (!audioContext) {
-    throw new Error('The audio context does not exist yet! You must call `audio.init()` in response to a user interaction before performing this action.')
+    throw new Error('The audio context does not exist yet! You must call `initAudio()` in response to a user interaction before performing this action.')
   }
 }
 
-export const audio = {
-  async init() {
-    if (!audioContext) {
-      audioContext = new AudioContext()
-    }
+export async function initAudio(): Promise<void> {
+  if (!audioContext) {
+    audioContext = new AudioContext()
+  }
 
-    if (audioContext.state === 'suspended') {
-      await audioContext.resume()
-    }
-  },
+  if (audioContext.state === 'suspended') {
+    await audioContext.resume()
+  }
+}
 
-  getContext() {
-    throwIfContextNotExist()
-    return audioContext
-  },
+export function getAudioContext(): AudioContext {
+  throwIfContextNotExist()
+  return audioContext
 }
 
 export function createNotes(json?: any): Note[] {

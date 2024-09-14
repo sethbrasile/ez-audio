@@ -1,10 +1,10 @@
-import { audio, createSound } from '@/index'
+import { createSound, initAudio } from '@/index'
 
 export function setupPlayButton(element: HTMLButtonElement): void {
   const setup = async (): Promise<void> => {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await audio.init()
+    await initAudio()
     const note = await createSound('Eb5.mp3')
 
     if (note) {
@@ -26,7 +26,7 @@ export function setupPlayButton(element: HTMLButtonElement): void {
   // I don't know if it actually improves performance or not... have not benchmarked
   // async function playSound() {
   //   // 1. Initialize the audio context
-  //   await audio.init()
+  //   await initAudio()
   //   // 2. Load a sound from a URL
   //   const note = await createSound('Eb5.mp3')
   //   // 3. Play the sound

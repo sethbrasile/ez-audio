@@ -196,7 +196,7 @@ export class Sound implements Playable, Connectable {
   }
 
   /**
-   * Gets the bufferSource and stops the audio,
+   * Gets the bufferSource and stops the initAudio,
    * changes it's play position, and restarts the audio.
    *
    * returns a pojo with the `from` method that `value` is curried to, allowing

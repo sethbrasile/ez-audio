@@ -18,11 +18,11 @@ const htmlExample = `
 `
 
 const codeExample = `
-await audio.init()
+await initAudio()
 
 const samplesPaths = [
-  'some-path/hihat1.wav', 
-  'some-path/hihat2.wav', 
+  'some-path/hihat1.wav',
+  'some-path/hihat2.wav',
   'some-path/hihat3.wav',
 ]
 

@@ -4,7 +4,7 @@ import { codeBlock } from '../utils'
 const codeExample = `
 const NAME = 'distortion'
 
-await audio.init()
+await initAudio()
 const sound = await createSound('Eb5.mp3')
 
 let distortionEnabled = false

@@ -1,5 +1,5 @@
 import { observable, observe, unobserve } from '@nx-js/observer-util'
-import { audio, createSound } from '@/index'
+import { createSound, getAudioContext, initAudio } from '@/index'
 import type { Sound } from '@/sound'
 
 const NAME = 'distortion'
@@ -53,10 +53,10 @@ export function setupDistortablePlayButton(element: HTMLButtonElement): void {
   const setup = async (): Promise<void> => {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await audio.init()
+    await initAudio()
     // we placed the note inside an nx-js observable so that we can make UI updates to reflect the state of the note
     sound.note = await createSound('Eb5.mp3')
-    const audioNode = audio.getContext().createWaveShaper()
+    const audioNode = getAudioContext().createWaveShaper()
     audioNode.curve = new Float32Array()
 
     sound.note.addConnection({

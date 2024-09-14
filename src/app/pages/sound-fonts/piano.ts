@@ -11,7 +11,7 @@ const htmlExample = `
 const codeExample = `
 // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
 // then remove the listener.
-await audio.init()
+await initAudio()
 // piano.js is a soundfont created with MIDI.js' Ruby-based soundfont converter
 const piano = await createFont('/ez-audio/piano.js')
 // Slicing just so the whole keyboard doesn't show up on the screen
@@ -57,7 +57,7 @@ ${nav}
 </div>
 
 <p>
-  <b>Important Note</b>: Soundfonts are javascript files, and if you allow them to be minified by your build chain 
+  <b>Important Note</b>: Soundfonts are javascript files, and if you allow them to be minified by your build chain
   or CDN, they may no longer work. Be sure to exclude them from any minification.
 </p>
 

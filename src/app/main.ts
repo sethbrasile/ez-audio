@@ -18,5 +18,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 // but it allows us an SPA-like experience with no page reloads
 setupRouter(document.querySelector<HTMLAnchorElement>('#index')!)
 setupRouter(document.querySelector<HTMLAnchorElement>('#audio-files')!)
+setupRouter(document.querySelector<HTMLAnchorElement>('#sound-fonts')!)
 setupRouter(document.querySelector<HTMLAnchorElement>('#audio-routing')!)
 setupRouter(document.querySelector<HTMLAnchorElement>('#synthesis')!)

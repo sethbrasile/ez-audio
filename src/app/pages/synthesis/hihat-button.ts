@@ -1,4 +1,4 @@
-import { audio, createOscillator } from '@/index'
+import { createOscillator, initAudio } from '@/index'
 import { LayeredSound } from '@/layered-sound'
 import type { Oscillator } from '@/oscillator'
 
@@ -41,7 +41,7 @@ export function setupHihatButton(element: HTMLButtonElement): void {
 
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await audio.init()
+    await initAudio()
 
     element.classList.remove('loading')
 

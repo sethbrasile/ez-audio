@@ -39,9 +39,35 @@ export interface IMusicallyAware {
  * @public
  * @class MusicalIdentity
  */
+const { warn } = console
 // eslint-disable-next-line ts/explicit-function-return-type
 export function MusicallyAware<TBase extends Constructor>(Base: TBase) {
   return class MusicalIdentity extends Base {
+    constructor(...args: any[]) {
+      super(...args)
+
+      // opts should always be the last arg
+      const opts = args[args.length - 1]
+
+      if (opts) {
+        const { identifier, frequency, letter, accidental, octave } = opts
+        // identifier and frequency don't make sense if others are provided
+        if ((identifier && frequency) || ((identifier || frequency) && (letter || accidental || octave))) {
+          warn('ez-audio: upon instantiation, multiple note identifiers were provided which might be a mistake and ez-audio has no way to determine which should be preferred', opts, this)
+        }
+        if (identifier)
+          this.identifier = identifier
+        if (frequency)
+          this.frequency = frequency
+        if (letter)
+          this.letter = letter
+        if (accidental)
+          this.accidental = accidental
+        if (octave)
+          this.octave = octave
+      }
+    }
+
     /**
      * @property letter For note `Ab5`, this would be `A`.
      */
@@ -81,7 +107,7 @@ export function MusicallyAware<TBase extends Constructor>(Base: TBase) {
     get frequency(): number {
       const { identifier } = this
       if (identifier) {
-        return get(frequencyMap, identifier)
+        return get(frequencyMap, identifier) || 0
       }
       return 0
     }

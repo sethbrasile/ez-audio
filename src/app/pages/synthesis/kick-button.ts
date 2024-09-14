@@ -1,11 +1,11 @@
-import { audio, createOscillator } from '@/index'
+import { createOscillator, initAudio } from '@/index'
 
 export function setupKickButton(element: HTMLButtonElement): void {
   async function setup(): Promise<void> {
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
 
-    await audio.init()
+    await initAudio()
 
     const kick = createOscillator()
     kick.onPlayRamp('frequency').from(150).to(0.01).in(0.1)

@@ -1,5 +1,5 @@
 import { observable, observe, unobserve } from '@nx-js/observer-util'
-import { audio, createTrack } from '@/index'
+import { createTrack, initAudio } from '@/index'
 import type { Track } from '@/track'
 
 type SongName = 'do-wah-diddy' | 'barely-there'
@@ -174,7 +174,7 @@ function selectAction(name: SongName, el: HTMLButtonElement): void {
 
 export function setupMp3Buttons(element: HTMLButtonElement, type: 'seek' | 'play' | 'vol' | 'select', name?: SongName): void {
   async function setup(): Promise<void> {
-    await audio.init()
+    await initAudio()
     // remove the setup listener
     element.removeEventListener('click', setup)
   }

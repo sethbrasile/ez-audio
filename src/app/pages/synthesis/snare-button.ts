@@ -1,4 +1,4 @@
-import { audio, createOscillator, createWhiteNoise } from '@/index'
+import { createOscillator, createWhiteNoise, initAudio } from '@/index'
 import { LayeredSound } from '@/layered-sound'
 import type { Oscillator } from '@/oscillator'
 import type { Sound } from '@/sound'
@@ -22,7 +22,7 @@ export function setupSnareButton(element: HTMLButtonElement): void {
 
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await audio.init()
+    await initAudio()
 
     element.classList.remove('loading')
 
@@ -48,7 +48,7 @@ export function setupSnareCrackButton(element: HTMLButtonElement): void {
     element.classList.add('loading')
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await audio.init()
+    await initAudio()
     element.classList.remove('loading')
 
     const snareCrack = createSnareNoise()
@@ -71,7 +71,7 @@ export function setupSnareMeatButton(element: HTMLButtonElement): void {
     element.classList.add('loading')
     // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
     // then remove the listener.
-    await audio.init()
+    await initAudio()
     element.classList.remove('loading')
 
     const snareMeat = createSnareOscillator()

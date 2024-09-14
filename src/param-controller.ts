@@ -51,21 +51,27 @@ export class BaseParamController {
   protected valuesAtTime: ValueAtTime[] = []
   protected exponentialValues: ValueAtTime[] = []
   protected linearValues: ValueAtTime[] = []
+  private gain: number = 1
+  private pan: number = 0
 
   public updateGainNode(gainNode: GainNode): void {
     this.gainNode = gainNode
+    this.gainNode.gain.value = this.gain
   }
 
   public updatePannerNode(pannerNode: StereoPannerNode): void {
     this.pannerNode = pannerNode
+    this.pannerNode.pan.value = this.pan
   }
 
   protected _update(type: ControlType, value: number): void {
     switch (type) {
       case 'pan':
+        this.pan = value
         this.pannerNode.pan.value = value
         break
       case 'gain':
+        this.gain = value
         this.gainNode.gain.value = value
         break
       case 'detune':
