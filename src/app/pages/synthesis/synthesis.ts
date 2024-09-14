@@ -4,7 +4,8 @@ import { setupPiano } from './piano-buttons'
 
 const Content = {
   setup() {
-    setupPiano(document.querySelector<HTMLOListElement>('#keys')!)
+    const keys = document.querySelector<HTMLOListElement>('#keys')
+    setupPiano(keys!)
   },
   html: `
 
