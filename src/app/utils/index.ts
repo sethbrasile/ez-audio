@@ -7,7 +7,7 @@ export function codeBlock(code: string): string {
 }
 
 export function inlineCode(input: string): string {
-  return `<code class="notranslate inline-code">${input.trim()}</code>`
+  return `<code class="notranslate inline-code">${escapeHTML(input.trim())}</code>`
 }
 
 export function htmlBlock(code: string): string {

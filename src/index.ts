@@ -31,6 +31,7 @@ export function getAudioContext(): AudioContext {
   return audioContext
 }
 
+// Notes do not require AudioContext
 export function createNotes(json?: any): Note[] {
   const notes = []
   if (!json) {

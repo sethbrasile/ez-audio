@@ -17,71 +17,121 @@ ${nav}
   <ol id="keys"></ol>
 </div>
 
-<div>
-  <p>
-    This is a great example of the use of EZ-Audio's ${inlineCode('MusicallyAware')} mixin.
-  </pre>
+<div class="docs">
+  <p>Let's create a keyboard/synthesizer!</p>
+  <p>Start with an ${inlineCode('<ol>')}</p>
 
-  <p>
-    In order to create oscillators that have a "musical identity" (as in, each
-    oscillator represents a "note" that can be played), we will add the
-    <code>MusicalIdentity</code> mixin to the <code>Oscillator</code> class:
-  </p>
+${htmlBlock(`
+<div id="piano">
+  <ol id="keys"></ol>
 </div>
-
-
-${codeBlock(`
-import type { OscillatorOpts } from 'ez-audio'
-import { MusicallyAware, Oscillator, initAudio } from 'ez-audio'
-
-// Mix together MusicallyAware mixin and Oscillator class and extend to create new class
-class MusicallyAwareOscillator extends MusicallyAware(Oscillator) {}
-
-// in response to user interaction
-await initAudio()
-
-const osc = new MusicallyAwareOscillator(getAudioContext(), { frequency: 415.3 })
-console.log(osc.frequency) // logs 'Ab4'
 `)}
 
-<div>
-  <p>By passing it a frequency (as long as it corresponds to a western musical note), all of it's other properties are calculated for us.</p>
-  <p>The inverse is also true:</p>
-</div>
+<p>Then create some ${inlineCode('Note')} objects which correspond to musical notes.
+We will store the note objects in a ${inlineCode('Map')} that ties note objects and
+${inlineCode('<li>')}'s (keys) together.</p>
+
+<p>We can't head straight into creating oscillators since the Web Audio API requires a user interaction
+to occur before we're allowed to interact with it.</p>
+
+<p>${inlineCode('Note')} objects have no functionality except for musical identity. They do not interact
+with the Web Audio API's ${inlineCode('AudioContext')}, so we're safe to create them before a user interaction
+occurs.</p>
 
 ${codeBlock(`
-const osc = new MusicallyAwareOscillator(getAudioContext(), { identifier: 'Ab4' });
-console.log(osc.frequency); // logs '415.3'
-`)}
+import { createNotes } from 'ez-audio'
+import type { Note } from 'ez-audio'
 
-<div>
-  <p>So now that we understand how our new class works, let's create a synthesizer and a keyboard:</p>
-</div>
-
-${codeBlock(`
-// Init audio context in response to user interaction
-await initAudio()
-
-// create a slice of all the piano notes in western musical notation.
-// then slicing just so the whole keyboard doesn't show up on the screen
+// createNotes creates an array of all the notes in western musical notation as Note objects
+// (then slicing so the keyboard isn't huge)
+// Note objects contain musical identity information like frequency
 const notes = createNotes().slice(48, 60)
-
-// Create a MusicallyAwareOscillator instance for each note in slicedNotes
-// we're only using these note objects to populate our keyboard,
-// a list of frequencies from frequencyMap or any other source would work just as well
-const oscillators = notes.map(note => new MusicallyAwareOscillator(getAudioContext(), {
-  frequency: note.frequency,
-  type: 'square',
-
-  // oscillators are pretty loud so turn it down
-  gain: 0.2,
-}))
+// We need to map each note to an <li>
+const keys = new Map<Note, HTMLLIElement>()
 `)}
 
-<div>
-  <p>Now we can simply call ${inlineCode('play()')} and ${inlineCode('stop()')} on these oscillators to play them.</p>
-  <p>Let's create a keyboard from these oscillators and map each button press/release to the appropriate method:</p>
+<We>Now we can create a key for each note and add them to the keyboard. We set each key press to trigger
+the upcoming ${inlineCode('setup')} method.</p>
+
+${codeBlock(`
+// for each note
+notes.forEach((note) => {
+  // create an <li>
+  const key = document.createElement('li')
+
+  // format markup
+  key.classList.add('key')
+  key.textContent = note.identifier
+  if (note.accidental) {
+    key.classList.add('black')
+  }
+
+  // Add it to the DOM
+  element.appendChild(key)
+
+  // put the key/note pair into the keys Map
+  keys.set(note, key)
+
+  // add the setup listener so that each key can trigger audio context init
+  // (we'll define 'setup' in a moment)
+  key.addEventListener('mousedown', setup)
+  key.addEventListener('touchstart', setup)
+})
+`)}
+
+<Let>In the ${inlineCode('setup')} method, because it's triggered by a user interaction,
+we're allowed to interact with the Web Audio API.</p>
+
+<p>After we initialize the ${inlineCode('AudioContext')} via ${inlineCode('initAudio')},
+we can create an ${inlineCode('Oscillator')} instance for each key
+and map the key's touch/mouse events to the oscillator's play/stop methods.</p>
+
+<p>We will also immediately start playing the specific oscillator that was initially pressed so that the first key
+press creates a sound.</p>
+
+${codeBlock(`
+import { initAudio, createOscillator } from 'ez-audio'
+
+async function setup(e: MouseEvent | TouchEvent): Promise<void> {
+  // First key is pressed...
+  // AudioContext setup
+  await initAudio()
+
+  // Now that audio context is initialized, we can create an oscillator for each key
+  keys.forEach((key, note) => {
+    // Create the oscillator for this key and set its frequency from the corresponding note
+    const osc = createOscillator({
+      frequency: note.frequency,
+      type: 'square',
+      // oscillators are pretty loud so turn it down
+      gain: 0.2,
+    })
+
+    key.addEventListener('touchstart', () => osc.play())
+    key.addEventListener('touchend', () => osc.stop())
+    key.addEventListener('mousedown', () => osc.play())
+    key.addEventListener('mouseup', () => osc.stop())
+
+    // We are done setting up now, so remove the setup event listeners
+    key.removeEventListener('mousedown', setup)
+    key.removeEventListener('touchstart', setup)
+
+    // If this iteration (remember we're currently in a loop, per key)
+    // corresponds to the key that was pressed
+    if (e.target === key) {
+      // then start playing this oscillator
+      osc.play()
+    }
+  })
+}
+`)}
+
 </div>
+
+<hr />
+
+<div class="docs">
+  <p>Here is the full code for this example:</p>
 
 ${htmlBlock(`
 <div id="piano">
@@ -90,30 +140,77 @@ ${htmlBlock(`
 `)}
 
 ${codeBlock(`
-const keys = document.querySelector<HTMLOListElement>('#keys')
+import { createNotes, createOscillator, initAudio } from 'ez-audio'
+import type { Note } from 'ez-audio'
 
-// for each oscillator we created
-oscillators.forEach((osc) => {
-  // create a list item
-  const key = document.createElement('li')
-  key.classList.add('key')
-  key.textContent = osc.identifier
+setupPiano(document.querySelector<HTMLOListElement>('#keys')!)
 
-  // mark if it's an accidental (a black key)
-  if (osc.accidental) {
-    key.classList.add('black')
+async function setupPiano(element: HTMLOListElement): Promise<void> {
+  // create an array of all the piano notes in western musical notation
+  // then slicing just so the whole keyboard doesn't show up on the screen
+  // Note objects contain musical identity information like frequency
+  const notes = createNotes().slice(48, 60)
+  // We need to map each note to an <li>
+  const keys = new Map<Note, HTMLLIElement>()
+
+  // for each note
+  notes.forEach((note) => {
+    // create an li
+    const key = document.createElement('li')
+
+    // format markup on that li
+    key.classList.add('key')
+    key.textContent = note.identifier
+    if (note.accidental) {
+      key.classList.add('black')
+    }
+
+    // Add it to the DOM
+    element.appendChild(key)
+
+    // put the key/note pair into the keys Map
+    keys.set(note, key)
+
+    // add the setup listener so that each key can trigger audio context init
+    key.addEventListener('mousedown', setup)
+    key.addEventListener('touchstart', setup)
+  })
+
+  async function setup(e: MouseEvent | TouchEvent): Promise<void> {
+    // First key is pressed...
+    // AudioContext setup
+    await initAudio()
+
+    // Now that audio context is initialized, we can create an oscillator for each key
+    keys.forEach((key, note) => {
+      // Create the oscillator for this key and set its frequency from the corresponding note
+      const osc = createOscillator({
+        frequency: note.frequency,
+        type: 'square',
+        // oscillators are pretty loud so turn it down
+        gain: 0.2,
+      })
+
+      key.addEventListener('touchstart', () => osc.play())
+      key.addEventListener('touchend', () => osc.stop())
+      key.addEventListener('mousedown', () => osc.play())
+      key.addEventListener('mouseup', () => osc.stop())
+
+      key.removeEventListener('mousedown', setup)
+      key.removeEventListener('touchstart', setup)
+
+      // If this iteration corresponds to the actual key that was pressed
+      if (e.target === key) {
+        // then start playing the
+        osc.play()
+      }
+    })
   }
+}
 
-  // attach some play/stop event listeners
-  key.addEventListener('touchstart', () => osc.play())
-  key.addEventListener('touchend', () => osc.stop())
-  key.addEventListener('mousedown', () => osc.play())
-  key.addEventListener('mouseup', () => osc.stop())
-
-  // attach the key to the keyboard
-  element.appendChild(key)
-})
 `)}
+
+</div>
 `,
 }
 

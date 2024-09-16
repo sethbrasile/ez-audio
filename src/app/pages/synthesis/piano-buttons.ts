@@ -1,23 +1,46 @@
-import { createNotes, getAudioContext, initAudio } from '@/index'
-import { MusicallyAware } from '@/musical-identity'
-import { Oscillator } from '@/oscillator'
+import { createNotes, createOscillator, initAudio } from '@/index'
 import type { Note } from '@/note'
 
-// Define a new class that mixes the MusicallyAware mixin with the Oscillator class
-class MusicallyAwareOscillator extends MusicallyAware(Oscillator) {}
-const notes = createNotes().slice(48, 60)
-const keys = new Map<Note, HTMLLIElement>()
-
 export async function setupPiano(element: HTMLOListElement): Promise<void> {
-  async function setup(e: MouseEvent): Promise<void> {
-    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
-    // then remove the listener.
+  // create an array of all the piano notes in western musical notation
+  // then slicing just so the whole keyboard doesn't show up on the screen
+  // Note objects contain musical identity information like frequency
+  const notes = createNotes().slice(48, 60)
+  // We need to map each note to an <li>
+  const keys = new Map<Note, HTMLLIElement>()
+
+  // for each note create an <li> and map it to
+  notes.forEach((note) => {
+    // create an li
+    const key = document.createElement('li')
+
+    // format markup
+    key.classList.add('key')
+    key.textContent = note.identifier
+    if (note.accidental) {
+      key.classList.add('black')
+    }
+
+    // Add it to the DOM
+    element.appendChild(key)
+
+    // put the key/note pair into the keys Map
+    keys.set(note, key)
+
+    // add the setup listener so that each key can trigger audio context init
+    key.addEventListener('mousedown', setup)
+    key.addEventListener('touchstart', setup)
+  })
+
+  async function setup(e: MouseEvent | TouchEvent): Promise<void> {
+    // First key is pressed...
+    // AudioContext setup
     await initAudio()
-    // create an array of all the piano notes in western musical notation
-    // then slicing just so the whole keyboard doesn't show up on the screen
-    // Create a MusicallyAwareOscillator instance for each note in slicedNotes
+
+    // Now that audio context is initialized, we can create an oscillator for each key
     keys.forEach((key, note) => {
-      const osc = new MusicallyAwareOscillator(getAudioContext(), {
+      // Create the oscillator for this key and set its frequency from the corresponding note
+      const osc = createOscillator({
         frequency: note.frequency,
         type: 'square',
         // oscillators are pretty loud so turn it down
@@ -29,26 +52,14 @@ export async function setupPiano(element: HTMLOListElement): Promise<void> {
       key.addEventListener('mousedown', () => osc.play())
       key.addEventListener('mouseup', () => osc.stop())
 
-      key.removeEventListener('click', setup)
+      key.removeEventListener('mousedown', setup)
+      key.removeEventListener('touchstart', setup)
 
-      // @ts-expect-error typescript doesn't know shit about HTML events
-      if (note.identifier === e.target?.textContent) {
-        osc.playFor(0.1)
+      // If this iteration corresponds to the actual key that was pressed
+      if (e.target === key) {
+        // then start playing the
+        osc.play()
       }
     })
   }
-
-  notes.forEach((note) => {
-    const key = document.createElement('li')
-    key.classList.add('key')
-    key.textContent = note.identifier
-    if (note.accidental) {
-      key.classList.add('black')
-    }
-
-    keys.set(note, key)
-    element.appendChild(key)
-
-    key.addEventListener('click', setup)
-  })
 }
