@@ -1,4 +1,4 @@
-import type Playable from '@interfaces/playable'
+import type { Playable } from '@interfaces/playable'
 
 /**
  * Allows multiple instances of anything that implements

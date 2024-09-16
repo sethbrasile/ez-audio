@@ -1,7 +1,12 @@
+import type { OscillatorOptsFilterValues } from './oscillator'
+import { SampledNote } from './sampled-note'
+import type { Connectable } from './interfaces/connectable'
+import type { Playable } from './interfaces/playable'
 import { Font } from './font'
 import { mungeSoundFont } from './utils/decode-base64'
 import { createNoteObjectsForFont, extractDecodedKeyValuePairs } from './utils/note-methods'
 import frequencyMap from './utils/frequency-map'
+import { MusicallyAware } from '@/musical-identity'
 import { Sampler } from '@/sampler'
 import { Oscillator } from '@/oscillator'
 import { Sound } from '@/sound'
@@ -95,4 +100,23 @@ export function createWhiteNoise(): Sound {
   }
 
   return new Sound(audioContext, audioBuffer)
+}
+
+export {
+  Font,
+  Note,
+  Sound,
+  Sampler,
+  SampledNote,
+  Oscillator,
+  Track,
+  MusicallyAware,
+  frequencyMap,
+}
+
+export type {
+  Connectable,
+  Playable,
+  OscillatorOpts,
+  OscillatorOptsFilterValues,
 }

@@ -1,5 +1,5 @@
 import { get } from '@utils/prop-access'
-import type Playable from '@interfaces/playable'
+import type { Playable } from '@interfaces/playable'
 import type { Connectable, Connection } from '@interfaces/connectable'
 import type { TimeObject } from '@utils/create-time-object'
 import createTimeObject from '@utils/create-time-object'

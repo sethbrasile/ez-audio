@@ -1,7 +1,7 @@
 import type { TimeObject } from '@utils/create-time-object'
 import createTimeObject from '@utils/create-time-object'
 import audioContextAwareTimeout from '@utils/timeout'
-import type Playable from '@interfaces/playable'
+import type { Playable } from '@interfaces/playable'
 import type { Connectable, Connection } from '@interfaces/connectable'
 import withinRange from './utils/within-range'
 import type { ControlType, ParamController, ParamValue, RampType, RatioType, SeekType, ValueAtTime } from '@/param-controller'
