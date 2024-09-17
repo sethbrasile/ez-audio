@@ -1,6 +1,6 @@
 import nav from './nav'
 import { setupIndicators, setupMp3Buttons } from './mp3-buttons'
-import { codeBlock, htmlBlock } from '@/app/utils'
+import { codeBlock, htmlBlock, inlineCode } from '@/app/utils'
 
 const Content = {
   setup() {
@@ -73,38 +73,35 @@ ${nav}
   </div>
 </div>
 
-<small><i>Note: This example site is not using any frontend framework, it's done in completely vanilla typescript. For the sake of brevity though,
+<small><i>Note: This example site is not using any frontend framework, it's done in vanilla typescript. For the sake of brevity,
 these code examples are going to use Vue. This way we can remove the invevitable emphasis on how DOM manipulations were made
-and instead focus on this library, which will work the same regardless of framework. If you'd like to see the actual source here, head over to
-the github repo for this project and take a look in the "src/app" directory.</i></small>
+and instead focus on this library, which will work the same regardless of framework. If you'd like to see the actual source, head over to
+the github repo for this project and take a look at ${inlineCode('src/app/pages/audio-files/mp3-player.ts')}.</i></small>
 
 <div class="docs">
 
-<p>Let's start with our mp3 player component:</p>
+  <p>Let's start with our mp3 player component:</p>
 
 ${codeBlock(`
-// <script setup lang="ts">
-import type { Track } from 'ez-audio'
+<script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps<{ track?: Track }>()
+const props = defineProps<{
+  percentPlayed: number
+  percentGain: number
+  position: string
+  duration: string
+  isPlaying: boolean
+}>()
 
-const percentPlayed = computed(() => \`width: \${props.track.percentPlayed}%;\`)
-const percentGain = computed(() => \`height: \${props.track.percentGain}%;\`)
-
-async function togglePlay() {
-  if (props.track.isPlaying) {
-    props.track.pause()
-  }
-  else {
-    props.track.play()
-  }
-}
+const emits = defineEmits(['togglePlay', 'seek', 'changeGain'])
+const percentPlayed = computed(() => \`width: \${props.percentPlayed}%;\`)
+const percentGain = computed(() => \`height: \${props.percentGain}%;\`)
 
 function seek(e: any) {
   const width = e.target.offsetParent.offsetWidth
   const newPosition = e.offsetX / width
-  props.track.seek(newPosition).from('ratio')
+  emits('seek', newPosition)
 }
 
 function changeVolume(e: any) {
@@ -116,18 +113,20 @@ function changeVolume(e: any) {
   const adjustedOffset = offset - (height - adjustedHeight) / 2
   const newGain = adjustedOffset / adjustedHeight
 
-  props.track.changeGainTo(newGain).from('inverseRatio')
+  emits('changeGain', newGain)
 }
+</script>
 `)}
+
 
 ${htmlBlock(`
 <template>
-  <div v-if="track" class="audioplayer">
-    <div role="button" class="play-pause" :class="{ playing: track.isPlaying }" @click="togglePlay">
+  <div class="audioplayer">
+    <div role="button" class="play-pause" :class="{ playing: isPlaying }" @click="emits('togglePlay')">
       <a />
     </div>
     <div class="time current">
-      {{ track.position.string }}
+      {{ position }}
     </div>
 
     <div role="button" class="bar" @click="seek">
@@ -136,7 +135,7 @@ ${htmlBlock(`
     </div>
 
     <div class="time duration">
-      {{ track.duration.string }}
+      {{ duration }}
     </div>
 
     <div role="button" class="volume" @click="changeVolume">
@@ -155,8 +154,10 @@ ${htmlBlock(`
 `)}
 
 ${codeBlock(`
-import { createTrack, initAudio, type Track } from 'ez-audio'
-import { ref } from 'vue'
+<script setup lang="ts">
+import type { Track } from 'ez-audio'
+import { createTrack, initAudio } from 'ez-audio'
+import { computed, ref } from 'vue'
 import Mp3Player from './components/Mp3Player.vue'
 
 interface Song {
@@ -168,19 +169,97 @@ interface Song {
 const selectedTrack = ref<Song | null>(null)
 const loading = ref(false)
 
+const track = computed(() => selectedTrack.value?.trackInstance)
+
 const tracks: Song[] = [
   {
     name: 'barely-there',
-    trackInstance: null,
     description: '...',
   },
   {
     name: 'do-wah-diddy',
-    trackInstance: null,
     description: '...',
   },
 ]
+
+async function selectTrack(name: string) {
+  selectedTrack.value?.trackInstance?.pause()
+
+  loading.value = true
+  selectedTrack.value = null
+
+  const track = tracks.find(track => track.name === name)
+  if (!track)
+    throw (new Error('Balls! Did not find that track!'))
+  if (!track.trackInstance) {
+    await initAudio()
+    track.trackInstance = await createTrack(\`node_modules/ez-audio/dist/${name}.mp3\`)
+  }
+
+  selectedTrack.value = track
+  loading.value = false
+}
+
+function togglePlay() {
+  const track = selectedTrack.value?.trackInstance
+  if (track?.isPlaying) {
+    track.pause()
+  }
+  else {
+    track?.play()
+  }
+}
+</script>
 `)}
+
+${htmlBlock(`
+<template>
+  <h1>MP3 Player Example</h1>
+  <div class="track-list">
+    <div class="select">
+      <table>
+        <tbody>
+          <tr class="pointer" @click="selectTrack('barely-there')">
+            <td>Barely There</td>
+          </tr>
+          <tr class="pointer" @click="selectTrack('do-wah-diddy')">
+            <td>Do Wah Diddy</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="description">
+      <p v-if="!selectedTrack" id="description">
+        Select a track...
+      </p>
+      <p v-else>
+        {{ selectedTrack.description }}
+      </p>
+    </div>
+  </div>
+
+  <Mp3Player
+    v-if="track"
+    :percent-played="track.percentPlayed"
+    :percent-gain="track.percentGain"
+    :position="track.position.string"
+    :duration="track.position.string"
+    :is-playing="track.isPlaying"
+    @change-gain="(newGain) => track?.changeGainTo(newGain).from('inverseRatio')"
+    @seek="(newPosition) => track?.seek(newPosition).from('ratio')"
+    @toggle-play="togglePlay"
+  />
+
+  <div v-if="loading" class="spinner">
+    <div class="rect1" />
+    <div class="rect2" />
+    <div class="rect3" />
+    <div class="rect4" />
+    <div class="rect5" />
+  </div>
+</template>
+  `)}
 </div>
 `,
 }
