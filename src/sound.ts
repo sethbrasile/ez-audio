@@ -192,7 +192,7 @@ export class Sound implements Playable, Connectable {
   }
 
   public get percentGain(): number {
-    return this.gainNode.gain.value * 100
+    return this.controller.gain * 100
   }
 
   /**

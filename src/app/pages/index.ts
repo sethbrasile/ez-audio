@@ -1,4 +1,4 @@
-import { setupPlayButton } from '@app/play-button.ts'
+import { setupPlayButton } from '@app/play-button'
 import { codeBlock } from '../utils'
 
 const codeExample = `

@@ -10,6 +10,8 @@ export interface ValueAtTime extends ParamValue {
   time: number
 }
 export interface ParamController {
+  gain: number
+  pan: number
   setValuesAtTimes: () => void
   updateAudioSource: (source: any) => void
   updateGainNode: (gainNode: GainNode) => void
@@ -51,28 +53,41 @@ export class BaseParamController {
   protected valuesAtTime: ValueAtTime[] = []
   protected exponentialValues: ValueAtTime[] = []
   protected linearValues: ValueAtTime[] = []
-  private gain: number = 1
-  private pan: number = 0
+
+  // TODO: handle all gainNode and pannerNode props
+  public get gain(): number {
+    return this.gainNode.gain.value
+  }
+
+  protected set gain(value: number) {
+    this.gainNode.gain.value = value
+  }
+
+  public get pan(): number {
+    return this.pannerNode.pan.value
+  }
+
+  protected set pan(value: number) {
+    this.pannerNode.pan.value = value
+  }
 
   public updateGainNode(gainNode: GainNode): void {
+    gainNode.gain.value = this.gain
     this.gainNode = gainNode
-    this.gainNode.gain.value = this.gain
   }
 
   public updatePannerNode(pannerNode: StereoPannerNode): void {
+    pannerNode.pan.value = this.pan
     this.pannerNode = pannerNode
-    this.pannerNode.pan.value = this.pan
   }
 
   protected _update(type: ControlType, value: number): void {
     switch (type) {
       case 'pan':
         this.pan = value
-        this.pannerNode.pan.value = value
         break
       case 'gain':
         this.gain = value
-        this.gainNode.gain.value = value
         break
       case 'detune':
         if (!this.audioSource.detune)

@@ -1,14 +1,27 @@
 {
   "name": "ez-audio",
   "type": "module",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1-alpha",
+  "private": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . -c eslint.config.js",
+    "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest"
   },
@@ -19,10 +32,10 @@
     "eslint": "9.5.0",
     "happy-dom": "^15.7.0",
     "prismjs": "^1.29.0",
-    "standardized-audio-context": "^25.3.76",
     "standardized-audio-context-mock": "^9.7.8",
     "typescript": "^5.5.3",
     "vite": "^5.4.0",
+    "vite-plugin-dts": "^4.2.1",
     "vite-plugin-prismjs": "^0.0.11",
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^2.0.5"
