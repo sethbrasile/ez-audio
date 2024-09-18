@@ -166,10 +166,9 @@ interface Song {
   description: string
 }
 
-const selectedTrack = ref<Song | null>(null)
+const selectedSong = ref<Song | null>(null)
+const track = computed(() => selectedSong.value?.trackInstance)
 const loading = ref(false)
-
-const track = computed(() => selectedTrack.value?.trackInstance)
 
 const tracks: Song[] = [
   {
@@ -183,25 +182,25 @@ const tracks: Song[] = [
 ]
 
 async function selectTrack(name: string) {
-  selectedTrack.value?.trackInstance?.pause()
+  selectedSong.value?.trackInstance?.pause()
 
   loading.value = true
-  selectedTrack.value = null
+  selectedSong.value = null
 
   const track = tracks.find(track => track.name === name)
   if (!track)
     throw (new Error('Balls! Did not find that track!'))
   if (!track.trackInstance) {
     await initAudio()
-    track.trackInstance = await createTrack(\`node_modules/ez-audio/dist/${name}.mp3\`)
+    track.trackInstance = await createTrack(\`node_modules/ez-audio/dist/\${name}.mp3\`)
   }
 
-  selectedTrack.value = track
+  selectedSong.value = track
   loading.value = false
 }
 
 function togglePlay() {
-  const track = selectedTrack.value?.trackInstance
+  const track = selectedSong.value?.trackInstance
   if (track?.isPlaying) {
     track.pause()
   }
@@ -230,11 +229,11 @@ ${htmlBlock(`
     </div>
 
     <div class="description">
-      <p v-if="!selectedTrack" id="description">
+      <p v-if="!selectedSong" id="description">
         Select a track...
       </p>
       <p v-else>
-        {{ selectedTrack.description }}
+        {{ selectedSong.description }}
       </p>
     </div>
   </div>
@@ -259,7 +258,7 @@ ${htmlBlock(`
     <div class="rect5" />
   </div>
 </template>
-  `)}
+`)}
 </div>
 `,
 }
