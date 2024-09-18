@@ -3,6 +3,11 @@
   "type": "module",
   "version": "0.0.1-alpha",
   "private": false,
+  "author": {
+    "name": "Seth Brasile",
+    "email": "seth.brasile@gmail.com",
+    "url": "https://github.com/sethbrasile"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -19,7 +24,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
+    "build:docs": "tsc && vite build -c vite.docs.config.js",
+    "preview": "vite preview -c vite.docs.config.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
