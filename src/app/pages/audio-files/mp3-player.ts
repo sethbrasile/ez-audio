@@ -84,19 +84,17 @@ the github repo for this project and take a look at ${inlineCode('src/app/pages/
 
 ${codeBlock(`
 <script setup lang="ts">
+import type { Track } from 'ez-audio'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  percentPlayed: number
-  percentGain: number
-  position: string
-  duration: string
-  isPlaying: boolean
+  track: Track
 }>()
 
 const emits = defineEmits(['togglePlay', 'seek', 'changeGain'])
-const percentPlayed = computed(() => \`width: \${props.percentPlayed}%;\`)
-const percentGain = computed(() => \`height: \${props.percentGain}%;\`)
+
+const percentPlayed = computed(() => \`width: \${props.track.percentPlayed}%;\`)
+const percentGain = computed(() => \`height: \${props.track.percentGain}%;\`)
 
 function seek(e: any) {
   const width = e.target.offsetParent.offsetWidth
@@ -112,7 +110,6 @@ function changeVolume(e: any) {
   const adjustedHeight = height * 0.8
   const adjustedOffset = offset - (height - adjustedHeight) / 2
   const newGain = adjustedOffset / adjustedHeight
-
   emits('changeGain', newGain)
 }
 </script>
