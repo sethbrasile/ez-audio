@@ -143,13 +143,18 @@ function seekAction(e: MouseEvent): void {
 
 function volAction(e: MouseEvent): void {
   // @ts-expect-error typescript is wrong
-  const height = e.target.offsetParent.offsetHeight
+  const height = e.target?.offsetParent.offsetHeight
   // @ts-expect-error typescript is wrong
-  const parentOffset = e.target.parentNode.getBoundingClientRect().top + window.pageYOffset
+  const parentOffset = e.target?.parentNode.getBoundingClientRect().top + window.pageYOffset
   const offset = e.pageY - parentOffset - document.documentElement.clientTop
   const adjustedHeight = height * 0.8
   const adjustedOffset = offset - (height - adjustedHeight) / 2
-  const newGain = adjustedOffset / adjustedHeight
+  let newGain = adjustedOffset / adjustedHeight
+
+  if (newGain < 0)
+    newGain = 0
+  if (newGain > 1)
+    newGain = 1
 
   selectedSong.trackInstance?.changeGainTo(newGain).from('inverseRatio')
   volDisplay.style.height = `${selectedSong.trackInstance?.percentGain}%`

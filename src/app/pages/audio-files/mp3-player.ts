@@ -80,7 +80,7 @@ the github repo for this project and take a look at ${inlineCode('src/app/pages/
 
 <div class="docs">
 
-  <p>Let's start with our mp3 player component:</p>
+  <p>Let's start with our ${inlineCode('Mp3Player')} component:</p>
 
 ${codeBlock(`
 <script setup lang="ts">
@@ -109,21 +109,25 @@ function changeVolume(e: any) {
   const offset = e.pageY - parentOffset - document.documentElement.clientTop
   const adjustedHeight = height * 0.8
   const adjustedOffset = offset - (height - adjustedHeight) / 2
-  const newGain = adjustedOffset / adjustedHeight
+
+  let newGain = adjustedOffset / adjustedHeight
+  if (newGain < 0)
+    newGain = 0
+  if (newGain > 1)
+    newGain = 1
   emits('changeGain', newGain)
 }
 </script>
 `)}
 
-
 ${htmlBlock(`
 <template>
   <div class="audioplayer">
-    <div role="button" class="play-pause" :class="{ playing: isPlaying }" @click="emits('togglePlay')">
+    <div role="button" class="play-pause" :class="{ playing: track.isPlaying }" @click="emits('togglePlay')">
       <a />
     </div>
     <div class="time current">
-      {{ position }}
+      {{ track.position }}
     </div>
 
     <div role="button" class="bar" @click="seek">
@@ -132,7 +136,7 @@ ${htmlBlock(`
     </div>
 
     <div class="time duration">
-      {{ duration }}
+      {{ track.duration }}
     </div>
 
     <div role="button" class="volume" @click="changeVolume">
@@ -150,6 +154,8 @@ ${htmlBlock(`
 </template>
 `)}
 
+<p>And our ${inlineCode('App.vue')}</p>
+
 ${codeBlock(`
 <script setup lang="ts">
 import type { Track } from 'ez-audio'
@@ -163,10 +169,6 @@ interface Song {
   description: string
 }
 
-const selectedSong = ref<Song | null>(null)
-const track = computed(() => selectedSong.value?.trackInstance)
-const loading = ref(false)
-
 const tracks: Song[] = [
   {
     name: 'barely-there',
@@ -177,6 +179,10 @@ const tracks: Song[] = [
     description: '...',
   },
 ]
+
+const selectedSong = ref<Song | null>(null)
+const track = computed(() => selectedSong.value?.trackInstance)
+const loading = ref(false)
 
 async function selectTrack(name: string) {
   selectedSong.value?.trackInstance?.pause()
@@ -209,53 +215,49 @@ function togglePlay() {
 `)}
 
 ${htmlBlock(`
-<template>
-  <h1>MP3 Player Example</h1>
-  <div class="track-list">
-    <div class="select">
-      <table>
-        <tbody>
-          <tr class="pointer" @click="selectTrack('barely-there')">
-            <td>Barely There</td>
-          </tr>
-          <tr class="pointer" @click="selectTrack('do-wah-diddy')">
-            <td>Do Wah Diddy</td>
-          </tr>
-        </tbody>
-      </table>
+  <template>
+    <h1>MP3 Player Example</h1>
+    <div class="track-list">
+      <div class="select">
+        <table>
+          <tbody>
+            <tr class="pointer" @click="selectTrack('barely-there')">
+              <td>Barely There</td>
+            </tr>
+            <tr class="pointer" @click="selectTrack('do-wah-diddy')">
+              <td>Do Wah Diddy</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="description">
+        <p v-if="!selectedSong" id="description">
+          Select a track...
+        </p>
+        <p v-else>
+          {{ selectedSong.description }}
+        </p>
+      </div>
     </div>
 
-    <div class="description">
-      <p v-if="!selectedSong" id="description">
-        Select a track...
-      </p>
-      <p v-else>
-        {{ selectedSong.description }}
-      </p>
+    <Mp3Player
+      v-if="track"
+      :track="track"
+      @change-gain="(newGain) => track?.changeGainTo(newGain).from('inverseRatio')"
+      @seek="(newPosition) => track?.seek(newPosition).from('ratio')"
+      @toggle-play="track.isPlaying ? track.pause() : track.play()"
+    />
+
+    <div v-if="loading" class="spinner">
+      <div class="rect1" />
+      <div class="rect2" />
+      <div class="rect3" />
+      <div class="rect4" />
+      <div class="rect5" />
     </div>
-  </div>
-
-  <Mp3Player
-    v-if="track"
-    :percent-played="track.percentPlayed"
-    :percent-gain="track.percentGain"
-    :position="track.position.string"
-    :duration="track.position.string"
-    :is-playing="track.isPlaying"
-    @change-gain="(newGain) => track?.changeGainTo(newGain).from('inverseRatio')"
-    @seek="(newPosition) => track?.seek(newPosition).from('ratio')"
-    @toggle-play="togglePlay"
-  />
-
-  <div v-if="loading" class="spinner">
-    <div class="rect1" />
-    <div class="rect2" />
-    <div class="rect3" />
-    <div class="rect4" />
-    <div class="rect5" />
-  </div>
-</template>
-`)}
+  </template>
+  `)}
 </div>
 `,
 }

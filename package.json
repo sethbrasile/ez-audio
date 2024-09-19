@@ -22,7 +22,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite -c vite.docs.config.js",
     "build": "tsc && vite build",
     "build:docs": "tsc && vite build -c vite.docs.config.js",
     "preview": "vite preview -c vite.docs.config.js",
