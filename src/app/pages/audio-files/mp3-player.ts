@@ -80,81 +80,47 @@ the github repo for this project and take a look at ${inlineCode('src/app/pages/
 
 <div class="docs">
 
-  <p>Let's start with our ${inlineCode('Mp3Player')} component:</p>
-
-${codeBlock(`
-<script setup lang="ts">
-import type { Track } from 'ez-audio'
-import { computed } from 'vue'
-
-const props = defineProps<{
-  track: Track
-}>()
-
-const emits = defineEmits(['togglePlay', 'seek', 'changeGain'])
-
-const percentPlayed = computed(() => \`width: \${props.track.percentPlayed}%;\`)
-const percentGain = computed(() => \`height: \${props.track.percentGain}%;\`)
-
-function seek(e: any) {
-  const width = e.target.offsetParent.offsetWidth
-  const newPosition = e.offsetX / width
-  emits('seek', newPosition)
-}
-
-function changeVolume(e: any) {
-  const height = e.target.offsetParent.offsetHeight
-  const parentOffset
-      = e.target.parentNode.getBoundingClientRect().top + window.scrollY
-  const offset = e.pageY - parentOffset - document.documentElement.clientTop
-  const adjustedHeight = height * 0.8
-  const adjustedOffset = offset - (height - adjustedHeight) / 2
-
-  let newGain = adjustedOffset / adjustedHeight
-  if (newGain < 0)
-    newGain = 0
-  if (newGain > 1)
-    newGain = 1
-  emits('changeGain', newGain)
-}
-</script>
-`)}
-
-${htmlBlock(`
+  ${htmlBlock(`
 <template>
-  <div class="audioplayer">
-    <div role="button" class="play-pause" :class="{ playing: track.isPlaying }" @click="emits('togglePlay')">
-      <a />
-    </div>
-    <div class="time current">
-      {{ track.position }}
-    </div>
-
-    <div role="button" class="bar" @click="seek">
-      <div style="width: 100%;" />
-      <div class="played" :style="percentPlayed" />
-    </div>
-
-    <div class="time duration">
-      {{ track.duration }}
+  <h1>MP3 Player Example</h1>
+  <div class="track-list">
+    <div class="select">
+      <table>
+        <tbody>
+          <tr class="pointer" @click="selectTrack('barely-there')">
+            <td>Barely There</td>
+          </tr>
+          <tr class="pointer" @click="selectTrack('do-wah-diddy')">
+            <td>Do Wah Diddy</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div role="button" class="volume" @click="changeVolume">
-      <div class="button">
-        <a />
-      </div>
-
-      <div class="adjust">
-        <div>
-          <div :style="percentGain" />
-        </div>
-      </div>
+    <div class="description">
+      <p v-if="selectedSong">
+        {{ selectedSong.description }}
+      </p>
+      <p v-else>
+        Select a track...
+      </p>
     </div>
   </div>
-</template>
-`)}
 
-<p>And our ${inlineCode('App.vue')}</p>
+  <!-- Mp3Player accepts a Track instance and emits 3 events -->
+  <Mp3Player
+    v-if="!loading && track"
+    :track="track"
+    @change-gain="(newGain) => track?.changeGainTo(newGain).from('inverseRatio')"
+    @seek="(newPosition) => track?.seek(newPosition).from('ratio')"
+    @toggle-play="track.isPlaying ? track.pause() : track.play()"
+  />
+
+  <div v-if="loading">
+    <!-- some loading display... -->
+  </div>
+</template>
+  `)}
 
 ${codeBlock(`
 <script setup lang="ts">
@@ -195,6 +161,7 @@ async function selectTrack(name: string) {
     throw (new Error('Balls! Did not find that track!'))
   if (!track.trackInstance) {
     await initAudio()
+    // "barely-there.mp3" and "do-wah-diddy.mp3" are mp3 files located in this project's public folder
     track.trackInstance = await createTrack(\`node_modules/ez-audio/dist/\${name}.mp3\`)
   }
 
@@ -212,52 +179,93 @@ function togglePlay() {
   }
 }
 </script>
+  `)}
+
+${codeBlock(`
+<script setup lang="ts">
+import type { Track } from 'ez-audio'
+import { computed } from 'vue'
+
+const props = defineProps<{
+  track: Track
+}>()
+
+const emits = defineEmits(['togglePlay', 'seek', 'changeGain'])
+
+const percentPlayed = computed(() => \`width: \${props.track.percentPlayed}%;\`)
+const percentGain = computed(() => \`height: \${props.track.percentGain}%;\`)
+
+function seek(e: any) {
+  // Get width of clicked element's parent
+  const width = e.target.offsetParent.offsetWidth
+  // Divide click position by parent width
+  const newPosition = e.offsetX / width
+  // Set new position based on ratio
+  emits('seek', newPosition)
+}
+
+function changeVolume(e: any) {
+  // Get height of clicked element's parent
+  const height = e.target?.offsetParent.offsetHeight
+  const parentOffset
+    = e.target?.parentNode.getBoundingClientRect().top + window.scrollY
+  // Get click position
+  const offset = e.pageY - parentOffset - document.documentElement.clientTop
+  // Adjust height because height of element is 80% of parent's
+  const adjustedHeight = height * 0.8
+  // Adjust click position because height of element is 80% of parent's,
+  // and element is centered vertically
+  const adjustedOffset = offset - (height - adjustedHeight) / 2
+
+  // We don't want to set gain out of bounds
+  let newGain = adjustedOffset / adjustedHeight
+  if (newGain < 0)
+    newGain = 0
+  if (newGain > 1)
+    newGain = 1
+
+  // Set new gain based on inverse ratio because Y coordinate is measured
+  // from the top, but we want gain to be measured from the bottom
+  emits('changeGain', newGain)
+</script>
 `)}
 
 ${htmlBlock(`
-  <template>
-    <h1>MP3 Player Example</h1>
-    <div class="track-list">
-      <div class="select">
-        <table>
-          <tbody>
-            <tr class="pointer" @click="selectTrack('barely-there')">
-              <td>Barely There</td>
-            </tr>
-            <tr class="pointer" @click="selectTrack('do-wah-diddy')">
-              <td>Do Wah Diddy</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="description">
-        <p v-if="!selectedSong" id="description">
-          Select a track...
-        </p>
-        <p v-else>
-          {{ selectedSong.description }}
-        </p>
-      </div>
+<template>
+  <div class="audioplayer">
+    <div role="button" class="play-pause" :class="{ playing: track.isPlaying }" @click="emits('togglePlay')">
+      <a />
+    </div>
+    <div class="time current">
+      {{ track.position }}
     </div>
 
-    <Mp3Player
-      v-if="track"
-      :track="track"
-      @change-gain="(newGain) => track?.changeGainTo(newGain).from('inverseRatio')"
-      @seek="(newPosition) => track?.seek(newPosition).from('ratio')"
-      @toggle-play="track.isPlaying ? track.pause() : track.play()"
-    />
-
-    <div v-if="loading" class="spinner">
-      <div class="rect1" />
-      <div class="rect2" />
-      <div class="rect3" />
-      <div class="rect4" />
-      <div class="rect5" />
+    <div role="button" class="bar" @click="seek">
+      <div style="width: 100%;" />
+      <div class="played" :style="percentPlayed" />
     </div>
-  </template>
-  `)}
+
+    <div class="time duration">
+      {{ track.duration }}
+    </div>
+
+    <div role="button" class="volume" @click="changeVolume">
+      <div class="button">
+        <a />
+      </div>
+
+      <div class="adjust">
+        <div>
+          <div :style="percentGain" />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+`)}
+
+
+
 </div>
 `,
 }
