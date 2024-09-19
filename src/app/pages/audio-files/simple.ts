@@ -7,7 +7,6 @@ import { initAudio, createSound } from 'ez-audio'
 
 const url = 'https://raw.githubusercontent.com/mudcube/MIDI.js/master/examples/soundfont/acoustic_grand_piano-mp3/B5.mp3'
 
-await initAudio()
 const leftNote = await createSound('Db5.mp3')
 const rightNote = await createSound(url)
 

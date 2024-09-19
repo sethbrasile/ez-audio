@@ -31,8 +31,8 @@ export async function initAudio(): Promise<void> {
   }
 }
 
-export function getAudioContext(): AudioContext {
-  throwIfContextNotExist()
+export async function getAudioContext(): Promise<AudioContext> {
+  await initAudio()
   return audioContext
 }
 
@@ -53,9 +53,9 @@ export function createNotes(json?: any): Note[] {
 }
 
 export async function createSound(url: string): Promise<Sound> {
-  throwIfContextNotExist()
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
+  await initAudio()
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
   return new Sound(audioContext, audioBuffer)
 }
@@ -64,33 +64,34 @@ export async function createTrack(url: string): Promise<Track> {
   throwIfContextNotExist()
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
+  await initAudio()
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
   return new Track(audioContext, audioBuffer)
 }
 
 export async function createSampler(urls: string[]): Promise<Sampler> {
-  throwIfContextNotExist()
   const sounds = await Promise.all(urls.map(async url => createSound(url)))
+  await initAudio()
   return new Sampler(sounds)
 }
 
-export function createOscillator(options?: OscillatorOpts): Oscillator {
-  throwIfContextNotExist()
+export async function createOscillator(options?: OscillatorOpts): Promise<Oscillator> {
+  await initAudio()
   return new Oscillator(audioContext, options)
 }
 
 export async function createFont(url: string): Promise<Font> {
-  throwIfContextNotExist()
   const response = await fetch(url)
   const text = await response.text()
   const audioData = mungeSoundFont(text)
+  await initAudio()
   const keyValuePairs = await extractDecodedKeyValuePairs(audioContext, audioData)
   const notes = createNoteObjectsForFont(audioContext, keyValuePairs)
   return new Font(notes)
 }
 
-export function createWhiteNoise(): Sound {
-  throwIfContextNotExist()
+export async function createWhiteNoise(): Promise<Sound> {
+  await initAudio()
   const bufferSize = audioContext.sampleRate
   const audioBuffer = audioContext.createBuffer(1, bufferSize, bufferSize)
   const output = audioBuffer.getChannelData(0)

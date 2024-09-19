@@ -1,5 +1,5 @@
 import { observable, observe, unobserve } from '@nx-js/observer-util'
-import { createSound, getAudioContext, initAudio } from '@/index'
+import { createSound, getAudioContext } from '@/index'
 import type { Sound } from '@/sound'
 
 const NAME = 'distortion'
@@ -49,35 +49,22 @@ function removeDistortion(sound: Sound): void {
   }
 }
 
-export function setupDistortablePlayButton(element: HTMLButtonElement): void {
-  const setup = async (): Promise<void> => {
-    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
-    // then remove the listener.
-    await initAudio()
-    // we placed the note inside an nx-js observable so that we can make UI updates to reflect the state of the note
-    sound.note = await createSound('Eb5.mp3')
-    const audioNode = getAudioContext().createWaveShaper()
-    audioNode.curve = new Float32Array()
+export async function setupDistortablePlayButton(element: HTMLButtonElement): Promise<void> {
+  // we placed the note inside an nx-js observable so that we can make UI updates to reflect the state of the note
+  sound.note = await createSound('Eb5.mp3')
+  const audioNode = (await getAudioContext()).createWaveShaper()
+  audioNode.curve = new Float32Array()
 
-    sound.note.addConnection({
-      audioNode,
-      name: NAME,
+  sound.note.addConnection({
+    audioNode,
+    name: NAME,
+  })
+
+  if (sound.note) {
+    element.addEventListener('click', () => {
+      sound.note?.play()
     })
-
-    if (sound.note) {
-      // remove the setup listener
-      element.removeEventListener('click', setup)
-
-      sound.note.play()
-
-      // add a listener to play the note again when the button is clicked for the rest of the document's life
-      element.addEventListener('click', () => {
-        sound.note?.play()
-      })
-    }
   }
-
-  element.addEventListener('click', setup)
 }
 
 export function setupToggleDistortion(element: HTMLButtonElement): void {

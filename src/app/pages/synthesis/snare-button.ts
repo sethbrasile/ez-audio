@@ -1,90 +1,35 @@
-import { createOscillator, createWhiteNoise, initAudio } from '@/index'
+import { createOscillator, createWhiteNoise } from '@/index'
 import { LayeredSound } from '@/layered-sound'
 import type { Oscillator } from '@/oscillator'
 import type { Sound } from '@/sound'
 
-function createSnareOscillator(): Oscillator {
-  const snare = createOscillator()
+async function createSnareOscillator(): Promise<Oscillator> {
+  const snare = await createOscillator()
   snare.onPlayRamp('frequency').from(100).to(60).in(0.1)
   snare.onPlayRamp('gain').from(1).to(0.01).in(0.1)
   return snare
 }
 
-function createSnareNoise(): Sound {
-  const noise = createWhiteNoise()
+async function createSnareNoise(): Promise<Sound> {
+  const noise = await createWhiteNoise()
   noise.onPlayRamp('gain').from(1).to(0.001).in(0.1)
   return noise
 }
 
-export function setupSnareButton(element: HTMLButtonElement): void {
-  async function setup(): Promise<void> {
-    element.classList.add('loading')
+export async function setupSnareButton(element: HTMLButtonElement): Promise<void> {
+  const sounds = await Promise.all([await createSnareOscillator(), await createSnareNoise()])
+  const snare = new LayeredSound(sounds)
 
-    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
-    // then remove the listener.
-    await initAudio()
-
-    element.classList.remove('loading')
-
-    const osc = createSnareOscillator()
-    const noise = createSnareNoise()
-    const snare = new LayeredSound([noise, osc])
-
-    // This plays the note upon first user interaction
-    snare.playFor(0.1)
-
-    // remove the setup listener
-    element.removeEventListener('click', setup)
-
-    // add a listener to play the note again when the button is clicked for the rest of the document's life
-    element.addEventListener('click', () => snare.playFor(0.1))
-  }
-
-  element.addEventListener('click', setup)
+  // add a listener to play the note again when the button is clicked for the rest of the document's life
+  element.addEventListener('click', () => snare.playFor(0.1))
 }
 
-export function setupSnareCrackButton(element: HTMLButtonElement): void {
-  async function setup(): Promise<void> {
-    element.classList.add('loading')
-    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
-    // then remove the listener.
-    await initAudio()
-    element.classList.remove('loading')
-
-    const snareCrack = createSnareNoise()
-
-    // This plays the note upon first user interaction
-    snareCrack.playFor(0.1)
-
-    // remove the setup listener
-    element.removeEventListener('click', setup)
-
-    // add a listener to play the note again when the button is clicked for the rest of the document's life
-    element.addEventListener('click', () => snareCrack.playFor(0.1))
-  }
-
-  element.addEventListener('click', setup)
+export async function setupSnareCrackButton(element: HTMLButtonElement): Promise<void> {
+  const snareCrack = await createSnareNoise()
+  element.addEventListener('click', () => snareCrack.playFor(0.1))
 }
 
-export function setupSnareMeatButton(element: HTMLButtonElement): void {
-  async function setup(): Promise<void> {
-    element.classList.add('loading')
-    // AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
-    // then remove the listener.
-    await initAudio()
-    element.classList.remove('loading')
-
-    const snareMeat = createSnareOscillator()
-
-    // This plays the note upon first user interaction
-    snareMeat.playFor(0.1)
-
-    // remove the setup listener
-    element.removeEventListener('click', setup)
-
-    // add a listener to play the note again when the button is clicked for the rest of the document's life
-    element.addEventListener('click', () => snareMeat.playFor(0.1))
-  }
-
-  element.addEventListener('click', setup)
+export async function setupSnareMeatButton(element: HTMLButtonElement): Promise<void> {
+  const snareMeat = await createSnareOscillator()
+  element.addEventListener('click', () => snareMeat.playFor(0.1))
 }

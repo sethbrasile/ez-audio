@@ -1,4 +1,4 @@
-import { createNotes, createOscillator, initAudio } from '@/index'
+import { createNotes, createOscillator } from '@/index'
 import type { Note } from '@/note'
 
 export async function setupPiano(element: HTMLOListElement): Promise<void> {
@@ -26,40 +26,20 @@ export async function setupPiano(element: HTMLOListElement): Promise<void> {
 
     // put the key/note pair into the keys Map
     keys.set(note, key)
-
-    // add the setup listener so that each key can trigger audio context init
-    key.addEventListener('mousedown', setup)
-    key.addEventListener('touchstart', setup)
   })
 
-  async function setup(e: MouseEvent | TouchEvent): Promise<void> {
-    // First key is pressed...
-    // AudioContext setup
-    await initAudio()
-
-    // Now that audio context is initialized, we can create an oscillator for each key
-    keys.forEach((key, note) => {
-      // Create the oscillator for this key and set its frequency from the corresponding note
-      const osc = createOscillator({
-        frequency: note.frequency,
-        type: 'square',
-        // oscillators are pretty loud so turn it down
-        gain: 0.2,
-      })
-
-      key.addEventListener('touchstart', () => osc.play())
-      key.addEventListener('touchend', () => osc.stop())
-      key.addEventListener('mousedown', () => osc.play())
-      key.addEventListener('mouseup', () => osc.stop())
-
-      key.removeEventListener('mousedown', setup)
-      key.removeEventListener('touchstart', setup)
-
-      // If this iteration corresponds to the actual key that was pressed
-      if (e.target === key) {
-        // then start playing the
-        osc.play()
-      }
+  keys.forEach(async (key, note) => {
+    // Create the oscillator for this key and set its frequency from the corresponding note
+    const osc = await createOscillator({
+      frequency: note.frequency,
+      type: 'square',
+      // oscillators are pretty loud so turn it down
+      gain: 0.2,
     })
-  }
+
+    key.addEventListener('touchstart', () => osc.play())
+    key.addEventListener('touchend', () => osc.stop())
+    key.addEventListener('mousedown', () => osc.play())
+    key.addEventListener('mouseup', () => osc.stop())
+  })
 }
