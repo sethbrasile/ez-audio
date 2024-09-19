@@ -14,7 +14,7 @@ export function setupDrumSamplerButton(element: HTMLButtonElement, drumType: 'hi
     const drum = await createSampler(getSamplesPaths(drumType))
 
     // This plays the note upon first user interaction
-    drum.play()
+    // drum.play()
 
     // remove the setup listener
     element.removeEventListener('click', setup)
@@ -23,5 +23,5 @@ export function setupDrumSamplerButton(element: HTMLButtonElement, drumType: 'hi
     element.addEventListener('click', () => drum.play())
   }
 
-  element.addEventListener('click', setup)
+  setup()
 }
