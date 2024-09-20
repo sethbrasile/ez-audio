@@ -10,6 +10,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <a href="/ez-audio/audio-routing" id="audio-routing">Audio Routing</a>
 |
 <a href="/ez-audio/synthesis" id="synthesis">Synthesis</a>
+|
+<a href="/ez-audio/starting-audiocontext" id="starting-audiocontext">Starting AudioContext</a>
 <hr/>
 <div id="main-page"></div>
 `
@@ -21,3 +23,4 @@ setupRouter(document.querySelector<HTMLAnchorElement>('#audio-files')!)
 setupRouter(document.querySelector<HTMLAnchorElement>('#sound-fonts')!)
 setupRouter(document.querySelector<HTMLAnchorElement>('#audio-routing')!)
 setupRouter(document.querySelector<HTMLAnchorElement>('#synthesis')!)
+setupRouter(document.querySelector<HTMLAnchorElement>('#starting-audiocontext')!)

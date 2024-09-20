@@ -1,3 +1,4 @@
+import PermissionBanner from '@app/pages/components/permission-banner'
 import { codeBlock, htmlBlock } from '../../utils'
 import nav from './nav'
 import { setupDrumSamplerButton } from './drum-sampler-button'
@@ -36,11 +37,14 @@ const Content = {
     setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_kick')!, 'kick')
     setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_snare')!, 'snare')
     setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_hihat')!, 'hihat')
+    PermissionBanner.setup()
   },
   html: `
 ${nav}
 
 <h1>Multisampled Drum Kit Example</h1>
+
+${PermissionBanner}
 
 <p>Go ahead and hit the hihat a few times... Notice how each sample sounds slightly different? That's multisampling, baby.</p>
 

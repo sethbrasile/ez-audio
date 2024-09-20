@@ -1,5 +1,5 @@
-import { setupPlayButton } from '@app/play-button'
 import { codeBlock } from '../utils'
+import { setupPlayButton } from './play-button'
 
 const codeExample = `
 import { createSound } from 'ez-audio'

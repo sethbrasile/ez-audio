@@ -1,5 +1,5 @@
-import { setupDistortablePlayButton, setupToggleDistortion } from '@app/distortable-play-button'
 import { codeBlock } from '../utils'
+import { setupDistortablePlayButton, setupToggleDistortion } from '@/app/pages/distortable-play-button'
 
 const codeExample = `
 const NAME = 'distortion'

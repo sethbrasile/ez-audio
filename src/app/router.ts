@@ -9,6 +9,7 @@ import AudioFilesMp3 from './pages/audio-files/mp3-player'
 import AudioFilesDrumKit from './pages/audio-files/drum-kit'
 import SoundFontsPiano from './pages/sound-fonts/piano'
 import SoundFontsNoteObjects from './pages/sound-fonts/note-objects'
+import StartingAudioContext from './pages/starting-audiocontext'
 
 const routes = {
   '/ez-audio/': Index,
@@ -21,6 +22,7 @@ const routes = {
   '/ez-audio/audio-files/drum-kit': AudioFilesDrumKit,
   '/ez-audio/sound-fonts': SoundFontsPiano,
   '/ez-audio/sound-fonts/note-objects': SoundFontsNoteObjects,
+  '/ez-audio/starting-audiocontext': StartingAudioContext,
 }
 
 let debouncer = false

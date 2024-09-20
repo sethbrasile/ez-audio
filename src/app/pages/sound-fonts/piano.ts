@@ -1,3 +1,4 @@
+import PermissionBanner from '@app/pages/components/permission-banner'
 import { codeBlock, htmlBlock } from '../../utils'
 import nav from './nav'
 import { setupPiano } from './piano-buttons'
@@ -9,9 +10,6 @@ const htmlExample = `
 `
 
 const codeExample = `
-// AudioContext setup must occur in response to user interaction, so this is why we do setup in click handler
-// then remove the listener.
-await initAudio()
 // piano.js is a soundfont created with MIDI.js' Ruby-based soundfont converter
 const piano = await createFont('/ez-audio/piano.js')
 // Slicing just so the whole keyboard doesn't show up on the screen
@@ -45,12 +43,15 @@ notes.forEach((note: Note) => {
 const Content = {
   setup() {
     setupPiano(document.querySelector<HTMLOListElement>('#keys')!)
+    PermissionBanner.setup()
   },
   html: `
 
 ${nav}
 
 <h1>Play a Soundfont</h1>
+
+${PermissionBanner}
 
 <div id="piano">
   <ol id="keys"></ol>
