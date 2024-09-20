@@ -14,8 +14,7 @@ import type { Sound } from './sound'
  */
 export class Sampler {
   constructor(sounds: Sound[]) {
-    const soundSet = new Set<Sound>(sounds)
-    this.sounds = soundSet
+    this.sounds = new Set<Sound>(sounds)
     this._soundIterator = sounds.values()
   }
 

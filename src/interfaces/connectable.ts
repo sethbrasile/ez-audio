@@ -1,4 +1,4 @@
-import type { ControlType } from '@/param-controller'
+import type { ControlType } from '@controllers/base-param-controller'
 
 export interface Connection { audioNode: AudioNode, name: string }
 export interface Connectable {

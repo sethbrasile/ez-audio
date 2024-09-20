@@ -13,6 +13,7 @@
       "@/*": ["src/*"],
       "@app/*": ["src/app/*"],
       "@common/*": ["src/common/*"],
+      "@controllers/*": ["src/controllers/*"],
       "@utils/*": ["src/utils/*"],
       "@interfaces/*": ["src/interfaces/*"],
       "@test/*": ["src/test/*"]
