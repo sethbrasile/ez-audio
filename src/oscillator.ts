@@ -196,6 +196,8 @@ export class Oscillator implements Playable, Connectable {
     const { currentTime } = audioContext
     const { setTimeout } = audioContextAwareTimeout(audioContext)
 
+    audioContext.resume()
+
     this.setup()
     this.oscillator.start(time)
 

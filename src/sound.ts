@@ -156,6 +156,8 @@ export class Sound implements Playable, Connectable {
     const { currentTime } = audioContext
     const { setTimeout } = audioContextAwareTimeout(audioContext)
 
+    audioContext.resume()
+
     this.setup()
     this.bufferSourceNode.start(time, this.startOffset)
     this._startedPlayingAt = time
