@@ -191,12 +191,12 @@ export class Oscillator implements Playable, Connectable {
   }
 
   // playAt is the underlying play method behind all play methods
-  playAt(time: number): void {
+  async playAt(time: number): Promise<void> {
     const { audioContext } = this
     const { currentTime } = audioContext
     const { setTimeout } = audioContextAwareTimeout(audioContext)
 
-    audioContext.resume()
+    await audioContext.resume()
 
     this.setup()
     this.oscillator.start(time)

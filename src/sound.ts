@@ -151,12 +151,12 @@ export class Sound implements Playable, Connectable {
     setTimeout(() => this.stop(), duration * 1000)
   }
 
-  playAt(time: number): void {
+  async playAt(time: number): Promise<void> {
     const { audioContext } = this
     const { currentTime } = audioContext
     const { setTimeout } = audioContextAwareTimeout(audioContext)
 
-    audioContext.resume()
+    await audioContext.resume()
 
     this.setup()
     this.bufferSourceNode.start(time, this.startOffset)
