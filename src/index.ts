@@ -14,6 +14,8 @@ import { Track } from '@/track'
 import { Note } from '@/note'
 import type { OscillatorOpts } from '@/oscillator'
 
+const files = new Map<string, AudioBuffer>()
+
 let audioContext: AudioContext
 function throwIfContextNotExist(): void {
   if (!audioContext) {
@@ -52,18 +54,39 @@ export function createNotes(json?: any): Note[] {
   return notes
 }
 
+async function _createSound(buffer: AudioBuffer): Promise<Sound> {
+  await initAudio()
+  throwIfContextNotExist()
+  return new Sound(audioContext, buffer)
+}
+
 export async function createSound(url: string): Promise<Sound> {
+  // Check if the file has already been fetched
+  if (files.has(url)) {
+    const audio = files.get(url)
+    if (audio)
+      return _createSound(audio)
+  }
+
+  // It has not been fetched so lets get it
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
+
   await initAudio()
-  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-  return new Sound(audioContext, audioBuffer)
+  throwIfContextNotExist()
+  const audio = await audioContext.decodeAudioData(arrayBuffer)
+
+  // Store the audio in the map
+  files.set(url, audio)
+
+  return _createSound(audio)
 }
 
 export async function createTrack(url: string): Promise<Track> {
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
   await initAudio()
+  throwIfContextNotExist()
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
   return new Track(audioContext, audioBuffer)
 }
@@ -71,6 +94,7 @@ export async function createTrack(url: string): Promise<Track> {
 export async function createSampler(urls: string[]): Promise<Sampler> {
   const sounds = await Promise.all(urls.map(async url => createSound(url)))
   await initAudio()
+  throwIfContextNotExist()
   return new Sampler(sounds)
 }
 
@@ -84,6 +108,7 @@ export async function createFont(url: string): Promise<Font> {
   const text = await response.text()
   const audioData = mungeSoundFont(text)
   await initAudio()
+  throwIfContextNotExist()
   const keyValuePairs = await extractDecodedKeyValuePairs(audioContext, audioData)
   const notes = createNoteObjectsForFont(audioContext, keyValuePairs)
   return new Font(notes)
