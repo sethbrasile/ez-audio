@@ -61,7 +61,6 @@ export async function createSound(url: string): Promise<Sound> {
 }
 
 export async function createTrack(url: string): Promise<Track> {
-  throwIfContextNotExist()
   const response = await fetch(url)
   const arrayBuffer = await response.arrayBuffer()
   await initAudio()
@@ -76,7 +75,7 @@ export async function createSampler(urls: string[]): Promise<Sampler> {
 }
 
 export async function createOscillator(options?: OscillatorOpts): Promise<Oscillator> {
-  await initAudio()
+  throwIfContextNotExist()
   return new Oscillator(audioContext, options)
 }
 
@@ -91,7 +90,7 @@ export async function createFont(url: string): Promise<Font> {
 }
 
 export async function createWhiteNoise(): Promise<Sound> {
-  await initAudio()
+  throwIfContextNotExist()
   const bufferSize = audioContext.sampleRate
   const audioBuffer = audioContext.createBuffer(1, bufferSize, bufferSize)
   const output = audioBuffer.getChannelData(0)
