@@ -14,7 +14,7 @@ import { Track } from '@/track'
 import { Note } from '@/note'
 import type { OscillatorOpts } from '@/oscillator'
 
-const files = new Map<string, AudioBuffer>()
+const buffers = new Map<string, AudioBuffer>()
 
 let audioContext: AudioContext
 function throwIfContextNotExist(): void {
@@ -62,8 +62,8 @@ async function _createSound(buffer: AudioBuffer): Promise<Sound> {
 
 export async function createSound(url: string): Promise<Sound> {
   // Check if the file has already been fetched
-  if (files.has(url)) {
-    const audio = files.get(url)
+  if (buffers.has(url)) {
+    const audio = buffers.get(url)
     if (audio)
       return _createSound(audio)
   }
@@ -77,7 +77,7 @@ export async function createSound(url: string): Promise<Sound> {
   const audio = await audioContext.decodeAudioData(arrayBuffer)
 
   // Store the audio in the map
-  files.set(url, audio)
+  buffers.set(url, audio)
 
   return _createSound(audio)
 }
