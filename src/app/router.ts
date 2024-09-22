@@ -1,6 +1,9 @@
 import Index from '@app/pages/index'
 import Prism from 'prismjs'
 import Synthesis from './pages/synthesis'
+import Timing from './pages/timing'
+import TimingWithEzAudio from './pages/timing/with-ez-audio'
+import TimingDrumMachine from './pages/timing/drum-machine'
 import SynthesisDrum from './pages/synthesis/drum-kit'
 import SynthesisXY from './pages/synthesis/xy-pad'
 import AudioRouting from './pages/audio-routing'
@@ -16,6 +19,9 @@ const routes = {
   '/ez-audio/synthesis': Synthesis,
   '/ez-audio/synthesis/drum-kit': SynthesisDrum,
   '/ez-audio/synthesis/xy-pad': SynthesisXY,
+  '/ez-audio/timing': Timing,
+  '/ez-audio/timing/with-ez-audio': TimingWithEzAudio,
+  '/ez-audio/timing/drum-machine': TimingDrumMachine,
   '/ez-audio/audio-routing': AudioRouting,
   '/ez-audio/audio-files': AudioFiles,
   '/ez-audio/audio-files/mp3-player': AudioFilesMp3,

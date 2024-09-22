@@ -9,6 +9,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 |
 <a href="/ez-audio/audio-routing" id="audio-routing">Audio Routing</a>
 |
+<a href="/ez-audio/timing" id="timing">Timing</a>
+|
 <a href="/ez-audio/synthesis" id="synthesis">Synthesis</a>
 |
 <a href="/ez-audio/starting-audiocontext" id="starting-audiocontext">Starting AudioContext</a>

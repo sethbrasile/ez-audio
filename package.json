@@ -1,13 +1,30 @@
 {
   "name": "ez-audio",
   "type": "module",
-  "version": "0.0.1-alpha",
+  "version": "0.0.0-notready",
   "private": false,
+  "description": "Making the Web Audio API super EZ since 2024.",
   "author": {
     "name": "Seth Brasile",
     "email": "seth.brasile@gmail.com",
     "url": "https://github.com/sethbrasile"
   },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sethbrasile/ez-audio.git"
+  },
+  "keywords": [
+    "audio",
+    "web",
+    "audio-api",
+    "web-audio",
+    "web-audio-api",
+    "audio-context",
+    "audio-node",
+    "synthesis",
+    "oscillator"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
