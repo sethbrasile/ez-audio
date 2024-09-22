@@ -53,7 +53,7 @@ export function MusicallyAware<TBase extends Constructor>(Base: TBase) {
         const { identifier, frequency, letter, accidental, octave } = opts
         // identifier and frequency don't make sense if others are provided
         if ((identifier && frequency) || ((identifier || frequency) && (letter || accidental || octave))) {
-          warn('ez-audio: upon instantiation, multiple note identifiers were provided which might be a mistake and ez-audio has no way to determine which should be preferred', opts, this)
+          warn('ez-web-audio: upon instantiation, multiple note identifiers were provided which might be a mistake and ez-web-audio has no way to determine which should be preferred', opts, this)
         }
         if (identifier)
           this.identifier = identifier

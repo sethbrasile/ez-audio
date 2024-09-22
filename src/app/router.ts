@@ -2,7 +2,7 @@ import Index from '@app/pages/index'
 import Prism from 'prismjs'
 import Synthesis from './pages/synthesis'
 import Timing from './pages/timing'
-import TimingWithEzAudio from './pages/timing/with-ez-audio'
+import TimingWithEzAudio from './pages/timing/with-ez-web-audio'
 import TimingDrumMachine from './pages/timing/drum-machine'
 import SynthesisDrum from './pages/synthesis/drum-kit'
 import SynthesisXY from './pages/synthesis/xy-pad'
@@ -15,20 +15,20 @@ import SoundFontsNoteObjects from './pages/sound-fonts/note-objects'
 import StartingAudioContext from './pages/starting-audiocontext'
 
 const routes = {
-  '/ez-audio/': Index,
-  '/ez-audio/synthesis': Synthesis,
-  '/ez-audio/synthesis/drum-kit': SynthesisDrum,
-  '/ez-audio/synthesis/xy-pad': SynthesisXY,
-  '/ez-audio/timing': Timing,
-  '/ez-audio/timing/with-ez-audio': TimingWithEzAudio,
-  '/ez-audio/timing/drum-machine': TimingDrumMachine,
-  '/ez-audio/audio-routing': AudioRouting,
-  '/ez-audio/audio-files': AudioFiles,
-  '/ez-audio/audio-files/mp3-player': AudioFilesMp3,
-  '/ez-audio/audio-files/drum-kit': AudioFilesDrumKit,
-  '/ez-audio/sound-fonts': SoundFontsPiano,
-  '/ez-audio/sound-fonts/note-objects': SoundFontsNoteObjects,
-  '/ez-audio/starting-audiocontext': StartingAudioContext,
+  '/ez-web-audio/': Index,
+  '/ez-web-audio/synthesis': Synthesis,
+  '/ez-web-audio/synthesis/drum-kit': SynthesisDrum,
+  '/ez-web-audio/synthesis/xy-pad': SynthesisXY,
+  '/ez-web-audio/timing': Timing,
+  '/ez-web-audio/timing/with-ez-web-audio': TimingWithEzAudio,
+  '/ez-web-audio/timing/drum-machine': TimingDrumMachine,
+  '/ez-web-audio/audio-routing': AudioRouting,
+  '/ez-web-audio/audio-files': AudioFiles,
+  '/ez-web-audio/audio-files/mp3-player': AudioFilesMp3,
+  '/ez-web-audio/audio-files/drum-kit': AudioFilesDrumKit,
+  '/ez-web-audio/sound-fonts': SoundFontsPiano,
+  '/ez-web-audio/sound-fonts/note-objects': SoundFontsNoteObjects,
+  '/ez-web-audio/starting-audiocontext': StartingAudioContext,
 }
 
 let debouncer = false

@@ -11,7 +11,7 @@ const htmlExample = `
 
 const codeExample = `
 // piano.js is a soundfont created with MIDI.js' Ruby-based soundfont converter
-const piano = await createFont('/ez-audio/piano.js')
+const piano = await createFont('/ez-web-audio/piano.js')
 // Slicing just so the whole keyboard doesn't show up on the screen
 const notes = piano.notes.slice(39, 51)
 

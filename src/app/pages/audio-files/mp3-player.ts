@@ -128,8 +128,8 @@ the github repo for this project and take a look at ${inlineCode('src/app/pages/
 
   ${codeBlock(`
 <script setup lang="ts">
-import type { Track } from 'ez-audio'
-import { createTrack, initAudio } from 'ez-audio'
+import type { Track } from 'ez-web-audio'
+import { createTrack, initAudio } from 'ez-web-audio'
 import { computed, ref } from 'vue'
 import Mp3Player from './components/Mp3Player.vue'
 import { titleCase } from './utils'
@@ -214,7 +214,7 @@ async function selectSong(song: Song) {
 
   ${codeBlock(`
 <script setup lang="ts">
-import type { Track } from 'ez-audio'
+import type { Track } from 'ez-web-audio'
 import { computed } from 'vue'
 
 const props = defineProps<{

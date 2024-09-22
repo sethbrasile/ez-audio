@@ -14,7 +14,7 @@ const Content = {
 </p>
 
 <i><small>Note: If you'd like to skip the explanation and just see relevant code, compare the difference between the two
-keyboard examples: <a href="/ez-audio/sound-fonts">sound-fonts</a> and <a href="/ez-audio/synthesis">synthesis</a></small></i>
+keyboard examples: <a href="/ez-web-audio/sound-fonts">sound-fonts</a> and <a href="/ez-web-audio/synthesis">synthesis</a></small></i>
 
 <h2>Pattern 1: Obtain permission to start the AudioContext</h2>
 <p>
@@ -28,7 +28,7 @@ keyboard examples: <a href="/ez-audio/sound-fonts">sound-fonts</a> and <a href="
   ${inlineCode('AudioContext')}.
 </p>
 <p>
-  You can see an example of this pattern on the <a href="/ez-audio/sound-fonts">sound-fonts</a> page. If you don't
+  You can see an example of this pattern on the <a href="/ez-web-audio/sound-fonts">sound-fonts</a> page. If you don't
   see a banner upon navigation asking you to init the AudioContext, you must have already initialized it. Refresh the page to
   see the banner.
 </p>
@@ -48,7 +48,7 @@ keyboard examples: <a href="/ez-audio/sound-fonts">sound-fonts</a> and <a href="
   AudioContext must assume the audio context is not started and handle the user's first interaction.
 </p>
 <p>
-  You can see an example of the higher complexity of this pattern on the <a href="/ez-audio/synthesis">synthesis</a> page.
+  You can see an example of the higher complexity of this pattern on the <a href="/ez-web-audio/synthesis">synthesis</a> page.
   Scroll down to the "full code" section at the bottom.
 </p>
 <p>

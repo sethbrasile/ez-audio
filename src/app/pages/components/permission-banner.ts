@@ -17,7 +17,7 @@ export default {
 <div id="init-banner" class="alert warning">
   <h3>${inlineCode('AudioContext')} Not Started!</h3>
   <p>This page uses the "obtain permission" method of starting the browser's ${inlineCode('AudioContext')}</p>
-  <p>You can read more about starting the ${inlineCode('AudioContext')} <a href="/ez-audio/starting-audiocontext">HERE</a>
+  <p>You can read more about starting the ${inlineCode('AudioContext')} <a href="/ez-web-audio/starting-audiocontext">HERE</a>
 
   <div><button id="init">Initialize AudioContext</button></div>
 </div>

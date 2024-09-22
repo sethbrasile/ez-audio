@@ -15,7 +15,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'ez-audio',
+      name: 'ez-web-audio',
       fileName: 'index',
     },
   },

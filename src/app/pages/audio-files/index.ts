@@ -3,7 +3,7 @@ import nav from './nav'
 import { setupNoteButton } from './note-buttons'
 
 const codeExample = `
-import { initAudio, createSound } from 'ez-audio'
+import { initAudio, createSound } from 'ez-web-audio'
 
 const url = 'https://raw.githubusercontent.com/mudcube/MIDI.js/master/examples/soundfont/acoustic_grand_piano-mp3/B5.mp3'
 

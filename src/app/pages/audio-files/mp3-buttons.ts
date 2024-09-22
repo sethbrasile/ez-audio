@@ -106,7 +106,7 @@ async function updateTrackSelectionUi(el: HTMLButtonElement): Promise<void> {
     // There is no track instance, so we need to load it
     player.classList.add('hidden')
     loading.classList.remove('hidden')
-    const track = await createTrack(`/ez-audio/${selectedSong.name}.mp3`)
+    const track = await createTrack(`/ez-web-audio/${selectedSong.name}.mp3`)
     selectedSong.trackInstance = observable(track)
     loading.classList.add('hidden')
   }

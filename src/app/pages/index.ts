@@ -2,7 +2,7 @@ import { codeBlock } from '../utils'
 import { setupPlayButton } from './play-button'
 
 const codeExample = `
-import { createSound } from 'ez-audio'
+import { createSound } from 'ez-web-audio'
 
 function playSound() {
   // 1. Load a sound from a URL

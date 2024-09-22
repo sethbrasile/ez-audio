@@ -15,5 +15,5 @@ export function htmlBlock(code: string): string {
 }
 
 export function getSamplesPaths(instrument: string): string[] {
-  return [1, 2, 3].map(num => `/ez-audio/drum-samples/${instrument}${num}.wav`)
+  return [1, 2, 3].map(num => `/ez-web-audio/drum-samples/${instrument}${num}.wav`)
 }

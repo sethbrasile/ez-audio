@@ -39,8 +39,8 @@ with the Web Audio API's ${inlineCode('AudioContext')}, so we're safe to create 
 occurs.</p>
 
 ${codeBlock(`
-import { createNotes } from 'ez-audio'
-import type { Note } from 'ez-audio'
+import { createNotes } from 'ez-web-audio'
+import type { Note } from 'ez-web-audio'
 
 // createNotes creates an array of all the notes in western musical notation as Note objects
 // (then slicing so the keyboard isn't huge)
@@ -90,7 +90,7 @@ and map the key's touch/mouse events to the oscillator's play/stop methods.</p>
 press creates a sound.</p>
 
 ${codeBlock(`
-import { initAudio, createOscillator } from 'ez-audio'
+import { initAudio, createOscillator } from 'ez-web-audio'
 
 async function setup(e: MouseEvent | TouchEvent): Promise<void> {
   // First key is pressed...
@@ -140,8 +140,8 @@ ${htmlBlock(`
 `)}
 
 ${codeBlock(`
-import { createNotes, createOscillator, initAudio } from 'ez-audio'
-import type { Note } from 'ez-audio'
+import { createNotes, createOscillator, initAudio } from 'ez-web-audio'
+import type { Note } from 'ez-web-audio'
 
 setupPiano(document.querySelector<HTMLOListElement>('#keys')!)
 
