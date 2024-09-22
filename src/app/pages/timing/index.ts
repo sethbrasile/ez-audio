@@ -1,10 +1,16 @@
-import { codeBlock } from '../../utils'
+import { codeBlock, htmlBlock, inlineCode } from '../../utils'
 import nav from './nav'
+import { createSound, getAudioContext } from '@/index'
 
 const Content = {
-  setup() {
-    // const keys = document.querySelector<HTMLOListElement>('#keys')
-    // setupPiano(keys!)
+  async setup() {
+    const button = document.getElementById('play-in-one-second')!
+    button.addEventListener('click', async () => {
+      const sound = await createSound('Db5.mp3')
+      const audioContext = await getAudioContext()
+      const now = audioContext.currentTime
+      sound.playAt(now + 1)
+    })
   },
   html: `
 
@@ -89,6 +95,44 @@ function handleClick() {
     Just in case you're not completely grasping how this relates directly to Ember Audio. Here is the first
     example from above, but written so that it works in Ember and EZ Audio.
   </p>
+  <div>
+    <button id="play-in-one-second">Play in One Second</button>
+  </div>
+  <i><small>
+    Note: Loading an mp3 and initializing the audio context creates a delay, so ideally if the timing matters, you've
+    already done those things before doing the scheduling.
+  </small><i>
+
+  ${htmlBlock(`
+<button id="play-in-one-second">Play in One Second</button>
+  `)}
+
+  ${codeBlock(`
+import { createSound, getAudioContext } from 'ez-web-audio'
+
+const button = document.getElementById('play-in-one-second')
+button.addEventListener('click', async () => {
+  const sound = await createSound('Db5.mp3')
+  const audioContext = await getAudioContext()
+  const now = audioContext.currentTime
+  sound.playAt(now + 1)
+})
+  `)}
+
+<p>
+  By using a ${inlineCode('Sound')}'s ${inlineCode('playIn')} method, ${inlineCode('currentTime')} is handled for you, so this can be made even simpler.
+</p>
+
+  ${codeBlock(`
+import { createSound, getAudioContext } from 'ez-web-audio'
+
+const button = document.getElementById('play-in-one-second')
+button.addEventListener('click', async () => {
+  const sound = await createSound('Db5.mp3')
+  sound.playIn(1)
+})
+  `)}
+
 </div>
 `,
 }
