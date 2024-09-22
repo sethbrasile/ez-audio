@@ -1,4 +1,4 @@
-import { codeBlock, inlineCode } from '../utils'
+import { inlineCode } from '../utils'
 import { setupPlayButton } from './play-button'
 
 const Content = {
