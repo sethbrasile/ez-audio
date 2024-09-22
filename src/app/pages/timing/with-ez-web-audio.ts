@@ -52,7 +52,7 @@ beatTrack.playBeats(120);
   `)}
 
   <p>
-    Instead of using beatTrack.playBeats, you can also call a Beat instance's playIn method directly,
+    Instead of using ${inlineCode('beatTrack.playBeats')}, you can also call a ${inlineCode('Beat')} instance's ${inlineCode('playIn')} method directly,
     passing an amount of time from now (in seconds) that the beat should play.
   </p>
 
