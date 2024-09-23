@@ -93,7 +93,6 @@ export class Sound extends BaseSound {
    */
   public seek(amount: number): { from: (type: SeekType) => void } {
     const duration = this.duration.raw
-
     const moveToOffset = (offset: number): void => {
       const _isPlaying = this._isPlaying
       const adjustedOffset = withinRange(offset, 0, duration)
@@ -101,7 +100,7 @@ export class Sound extends BaseSound {
       if (_isPlaying) {
         this.stop()
         this.startOffset = adjustedOffset
-        this.play()
+        this.later(() => this.play())
       }
       else {
         this.startOffset = adjustedOffset

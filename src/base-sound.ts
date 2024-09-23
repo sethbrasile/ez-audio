@@ -216,4 +216,8 @@ export abstract class BaseSound implements Connectable, Playable {
   public get percentGain(): number {
     return this.controller.gain * 100
   }
+
+  protected later(fn: () => void): void {
+    this.setTimeout(fn, 1)
+  }
 }
