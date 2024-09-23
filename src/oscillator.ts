@@ -75,11 +75,11 @@ export class Oscillator implements Playable, Connectable {
     })
   }
 
-  onPlaySet(type: ControlType): { to: (value: number) => { at: (time: number) => void, endingAt: (time: number, rampType?: RampType) => void } } {
+  public onPlaySet(type: ControlType): { to: (value: number) => { at: (time: number) => void, endingAt: (time: number, rampType?: RampType) => void } } {
     return this.controller.onPlaySet(type)
   }
 
-  onPlayRamp(type: ControlType, rampType?: RampType): { from: (startValue: number) => { to: (endValue: number) => { in: (endTime: number) => void } } } {
+  public onPlayRamp(type: ControlType, rampType?: RampType): { from: (startValue: number) => { to: (endValue: number) => { in: (endTime: number) => void } } } {
     return this.controller.onPlayRamp(type, rampType)
   }
 
@@ -103,7 +103,7 @@ export class Oscillator implements Playable, Connectable {
     this.controller.setValuesAtTimes()
   }
 
-  wireConnections(): void {
+  private wireConnections(): void {
     // always start with the audio source
     const nodes: AudioNode[] = [this.oscillator]
     const { connections, filters, pannerNode } = this
@@ -130,12 +130,12 @@ export class Oscillator implements Playable, Connectable {
     pannerNode.connect(this.audioContext.destination)
   }
 
-  addConnection(connection: Connection): void {
+  public addConnection(connection: Connection): void {
     this.connections.push(connection)
     this.wireConnections()
   }
 
-  removeConnection(name: string): void {
+  public removeConnection(name: string): void {
     const connection = this.getConnection(name)
     if (connection) {
       const index = this.connections.indexOf(connection)
@@ -146,21 +146,21 @@ export class Oscillator implements Playable, Connectable {
     }
   }
 
-  getConnection(name: string): Connection | undefined {
+  public getConnection(name: string): Connection | undefined {
     return this.connections.find(c => c.name === name)
   }
 
-  getNodeFrom<T extends AudioNode>(connectionName: string): T | undefined {
+  public getNodeFrom<T extends AudioNode>(connectionName: string): T | undefined {
     return this.getConnection(connectionName)?.audioNode as T | undefined
   }
 
-  get audioSourceNode(): OscillatorNode {
+  public get audioSourceNode(): OscillatorNode {
     return this.oscillator
   }
 
   // convenience method, equivalent longer form would be
   // osc.controller.update(type).to(value).from('ratio')
-  update(type: ControlType): {
+  public update(type: ControlType): {
     to: (value: number) => {
       from: (method: RatioType) => void
     }
@@ -170,28 +170,28 @@ export class Oscillator implements Playable, Connectable {
 
   // convenience method, equivalent longer form would be
   // osc.update('pan').to(value).from('ratio')
-  changePanTo(value: number): void {
+  public changePanTo(value: number): void {
     this.controller.update('pan').to(value).from('ratio')
   }
 
   // convenience method, equivalent longer form would be
   // osc.update('gain').to(value).from('ratio')
-  changeGainTo(value: number): void {
+  public changeGainTo(value: number): void {
     this.controller.update('gain').to(value).from('ratio')
   }
 
-  play(): void {
+  public play(): void {
     this.playAt(this.audioContext.currentTime)
   }
 
-  playFor(duration: number): void {
+  public playFor(duration: number): void {
     const { setTimeout } = audioContextAwareTimeout(this.audioContext)
     this.playAt(this.audioContext.currentTime)
     setTimeout(() => this.stop(), duration * 1000)
   }
 
   // playAt is the underlying play method behind all play methods
-  async playAt(time: number): Promise<void> {
+  public async playAt(time: number): Promise<void> {
     const { audioContext } = this
     const { currentTime } = audioContext
     const { setTimeout } = audioContextAwareTimeout(audioContext)
@@ -211,18 +211,18 @@ export class Oscillator implements Playable, Connectable {
     }
   }
 
-  stop(): void {
+  public stop(): void {
     this._isPlaying = false
     this.oscillator.stop()
   }
 
   private _isPlaying = false
-  get isPlaying(): boolean {
+  public get isPlaying(): boolean {
     return this._isPlaying
   }
 
   // TODO: implement duration... can I? I think duration is too dynamic? any way to infer from asdr? or if there is a sheduled stop?
-  get duration(): TimeObject {
+  public get duration(): TimeObject {
     return createTimeObject(0, 0, 0)
   }
 

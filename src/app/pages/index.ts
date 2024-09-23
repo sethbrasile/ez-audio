@@ -4,7 +4,7 @@ import { setupPlayButton } from './play-button'
 const codeExample = `
 import { createSound } from 'ez-web-audio'
 
-function playSound() {
+async function playSound() {
   // 1. Load a sound from a URL
   const note = await createSound('Eb5.mp3')
   // 2. Play the sound

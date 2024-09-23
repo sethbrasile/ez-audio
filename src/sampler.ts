@@ -1,4 +1,5 @@
-import type { Sound } from './sound'
+import type { Connectable } from './interfaces/connectable'
+import type { Playable } from './interfaces/playable'
 
 /**
  * An instance of the Sampler class behaves just like a Sound, but allows
@@ -13,8 +14,8 @@ import type { Sound } from './sound'
  * @todo loop
  */
 export class Sampler {
-  constructor(sounds: Sound[]) {
-    this.sounds = new Set<Sound>(sounds)
+  constructor(sounds: (Playable & Connectable)[]) {
+    this.sounds = new Set<Playable & Connectable>(sounds)
     this._soundIterator = sounds.values()
   }
 
@@ -36,7 +37,7 @@ export class Sampler {
    * This iterable is meant to be replaced with a new copy every time it reaches
    * it's end, resulting in an infinite stream of Sound instances.
    */
-  private _soundIterator: Iterator<Sound>
+  private _soundIterator: Iterator<Playable & Connectable>
 
   /**
    * @property sounds
@@ -44,7 +45,7 @@ export class Sampler {
    * that uses {{#crossLink "Playable"}}{{/crossLink}}. If not set on
    * instantiation, automatically set to `new Set()` via `_initSounds`.
    */
-  sounds: Set<Sound>
+  sounds: Set<Playable & Connectable>
 
   /**
    * Gets the next audio source and plays it immediately.
@@ -92,7 +93,7 @@ export class Sampler {
    * @method _getNextSound
    * @return {Sound}
    */
-  _getNextSound(): Sound {
+  _getNextSound(): Playable & Connectable {
     let soundIterator = this._soundIterator
     let nextSound
 
@@ -116,7 +117,7 @@ export class Sampler {
    * @method _setGainAndPan
    * @return {Sound} The input sound after having it's gain and pan set
    */
-  _setGainAndPan(sound: Sound): Sound {
+  _setGainAndPan(sound: Playable & Connectable): Playable & Connectable {
     // sound.changeGainTo(this.gain).from('ratio')
     sound.changePanTo(this.pan)
 

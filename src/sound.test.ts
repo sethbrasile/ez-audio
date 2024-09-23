@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 import { AudioContext as Mock } from 'standardized-audio-context-mock'
+import { settle } from './test/helpers'
 import { Sound } from '@/sound'
 
 function createSound() {
@@ -17,17 +18,17 @@ it('can be created', () => {
   expect(sound).toBeTruthy()
 })
 
-it('plays', () => {
+it('plays', async () => {
   const sound = createSound()
-  expect(sound.isPlaying).toBeFalsy()
+  expect(sound.isPlaying).toBe(false)
   sound.play()
-  expect(sound.isPlaying).toBeTruthy()
+  expect(await settle(() => sound.isPlaying)).toBe(true)
 })
 
-it('stops', () => {
+it('stops', async () => {
   const sound = createSound()
   sound.play()
-  expect(sound.isPlaying).toBeTruthy()
+  expect(await settle(() => sound.isPlaying)).toBe(true)
   sound.stop()
-  expect(sound.isPlaying).toBeFalsy()
+  expect(await settle(() => sound.isPlaying)).toBe(false)
 })

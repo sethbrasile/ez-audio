@@ -1,3 +1,5 @@
+import type { AudioContext as AudioContextMock } from 'standardized-audio-context-mock'
+
 interface Task {
   id: number
   due: number
@@ -5,10 +7,20 @@ interface Task {
 }
 
 // AudioContext-aware and AudioContext-precise setTimeout and clearTimeout.
-export default function audioContextAwareTimeout(audioContext: AudioContext | BaseAudioContext): {
+export default function audioContextAwareTimeout(audioContext: AudioContext | BaseAudioContext | AudioContextMock): {
   setTimeout: (fn: () => void, delayMillis: number) => number
   clearTimeout: (id: number) => void
 } {
+  if (!audioContext) {
+    console.warn(`ez-web-audio: AudioContext was not available when an entity was created and timing tasks will therefore use javascript native \
+setTimeout instead of AudioContext-aware versions. Please ensure to await initAudio before instantiating any timing-sensitive entities. If your application \
+is behaving as you'd hope, you can safely ignore this message.`)
+    return {
+      setTimeout: window.setTimeout.bind(window),
+      clearTimeout: window.clearTimeout.bind(window),
+    }
+  }
+
   let tasks: Task[] = []
   let nextTaskId = 1
 
@@ -53,3 +65,10 @@ export default function audioContextAwareTimeout(audioContext: AudioContext | Ba
     },
   }
 }
+
+// export function audioContextAwareInterval(audioContext: AudioContext | BaseAudioContext): {
+//   setInterval: (fn: () => void, delayMillis: number) => number
+//   clearInterval: (id: number) => void
+// } {
+
+// }

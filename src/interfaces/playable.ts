@@ -3,12 +3,13 @@ import type { ControlType, RampType } from '@controllers/base-param-controller'
 
 export interface Playable {
   play: () => void
-  // playIn: (when: number) => void
+  playAt: (time: number) => void
+  playIn: (when: number) => void
   playFor: (duration: number) => void
-  // playInAndStopAfter: (playIn: number, stopAfter: number) => void
+  playInAndStopAfter: (playIn: number, stopAfter: number) => void
   stop: () => void
-  // stopIn: (seconds: number) => void
-  // stopAt: (time: number) => void
+  stopIn: (seconds: number) => void
+  stopAt: (time: number) => void
   // stopAfter: (duration: number) => void
   isPlaying: boolean
   duration: TimeObject

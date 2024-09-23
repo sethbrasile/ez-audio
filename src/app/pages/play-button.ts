@@ -15,10 +15,10 @@ export function setupPlayButton(element: HTMLButtonElement): void {
     // remove the setup listener
     element.removeEventListener('click', setup)
 
+    note.play()
+
     // add a listener to play the note again when the button is clicked for the rest of the document's life
-    element.addEventListener('click', async () => {
-      note.play()
-    })
+    element.addEventListener('click', () => note.play())
   }
 
   element.addEventListener('click', setup)

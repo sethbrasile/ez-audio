@@ -24,37 +24,45 @@ import { SoundController } from './controllers/sound-controller'
 export class Sound implements Playable, Connectable {
   private gainNode: GainNode
   private pannerNode: StereoPannerNode
-  private bufferSourceNode: AudioBufferSourceNode
   private controller: ParamController
-  public _isPlaying: boolean = false
+  private _isPlaying: boolean = false
+  private setTimeout: (fn: () => void, delayMillis: number) => number
   protected _startedPlayingAt: number = 0
+  public audioSourceNode: AudioBufferSourceNode
   public startOffset: number = 0
   public connections: Connection[] = []
 
-  constructor(protected audioContext: AudioContext, private audioBuffer: AudioBuffer) {
-    const bufferSourceNode = this.audioContext.createBufferSource()
+  constructor(protected audioContext: AudioContext, private audioBuffer: AudioBuffer, opts?: any) {
+    const audioSourceNode = this.audioContext.createBufferSource()
     const gainNode = audioContext.createGain()
     const pannerNode = audioContext.createStereoPanner()
     this.gainNode = gainNode
     this.pannerNode = pannerNode
-    this.bufferSourceNode = bufferSourceNode
+    this.audioSourceNode = audioSourceNode
     this.audioBuffer = audioBuffer
-    bufferSourceNode.buffer = audioBuffer
+    audioSourceNode.buffer = audioBuffer
 
-    this.controller = new SoundController(bufferSourceNode, gainNode, pannerNode)
+    this.controller = new SoundController(audioSourceNode, gainNode, pannerNode)
+
+    if (opts?.setTimeout) {
+      this.setTimeout = opts.setTimeout
+    }
+    else {
+      this.setTimeout = audioContextAwareTimeout(audioContext).setTimeout
+    }
   }
 
   private setup(): void {
-    const bufferSourceNode = this.audioContext.createBufferSource()
-    bufferSourceNode.buffer = this.audioBuffer
-    this.bufferSourceNode = bufferSourceNode
+    const audioSourceNode = this.audioContext.createBufferSource()
+    audioSourceNode.buffer = this.audioBuffer
+    this.audioSourceNode = audioSourceNode
     this.wireConnections()
     this.controller.setValuesAtTimes()
   }
 
-  public wireConnections(): void {
+  private wireConnections(): void {
     // always start with the audio source
-    const nodes: AudioNode[] = [this.bufferSourceNode]
+    const nodes: AudioNode[] = [this.audioSourceNode]
     const { connections, pannerNode } = this
 
     // add the nodes from nodes property
@@ -74,12 +82,12 @@ export class Sound implements Playable, Connectable {
     pannerNode.connect(this.audioContext.destination)
   }
 
-  addConnection(connection: Connection): void {
+  public addConnection(connection: Connection): void {
     this.connections.push(connection)
     this.wireConnections()
   }
 
-  removeConnection(name: string): void {
+  public removeConnection(name: string): void {
     const connection = this.getConnection(name)
     if (connection) {
       const index = this.connections.indexOf(connection)
@@ -91,20 +99,16 @@ export class Sound implements Playable, Connectable {
   }
 
   // Allows you to get any user created connection in the connections array
-  getConnection(name: string): Connection | undefined {
+  public getConnection(name: string): Connection | undefined {
     return this.connections.find(c => c.name === name)
   }
 
   // Allows you to get node from any user created connection in the connections array
-  getNodeFrom<T extends AudioNode | StereoPannerNode>(connectionName: string): T | undefined {
+  public getNodeFrom<T extends AudioNode | StereoPannerNode>(connectionName: string): T | undefined {
     return this.getConnection(connectionName)?.audioNode as T | undefined
   }
 
-  get audioSourceNode(): AudioBufferSourceNode {
-    return this.bufferSourceNode
-  }
-
-  update(type: ControlType): {
+  public update(type: ControlType): {
     to: (value: number) => {
       from: (method: RatioType) => void
     }
@@ -112,17 +116,17 @@ export class Sound implements Playable, Connectable {
     return this.controller.update(type)
   }
 
-  changePanTo(value: number): void {
+  public changePanTo(value: number): void {
     this.controller.update('pan').to(value).from('ratio')
   }
 
-  changeGainTo(value: number): {
+  public changeGainTo(value: number): {
     from: (method: RatioType) => void
   } {
     return this.controller.update('gain').to(value)
   }
 
-  onPlaySet(type: ControlType): {
+  public onPlaySet(type: ControlType): {
     to: (value: number) => {
       at: (time: number) => void
       endingAt: (time: number, rampType?: RampType) => void
@@ -131,7 +135,7 @@ export class Sound implements Playable, Connectable {
     return this.controller.onPlaySet(type)
   }
 
-  onPlayRamp(type: ControlType, rampType?: RampType): {
+  public onPlayRamp(type: ControlType, rampType?: RampType): {
     from: (startValue: number) => {
       to: (endValue: number) => {
         in: (endTime: number) => void
@@ -141,41 +145,113 @@ export class Sound implements Playable, Connectable {
     return this.controller.onPlayRamp(type, rampType)
   }
 
-  play(): void {
+  public play(): void {
     this.playAt(this.audioContext.currentTime)
   }
 
-  playFor(duration: number): void {
-    const { setTimeout } = audioContextAwareTimeout(this.audioContext)
-    this.playAt(this.audioContext.currentTime)
-    setTimeout(() => this.stop(), duration * 1000)
+  public playIn(when: number): void {
+    this.playAt(this.audioContext.currentTime + when)
   }
 
-  async playAt(time: number): Promise<void> {
+  public playFor(duration: number): void {
+    this.playAt(this.audioContext.currentTime)
+    this.setTimeout(() => this.stop(), duration * 1000)
+  }
+
+  /**
+   * Starts playing the audio source after `playIn` seconds have elapsed, then
+   * stops the audio source `stopAfter` seconds after it started playing.
+   *
+   * @public
+   * @method playInAndStopAfter
+   *
+   * @param {number} playIn Number of seconds from "now" that the audio source
+   * should play.
+   *
+   * @param {number} stopAfter Number of seconds from when the audio source
+   * started playing that the audio source should be stopped.
+   */
+  public playInAndStopAfter(playIn: number, stopAfter: number): void {
+    this.playIn(playIn)
+    this.stopIn(playIn + stopAfter)
+  }
+
+  /**
+   * The underlying method that backs all of the `play` methods. Plays the audio source at
+   * the specified moment in time. A "moment in time" is measured in seconds from the moment
+   * that the {{#crossLink "AudioContext"}}{{/crossLink}} was instantiated.
+   *
+   * @param {number} time The moment in time (in seconds, relative to the
+   * {{#crossLink "AudioContext"}}AudioContext's{{/crossLink}} "beginning of
+   * time") when the audio source should be played.
+   *
+   * @method playAt
+   */
+  public async playAt(time: number): Promise<void> {
     const { audioContext } = this
     const { currentTime } = audioContext
-    const { setTimeout } = audioContextAwareTimeout(audioContext)
 
     await audioContext.resume()
 
     this.setup()
-    this.bufferSourceNode.start(time, this.startOffset)
+    this.audioSourceNode.start(time, this.startOffset)
     this._startedPlayingAt = time
     // schedule _isPlaying to false after duration
-    setTimeout(() => this._isPlaying = false, this.duration.pojo.seconds * 1000)
+    this.setTimeout(() => this._isPlaying = false, this.duration.pojo.seconds * 1000)
 
     if (time <= currentTime) {
       this._isPlaying = true
     }
     else {
-      setTimeout(() => {
+      this.setTimeout(() => {
         this._isPlaying = true
       }, (time - currentTime) * 1000)
     }
   }
 
-  stop(): void {
-    this.bufferSourceNode.stop()
+  /**
+   * Stops the audio source after specified seconds have elapsed.
+   *
+   * @public
+   * @method stopIn
+   *
+   * @param {number} seconds Number of seconds from "now" that the audio source
+   * should be stopped.
+   */
+  public stopIn(seconds: number): void {
+    this.stopAt(this.audioContext.currentTime + seconds)
+  }
+
+  /**
+   * The underlying method that backs all of the `stop` methods. Stops sound and
+   * set `isPlaying` to false at specified time.
+   *
+   * Functionally equivalent to the `stopAt` method.
+   *
+   * @method stopAt
+   *
+   * @param {number} stopAt The moment in time (in seconds, relative to the
+   * {{#crossLink "AudioContext"}}AudioContext's{{/crossLink}} "beginning of
+   * time") when the audio source should be stopped.
+   */
+  public stopAt(stopAt: number): void {
+    const node = this.audioSourceNode
+    const currentTime = this.audioContext.currentTime
+
+    if (node) {
+      node.stop(stopAt)
+    }
+
+    if (stopAt === currentTime) {
+      this._isPlaying = false
+    }
+    else {
+      this.setTimeout(() => this._isPlaying = false, (stopAt - currentTime) * 1000)
+    }
+  }
+
+  public stop(): void {
+    this.audioSourceNode.stop()
     this._isPlaying = false
   }
 
@@ -184,7 +260,7 @@ export class Sound implements Playable, Connectable {
   }
 
   public get duration(): TimeObject {
-    const buffer = this.bufferSourceNode.buffer
+    const buffer = this.audioSourceNode.buffer
     if (buffer === null)
       return createTimeObject(0, 0, 0)
     const { duration } = buffer
@@ -214,7 +290,7 @@ export class Sound implements Playable, Connectable {
    *
    * @param {number} amount The new play position value.
    */
-  seek(amount: number): { from: (type: SeekType) => void } {
+  public seek(amount: number): { from: (type: SeekType) => void } {
     const duration = this.duration.raw
 
     const moveToOffset = (offset: number): void => {
