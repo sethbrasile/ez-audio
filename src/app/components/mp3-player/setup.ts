@@ -76,7 +76,6 @@ async function updateIndicators(): Promise<void> {
 
   description.textContent = selectedSong.description
   duration.textContent = track.duration.string
-  current.textContent = track.position.string
   player.classList.remove('hidden')
 }
 
@@ -113,6 +112,7 @@ async function updateTrackSelectionUi(el: HTMLButtonElement): Promise<void> {
 
   progressObserver = observe(() => {
     progress.style.width = `${selectedSong.trackInstance?.percentPlayed}%`
+    current.textContent = selectedSong.trackInstance?.position.string || '00:00'
   })
 
   updateIndicators()

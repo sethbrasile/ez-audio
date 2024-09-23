@@ -1,5 +1,5 @@
 import { codeBlock, htmlBlock } from '@app/utils'
-import PermissionBanner from '../components/permission-banner'
+import PermissionBanner from '@components/permission-banner'
 import { setupSnareButton, setupSnareCrackButton, setupSnareMeatButton } from './snare-button'
 import { setupHihatButton } from './hihat-button'
 import { setupBassDropButton } from './bass-drop-button'

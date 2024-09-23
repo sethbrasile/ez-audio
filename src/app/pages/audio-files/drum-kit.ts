@@ -1,4 +1,4 @@
-import PermissionBanner from '@app/pages/components/permission-banner'
+import PermissionBanner from '@components/permission-banner'
 import { codeBlock, htmlBlock } from '../../utils'
 import nav from './nav'
 import { setupDrumSamplerButton } from './drum-sampler-button'
