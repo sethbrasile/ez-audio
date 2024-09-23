@@ -53,7 +53,7 @@ export class Track extends Sound {
   play(): void {
     super.play()
     this.audioSourceNode.onended = () => this.stop()
-    this._trackPlayPosition()
+    this.trackPlayPosition()
   }
 
   /**
@@ -90,14 +90,12 @@ export class Track extends Sound {
    * startOffset as `audioContext.currentTime` grows.
    * Loop ends when `_isPlaying` is false.
    */
-  private _trackPlayPosition(): void {
-    const ctx = this.audioContext
-    const startOffset = this.startOffset
-    const startedPlayingAt = this._startedPlayingAt
+  private trackPlayPosition(): void {
+    const { audioContext, startedPlayingAt, startOffset } = this
 
     const animate = (): void => {
       if (this._isPlaying) {
-        this.startOffset = startOffset + ctx.currentTime - startedPlayingAt
+        this.startOffset = startOffset + audioContext.currentTime - startedPlayingAt
         requestAnimationFrame(animate)
       }
     }

@@ -1,9 +1,11 @@
 import { codeBlock, htmlBlock } from '@app/utils'
+import PermissionBanner from '../components/permission-banner'
 import { setupSnareButton, setupSnareCrackButton, setupSnareMeatButton } from './snare-button'
 import { setupHihatButton } from './hihat-button'
 import { setupBassDropButton } from './bass-drop-button'
 import { setupKickButton } from './kick-button'
 import nav from './nav'
+import { initAudio } from '@/index'
 
 const playKick = `
 import { initAudio, createOscillator, createWhiteNoise, LayeredSound } from 'ez-web-audio'
@@ -233,7 +235,9 @@ export function setupHihatButton(element: HTMLButtonElement) {
 `
 
 const Content = {
-  setup() {
+  async setup() {
+    PermissionBanner.setup()
+    await initAudio()
     setupKickButton(document.querySelector<HTMLButtonElement>('#play_kick')!)
     setupSnareButton(document.querySelector<HTMLButtonElement>('#play_snare')!)
     setupHihatButton(document.querySelector<HTMLButtonElement>('#play_hihat')!)
@@ -244,6 +248,9 @@ const Content = {
   html: `
 ${nav}
 <h1>Synthesis</h1>
+
+${PermissionBanner}
+
 <div class="beat-pad">
   <span role="label">Play Kick</span>
   <span class="pad" role="button" id="play_kick"></span>
