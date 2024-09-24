@@ -119,14 +119,14 @@ export async function createWhiteNoise(): Promise<Sound> {
  *
  * @param {object} props POJO to pass to the new instance
  */
-function createSoundFor(type: 'sound' | 'track' | 'sampler', buffer: any): Sound | Sampler | Track {
+function createSoundFor(type: 'sound' | 'track' | 'sampler', props: any): Sound | Sampler | Track {
   switch (type) {
     case 'track':
-      return new Track(audioContext, buffer)
+      return new Track(audioContext, props)
     case 'sampler':
-      return new Sampler(buffer)
+      return new Sampler(props)
     default:
-      return new Sound(audioContext, buffer)
+      return new Sound(audioContext, props)
   }
 }
 

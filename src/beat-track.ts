@@ -51,7 +51,7 @@ export class BeatTrack extends Sampler {
 
   /**
    * @property wrapWith
-   * @see BeatTrackOptions wrapWith for more info
+   * see BeatTrackOptions wrapWith for more info
    */
   private wrapWith?: (beat: Beat) => Beat
 

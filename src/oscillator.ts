@@ -3,6 +3,7 @@ import type { TimeObject } from '@utils/create-time-object'
 import createTimeObject from '@utils/create-time-object'
 import type { ControlType, RampType } from '@controllers/base-param-controller'
 import { OscillatorController } from './controllers/oscillator-controller'
+import type { BaseSoundOptions } from './base-sound'
 import { BaseSound } from './base-sound'
 
 export interface OscillatorOptsFilterValues {
@@ -10,7 +11,7 @@ export interface OscillatorOptsFilterValues {
   q?: number
 }
 
-export interface OscillatorOpts {
+export interface OscillatorOpts extends BaseSoundOptions {
   startOffset?: number
   frequency?: number
   detune?: number

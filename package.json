@@ -63,8 +63,5 @@
     "vite-plugin-prismjs": "^0.0.11",
     "vite-tsconfig-paths": "^5.0.1",
     "vitest": "^2.0.5"
-  },
-  "dependencies": {
-    "array-buffer-cache": "^4.0.99"
   }
 }

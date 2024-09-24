@@ -4,7 +4,7 @@ import type { Connectable, Connection } from '@interfaces/connectable'
 import type { ControlType, ParamController, RampType, RatioType } from '@controllers/base-param-controller'
 import audioContextAwareTimeout from '@utils/timeout'
 
-interface BaseSoundOptions {
+export interface BaseSoundOptions {
   name?: string
   setTimeout?: (fn: () => void, delayMillis: number) => number
 }
