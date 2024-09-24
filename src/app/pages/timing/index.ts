@@ -93,7 +93,7 @@ function handleClick() {
 
   <p>
     Just in case you're not completely grasping how this relates directly to Ember Audio. Here is the first
-    example from above, but written so that it works in Ember and EZ Audio.
+    example from above, but written so that it works in Ember and EZ Web Audio.
   </p>
   <div>
     <button id="play-in-one-second">Play in One Second</button>
