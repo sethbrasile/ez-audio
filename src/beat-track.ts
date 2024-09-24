@@ -9,6 +9,16 @@ const beatBank = new WeakMap()
 export interface BeatTrackOptions extends SamplerOptions {
   numBeats?: number
   duration?: number
+  /**
+   * @method wrapWith
+   * wrapWith allows you to run a function on each beat as it is created
+   * This function must accept a beat and return a beat. An example use-case
+   * appears in the docs site in the "Multisampled Drum Machine" example where
+   * this method is used to wrap each beat in an nx-js observable proxy.
+   *
+   * @param beat
+   * @returns
+   */
   wrapWith?: (beat: Beat) => Beat
 }
 
@@ -39,6 +49,10 @@ export class BeatTrack extends Sampler {
     }
   }
 
+  /**
+   * @property wrapWith
+   * @see BeatTrackOptions wrapWith for more info
+   */
   private wrapWith?: (beat: Beat) => Beat
 
   /**
