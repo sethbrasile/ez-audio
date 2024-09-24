@@ -116,6 +116,7 @@ button.green {
 .beat-machine {
   display: table;
   margin: 0 auto;
+  width: fit-content;
 }
 .beat-lane {
   margin: 1em 0;
