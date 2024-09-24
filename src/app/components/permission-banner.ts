@@ -5,6 +5,7 @@ export default {
   setup() {
     initAudio().then(() => document.querySelector<HTMLDivElement>('#init-banner')!.classList.add('hidden'))
 
+    // TODO: the button literally doesn't even need to do anything. If the user clicks ANY button, the audiocontext is allowed to start.
     const initButton = document.querySelector<HTMLButtonElement>('#init')!
     function init(): void {
       initAudio()
