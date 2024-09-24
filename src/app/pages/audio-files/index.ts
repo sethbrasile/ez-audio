@@ -9,7 +9,7 @@ import { initAudio, createSound } from 'ez-web-audio'
 
 const url = 'https://raw.githubusercontent.com/mudcube/MIDI.js/master/examples/soundfont/acoustic_grand_piano-mp3/B5.mp3'
 
-// Sounds can be created in advance, but they won't be playable until after \`initAudio\` is called
+// Sounds can be created in advance, but they won't be playable until after the end user has interacted with the page
 const leftNote = createSound('Eb5.mp3').then(note => note.changePanTo(-0.7))
 const rightNote = createSound(url).then(note => note.changePanTo(0.7))
 
