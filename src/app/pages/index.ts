@@ -8,7 +8,6 @@ const url = 'Eb5.mp3'
 
 const Content = {
   async setup() {
-    LoadingSpinner.show()
     PermissionBanner.setup()
 
     const element = document.querySelector<HTMLButtonElement>('#play')!
@@ -53,7 +52,6 @@ someButton.addEventListener('click', playSound)
 
 <p>To honestly still pretty dang simple...</p>
 
-${LoadingSpinner}
 ${PermissionBanner}
 ${DrumMachine}
 

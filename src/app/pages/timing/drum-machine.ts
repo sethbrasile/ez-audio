@@ -58,7 +58,7 @@ ${DrumMachine}
 
   ${codeBlock(`
 import { observable, observe } from '@nx-js/observer-util'
-import { createBeatTrack } from 'ez-web-audio'
+import { type Beat, createBeatTrack } from 'ez-web-audio'
 
 function loadBeatTrackFor(name: string): Promise<BeatTrack> {
   const urls = [1, 2, 3].map(num => \`/ez-web-audio/drum-samples/\${name}\${num}.wav\`)
@@ -109,7 +109,7 @@ beatTracks.forEach((beatTrack) => {
 
     // Define some potential states that we will bind to the pad's classes with an nx-js observable
     // we're going to represent these states visually in the UI
-    const beatStates = new Map<string, keyof typeof beat>()
+    const beatStates = new Map<string, keyof Beat>()
     beatStates.set('active', 'active')
     beatStates.set('playing', 'isPlaying')
     beatStates.set('highlighted', 'currentTimeIsPlaying')
