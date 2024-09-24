@@ -57,6 +57,8 @@ ${LoadingSpinner}
 ${PermissionBanner}
 ${DrumMachine}
 
+<p>See the code for this one over <a href="/ez-web-audio/timing/drum-machine">here</a></p>
+
 `,
 }
 export default Content
