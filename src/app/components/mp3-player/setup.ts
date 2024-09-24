@@ -156,7 +156,7 @@ function volAction(e: MouseEvent): void {
   if (newGain > 1)
     newGain = 1
 
-  selectedSong.trackInstance?.changeGainTo(newGain).from('inverseRatio')
+  selectedSong.trackInstance?.update('gain').to(newGain).from('inverseRatio')
   volDisplay.style.height = `${selectedSong.trackInstance?.percentGain}%`
 }
 

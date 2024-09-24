@@ -1,5 +1,7 @@
 import { codeBlock } from '../utils'
-import { setupPlayButton } from './play-button'
+import { createSound } from '@/index'
+
+const url = 'Eb5.mp3'
 
 const codeExample = `
 import { createSound } from 'ez-web-audio'
@@ -16,7 +18,16 @@ someButton.addEventListener('click', playSound)
 
 const Content = {
   setup() {
-    setupPlayButton(document.querySelector<HTMLButtonElement>('#play')!)
+    const element = document.querySelector<HTMLButtonElement>('#play')!
+
+    createSound(url)
+
+    async function play(): Promise<void> {
+      const note = await createSound(url)
+      note.play()
+    }
+
+    element.addEventListener('click', play)
   },
   html: `
 <h1>EZ Audio</h1>

@@ -1,15 +1,19 @@
-import type { ControlType } from '@controllers/base-param-controller'
+import type { ControlType, RatioType } from '@controllers/base-param-controller'
 
 export interface Connection { audioNode: AudioNode, name: string }
 export interface Connectable {
   connections: Connection[]
   percentGain: number
   audioSourceNode: AudioNode
-  update: (type: ControlType, value: number) => void
   getNodeFrom: (name: string) => AudioNode | undefined
-  addConnection: (connection: Connection, name: string) => void
-  removeConnection: (name: string) => void
+  addConnection: (connection: Connection, name: string) => this
+  removeConnection: (name: string) => this
   getConnection: (name: string) => Connection | undefined
-  changePanTo: (value: number) => void
-  changeGainTo: (value: number) => void
+  changePanTo: (value: number) => this
+  changeGainTo: (value: number) => this
+  update: (type: ControlType, value: number) => {
+    to: (value: number) => {
+      from: (method: RatioType) => void
+    }
+  }
 }

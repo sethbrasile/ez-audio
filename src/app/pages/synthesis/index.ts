@@ -39,6 +39,9 @@ const Content = {
     async function setup(e: MouseEvent | TouchEvent): Promise<void> {
       // First key is pressed...
       // AudioContext setup
+      // There will be a small delay while the audio context is initializing so we need to show a loading indicator
+      const loading = document.querySelector<HTMLParagraphElement>('#loading')!
+      loading.classList.remove('hidden')
       await initAudio()
 
       keys.forEach(async (key, note) => {
@@ -62,6 +65,7 @@ const Content = {
         if (e.target === key) {
           // then start playing the
           osc.play()
+          loading.classList.add('hidden')
         }
       })
     }
@@ -76,6 +80,7 @@ ${nav}
 <h1>Play a Synthesizer</h1>
 
 <div id="piano">
+  <p id="loading" class="hidden">loading...</p>
   <ol id="keys"></ol>
 </div>
 

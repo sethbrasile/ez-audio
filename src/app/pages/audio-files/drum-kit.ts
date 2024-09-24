@@ -1,39 +1,16 @@
 import PermissionBanner from '@components/permission-banner'
+import { getSamplesPaths } from '@app/utils'
 import { codeBlock, htmlBlock } from '../../utils'
 import nav from './nav'
-import { setupDrumSamplerButton } from './drum-sampler-button'
-
-const htmlExample = `
-<div class="beat-pad">
-  <span role="label">Kick</span>
-  <span class="pad" role="button" id="play_kick"></span>
-</div>
-<div class="beat-pad">
-  <span role="label">Snare</span>
-  <span class="pad" role="button" id="play_snare"></span>
-</div>
-<div class="beat-pad">
-  <span role="label">Hihat</span>
-  <span class="pad" role="button" id="play_hihat"></span>
-</div>
-`
-
-const codeExample = `
-await initAudio()
-
-const samplesPaths = [
-  'some-path/hihat1.wav',
-  'some-path/hihat2.wav',
-  'some-path/hihat3.wav',
-]
-
-const hihat = await createSampler(samplesPaths)
-
-hihat.play()
-`
+import { createSampler } from '@/index'
 
 const Content = {
   setup() {
+    async function setupDrumSamplerButton(element: HTMLButtonElement, drumType: 'hihat' | 'snare' | 'kick'): Promise<void> {
+      const drum = await createSampler(getSamplesPaths(drumType))
+      element.addEventListener('click', () => drum.play())
+    }
+
     setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_kick')!, 'kick')
     setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_snare')!, 'snare')
     setupDrumSamplerButton(document.querySelector<HTMLButtonElement>('#play_hihat')!, 'hihat')
@@ -62,8 +39,31 @@ ${PermissionBanner}
 </div>
 
 <div class="docs">
-  ${htmlBlock(htmlExample)}
-  ${codeBlock(codeExample)}
+  ${htmlBlock(`
+<div class="beat-pad">
+  <span role="label">Kick</span>
+  <span class="pad" role="button" id="play_kick"></span>
+</div>
+<div class="beat-pad">
+  <span role="label">Snare</span>
+  <span class="pad" role="button" id="play_snare"></span>
+</div>
+<div class="beat-pad">
+  <span role="label">Hihat</span>
+  <span class="pad" role="button" id="play_hihat"></span>
+</div>
+  `)}
+
+  ${codeBlock(`
+// in this example starting the audiocontext happens elsewhere and this promise won't resolve until it does
+const hihat = await createSampler([
+  'some-path/hihat1.wav',
+  'some-path/hihat2.wav',
+  'some-path/hihat3.wav',
+])
+
+hihat.play()
+  `)}
 </div>
 `,
 }

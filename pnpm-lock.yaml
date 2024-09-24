@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      array-buffer-cache:
+        specifier: ^4.0.99
+        version: 4.0.99
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^2.26.0
@@ -26,6 +30,9 @@ importers:
       prismjs:
         specifier: ^1.29.0
         version: 1.29.0
+      standardized-audio-context:
+        specifier: ^25.3.77
+        version: 25.3.77
       standardized-audio-context-mock:
         specifier: ^9.7.8
         version: 9.7.8
@@ -833,6 +840,15 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
+  array-buffer-cache-broker@4.0.91:
+    resolution: {integrity: sha512-ObuYKRAuRsJNDJ5s7Oevoe1kWI9kVNwRhKOfXf7MLIQLdjXcdEk177+5ukWBMgdBA82ayDToy13bfUhD21n1hA==}
+
+  array-buffer-cache-worker@6.0.91:
+    resolution: {integrity: sha512-aNaTytzAxSWyaJFOxCIzR+6EoQSS3m5+GbXs+AF4vp3KOPtXNMFt+v20RjXalIaaANhTPvRMsySBxcA61p93wQ==}
+
+  array-buffer-cache@4.0.99:
+    resolution: {integrity: sha512-nsNLIlvrIEXoiyKkpHTCS6E0Ju/i5cP77Dx9ZHjI4OvEIo8So5N7EFr/kmttJEy0qL/NTsQX94I5eeWTnPyfNQ==}
+
   array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
@@ -869,6 +885,9 @@ packages:
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
+
+  broker-factory@3.0.102:
+    resolution: {integrity: sha512-nVJJRSba3otuE7PjsWvtEqdKaKScTD7P5z4EQICB93XNl9jgJXjkCGb+5f1WE4S+g1amBXVVE7vmPDPowpN2Qw==}
 
   browserslist@4.23.3:
     resolution: {integrity: sha512-btwCFJVjI4YWDNfau8RhZ+B1Q/VLoUITrm3RlP6y1tYGWIOa+InuYiRGXUBXo8nA1qKmHMyLB/iVQg5TT4eFoA==}
@@ -1254,6 +1273,10 @@ packages:
 
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
+
+  fast-unique-numbers@9.0.9:
+    resolution: {integrity: sha512-XVGu/UFAjpclSMX6LD/GGiyRu+weUFb8kUxP09yiDmWA1ORxiO5gpOl13ZBqjeb+gg05JA2H7d37UvbSHfW+7w==}
+    engines: {node: '>=18.2.0'}
 
   fastq@1.17.1:
     resolution: {integrity: sha512-sRVD3lWVIXWg6By68ZN7vho9a1pQcN/WBFaAAsDDFzlJjvoGx0P8z7V1t72grFJfJhu3YPZBuu25f7Kaw2jN1w==}
@@ -2189,6 +2212,9 @@ packages:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
 
+  worker-factory@7.0.29:
+    resolution: {integrity: sha512-Nuv/6/Nr70aeBKtiukggJp+o+ewGvgqfjdlJjzlrSi7faPh+5kJ3hFyP3Px5/oEeTUt2ZZ/hgYg1jJFRXi4hAw==}
+
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
     engines: {node: '>=10'}
@@ -3082,6 +3108,27 @@ snapshots:
 
   argparse@2.0.1: {}
 
+  array-buffer-cache-broker@4.0.91:
+    dependencies:
+      '@babel/runtime': 7.25.6
+      array-buffer-cache-worker: 6.0.91
+      broker-factory: 3.0.102
+      fast-unique-numbers: 9.0.9
+      tslib: 2.7.0
+
+  array-buffer-cache-worker@6.0.91:
+    dependencies:
+      '@babel/runtime': 7.25.6
+      tslib: 2.7.0
+      worker-factory: 7.0.29
+
+  array-buffer-cache@4.0.99:
+    dependencies:
+      '@babel/runtime': 7.25.6
+      array-buffer-cache-broker: 4.0.91
+      array-buffer-cache-worker: 6.0.91
+      tslib: 2.7.0
+
   array-union@2.1.0: {}
 
   assertion-error@2.0.1: {}
@@ -3116,6 +3163,13 @@ snapshots:
   braces@3.0.3:
     dependencies:
       fill-range: 7.1.1
+
+  broker-factory@3.0.102:
+    dependencies:
+      '@babel/runtime': 7.25.6
+      fast-unique-numbers: 9.0.9
+      tslib: 2.7.0
+      worker-factory: 7.0.29
 
   browserslist@4.23.3:
     dependencies:
@@ -3592,6 +3646,11 @@ snapshots:
   fast-json-stable-stringify@2.1.0: {}
 
   fast-levenshtein@2.0.6: {}
+
+  fast-unique-numbers@9.0.9:
+    dependencies:
+      '@babel/runtime': 7.25.6
+      tslib: 2.7.0
 
   fastq@1.17.1:
     dependencies:
@@ -4242,7 +4301,7 @@ snapshots:
   synckit@0.9.1:
     dependencies:
       '@pkgr/core': 0.1.1
-      tslib: 2.6.3
+      tslib: 2.7.0
 
   tapable@2.2.1: {}
 
@@ -4453,6 +4512,12 @@ snapshots:
       stackback: 0.0.2
 
   word-wrap@1.2.5: {}
+
+  worker-factory@7.0.29:
+    dependencies:
+      '@babel/runtime': 7.25.6
+      fast-unique-numbers: 9.0.9
+      tslib: 2.7.0
 
   wrap-ansi@7.0.0:
     dependencies:

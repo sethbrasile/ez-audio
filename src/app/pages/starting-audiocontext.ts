@@ -1,9 +1,7 @@
 import { inlineCode } from '../utils'
-import { setupPlayButton } from './play-button'
 
 const Content = {
   setup() {
-    setupPlayButton(document.querySelector<HTMLButtonElement>('#play')!)
   },
   html: `
 <h1>Starting the AudioContext</h1>
@@ -63,11 +61,7 @@ keyboard examples: <a href="/ez-web-audio/sound-fonts">sound-fonts</a> and <a hr
   sounds in advance, the audio files will have already loaded by the time the user makes an interaction and will hopefully make
   the experience more seamless.
 </p>
-<p>
-  The index page of this site is a straight up lie because it's glossing
-  over the fact that the audiocontext needs to be started before it's true. Most pages on this example site use the "permission"
-  pattern because it's easier to explain what's going on.
-</p>
+
 <p>From a UX perspective, this is generally going to be the better choice.</p>
 
 <h2>Which pattern should I use?</h2>

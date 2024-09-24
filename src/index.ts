@@ -1,3 +1,4 @@
+import { clone, store } from 'array-buffer-cache'
 import type { OscillatorOptsFilterValues } from './oscillator'
 import { SampledNote } from './sampled-note'
 import type { Connectable } from './interfaces/connectable'
@@ -6,6 +7,7 @@ import { Font } from './font'
 import { mungeSoundFont } from './utils/decode-base64'
 import { createNoteObjectsForFont, extractDecodedKeyValuePairs } from './utils/note-methods'
 import frequencyMap from './utils/frequency-map'
+import { BeatTrack } from './beat-track'
 import { MusicallyAware } from '@/musical-identity'
 import { Sampler } from '@/sampler'
 import { Oscillator } from '@/oscillator'
@@ -14,9 +16,10 @@ import { Track } from '@/track'
 import { Note } from '@/note'
 import type { OscillatorOpts } from '@/oscillator'
 
-const buffers = new Map<string, AudioBuffer>()
+const responses = new Map<string, Response>()
 
 let audioContext: AudioContext
+
 function throwIfContextNotExist(): void {
   if (!audioContext) {
     throw new Error('The audio context does not exist yet! You must call `initAudio()` in response to a user interaction before performing this action.')
@@ -54,52 +57,22 @@ export function createNotes(json?: any): Note[] {
   return notes
 }
 
-async function _createSound(buffer: AudioBuffer): Promise<Sound> {
-  await initAudio()
-  throwIfContextNotExist()
-  return new Sound(audioContext, buffer)
-}
-
-export async function createSound(url: string): Promise<Sound> {
-  // Check if the file has already been fetched
-  if (buffers.has(url)) {
-    const audio = buffers.get(url)
-    if (audio)
-      return _createSound(audio)
-  }
-
-  // It has not been fetched so lets get it
-  const response = await fetch(url)
-  const arrayBuffer = await response.arrayBuffer()
-
-  await initAudio()
-  throwIfContextNotExist()
-  const audio = await audioContext.decodeAudioData(arrayBuffer)
-
-  // Store the audio in the map
-  buffers.set(url, audio)
-
-  return _createSound(audio)
+export function createSound(url: string): Promise<Sound> {
+  return load(url, 'sound') as Promise<Sound>
 }
 
 export async function createTrack(url: string): Promise<Track> {
-  const response = await fetch(url)
-  const arrayBuffer = await response.arrayBuffer()
-  await initAudio()
-  throwIfContextNotExist()
-  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-  return new Track(audioContext, audioBuffer)
+  return load(url, 'track') as Promise<Track>
 }
 
 export async function createSampler(urls: string[]): Promise<Sampler> {
-  const sounds = await Promise.all(urls.map(async url => createSound(url)))
+  const sounds = await Promise.all(urls.map(async url => load(url, 'sound') as Promise<Sound>))
   await initAudio()
   throwIfContextNotExist()
   return new Sampler(sounds)
 }
 
 export async function createOscillator(options?: OscillatorOpts): Promise<Oscillator> {
-  throwIfContextNotExist()
   return new Oscillator(audioContext, options)
 }
 
@@ -115,7 +88,6 @@ export async function createFont(url: string): Promise<Font> {
 }
 
 export async function createWhiteNoise(): Promise<Sound> {
-  throwIfContextNotExist()
   const bufferSize = audioContext.sampleRate
   const audioBuffer = audioContext.createBuffer(1, bufferSize, bufferSize)
   const output = audioBuffer.getChannelData(0)
@@ -125,6 +97,65 @@ export async function createWhiteNoise(): Promise<Sound> {
   }
 
   return new Sound(audioContext, audioBuffer)
+}
+
+/**
+ * Creates an {{#crossLinkModule "Audio"}}Audio Class{{/crossLinkModule}}
+ * instance (which is based on which "type" is specified), and passes "props"
+ * to the new instance.
+ *
+ * @private
+ * @method createSoundFor
+ *
+ * @param {string} type The type of
+ * {{#crossLinkModule "Audio"}}Audio Class{{/crossLinkModule}} to be created.
+ *
+ * @param {object} props POJO to pass to the new instance
+ */
+function createSoundFor(type: 'sound' | 'track' | 'beatTrack' | 'sampler', buffer: any): Sound | Sampler | Track | BeatTrack {
+  switch (type) {
+    case 'track':
+      return new Track(audioContext, buffer)
+    case 'beatTrack':
+      return new BeatTrack(audioContext, buffer)
+    case 'sampler':
+      return new Sampler(buffer)
+    default:
+      return new Sound(audioContext, buffer)
+  }
+}
+
+/**
+ * Loads and decodes an audio file, creating a Sound, Track, or BeatTrack
+ * instance (as determined by the "type" parameter) and places the instance
+ * into it's corresponding register.
+ *
+ * @private
+ * @method _load
+ *
+ * @param {string} src The URI location of an audio file. Will be used by
+ * "fetch" to get the audio file. Can be a local or a relative URL
+ *
+ * @param {string} type Determines the type of object that should be created,
+ * as well as which register the instance should be placed in. Can be 'sound',
+ * 'track', or 'beatTrack'.
+ */
+async function load(src: string, type: 'sound' | 'track' | 'beatTrack' | 'sampler'): Promise<Sound | Sampler | Track | BeatTrack> {
+  if (responses.has(src)) {
+    const res = await responses.get(src)!.clone()
+    const buffer = await audioContext.decodeAudioData(await res.arrayBuffer())
+    return createSoundFor(type, buffer)
+  }
+
+  const response = await fetch(src)
+  responses.set(src, response)
+
+  await initAudio()
+  throwIfContextNotExist()
+
+  const buffer = await audioContext.decodeAudioData(await response.clone().arrayBuffer())
+
+  return createSoundFor(type, buffer)
 }
 
 export {

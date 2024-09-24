@@ -36,12 +36,13 @@ export abstract class BaseSound implements Connectable, Playable {
     }
   }
 
-  public addConnection(connection: Connection): void {
+  public addConnection(connection: Connection): this {
     this.connections.push(connection)
     this.wireConnections()
+    return this
   }
 
-  public removeConnection(name: string): void {
+  public removeConnection(name: string): this {
     const connection = this.getConnection(name)
     if (connection) {
       const index = this.connections.indexOf(connection)
@@ -50,6 +51,7 @@ export abstract class BaseSound implements Connectable, Playable {
         this.wireConnections()
       }
     }
+    return this
   }
 
   // Allows you to get any user created connection in the connections array
@@ -70,14 +72,14 @@ export abstract class BaseSound implements Connectable, Playable {
     return this.controller.update(type)
   }
 
-  public changePanTo(value: number): void {
+  public changePanTo(value: number): this {
     this.controller.update('pan').to(value).from('ratio')
+    return this
   }
 
-  public changeGainTo(value: number): {
-    from: (method: RatioType) => void
-  } {
-    return this.controller.update('gain').to(value)
+  public changeGainTo(value: number): this {
+    this.controller.update('gain').to(value).from('ratio')
+    return this
   }
 
   public onPlaySet(type: ControlType): {
