@@ -93,11 +93,16 @@ button.green {
   padding: 2rem 0;
 }
 
+.space {
+  margin-top: 1em;
+}
+
 .beat-pad {
   display: inline-block;
   height: 100px;
   width: 100px;
   text-align: center;
+  margin-right: 4px;
 }
 
 .beat-pad .pad {
@@ -105,6 +110,40 @@ button.green {
   display: block;
   height: 100%;
 }
+.controls {
+  text-align: center;
+}
+.beat-machine {
+  display: table;
+  margin: 0 auto;
+}
+.beat-lane {
+  margin: 1em 0;
+}
+.beat-lane .text {
+  display: block;
+}
+.beat-pad {
+  display: inline-block;
+  height: 100px;
+  width: 100px;
+  text-align: center;
+}
+.beat-pad .pad {
+  background-color: #2a2a2a;
+  display: block;
+  height: 100%;
+}
+.beat-pad .pad.highlighted {
+  background-color: #393939;
+}
+.beat-pad .pad.active {
+  background-color: #900101;
+}
+.beat-pad .pad.playing {
+  background-color: #000;
+}
+
 
 [role="button"] {
   cursor: pointer;

@@ -5,7 +5,7 @@ export async function setupPiano(element: HTMLOListElement): Promise<void> {
   // piano.js is a soundfont created with MIDI.js' Ruby-based soundfont converter
   const piano = await createFont('/ez-web-audio/piano.js')
   // Slicing just so the whole keyboard doesn't show up on the screen
-  const notes = piano.notes.slice(39, 51)
+  const notes = piano.notes.slice(43, 55)
 
   notes.forEach((note: Note) => {
     const key = document.createElement('li')

@@ -1,4 +1,3 @@
-import { clone, store } from 'array-buffer-cache'
 import type { OscillatorOptsFilterValues } from './oscillator'
 import { SampledNote } from './sampled-note'
 import type { Connectable } from './interfaces/connectable'
@@ -7,8 +6,11 @@ import { Font } from './font'
 import { mungeSoundFont } from './utils/decode-base64'
 import { createNoteObjectsForFont, extractDecodedKeyValuePairs } from './utils/note-methods'
 import frequencyMap from './utils/frequency-map'
+import type { BeatTrackOptions } from './beat-track'
 import { BeatTrack } from './beat-track'
+import { Beat } from '@/beat'
 import { MusicallyAware } from '@/musical-identity'
+import type { SamplerOptions } from '@/sampler'
 import { Sampler } from '@/sampler'
 import { Oscillator } from '@/oscillator'
 import { Sound } from '@/sound'
@@ -65,11 +67,16 @@ export async function createTrack(url: string): Promise<Track> {
   return load(url, 'track') as Promise<Track>
 }
 
-export async function createSampler(urls: string[]): Promise<Sampler> {
+export async function createBeatTrack(urls: string[], opts?: BeatTrackOptions): Promise<BeatTrack> {
+  const sounds = await Promise.all(urls.map(async url => load(url, 'sound') as Promise<Sound>))
+  return new BeatTrack(audioContext, sounds, opts)
+}
+
+export async function createSampler(urls: string[], opts?: SamplerOptions): Promise<Sampler> {
   const sounds = await Promise.all(urls.map(async url => load(url, 'sound') as Promise<Sound>))
   await initAudio()
   throwIfContextNotExist()
-  return new Sampler(sounds)
+  return new Sampler(sounds, opts)
 }
 
 export async function createOscillator(options?: OscillatorOpts): Promise<Oscillator> {
@@ -112,12 +119,10 @@ export async function createWhiteNoise(): Promise<Sound> {
  *
  * @param {object} props POJO to pass to the new instance
  */
-function createSoundFor(type: 'sound' | 'track' | 'beatTrack' | 'sampler', buffer: any): Sound | Sampler | Track | BeatTrack {
+function createSoundFor(type: 'sound' | 'track' | 'sampler', buffer: any): Sound | Sampler | Track {
   switch (type) {
     case 'track':
       return new Track(audioContext, buffer)
-    case 'beatTrack':
-      return new BeatTrack(audioContext, buffer)
     case 'sampler':
       return new Sampler(buffer)
     default:
@@ -140,7 +145,7 @@ function createSoundFor(type: 'sound' | 'track' | 'beatTrack' | 'sampler', buffe
  * as well as which register the instance should be placed in. Can be 'sound',
  * 'track', or 'beatTrack'.
  */
-async function load(src: string, type: 'sound' | 'track' | 'beatTrack' | 'sampler'): Promise<Sound | Sampler | Track | BeatTrack> {
+async function load(src: string, type: 'sound' | 'track' | 'sampler'): Promise<Sound | Sampler | Track> {
   if (responses.has(src)) {
     const res = await responses.get(src)!.clone()
     const buffer = await audioContext.decodeAudioData(await res.arrayBuffer())
@@ -168,6 +173,8 @@ export {
   Track,
   MusicallyAware,
   frequencyMap,
+  Beat,
+  BeatTrack,
 }
 
 export type {

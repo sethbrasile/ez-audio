@@ -1,4 +1,5 @@
 import { setupIndicators, setupMp3Buttons } from '@components/mp3-player/setup'
+import LoadingSpinner from '../loading-spinner'
 
 export default {
   setup() {
@@ -37,13 +38,7 @@ export default {
   </div>
 </div>
 
-<div id="loading" class="spinner hidden">
-  <div class="rect1"></div>
-  <div class="rect2"></div>
-  <div class="rect3"></div>
-  <div class="rect4"></div>
-  <div class="rect5"></div>
-</div>
+${LoadingSpinner}
 
 <div id="player" class="audioplayer hidden">
   <div role="button" class="play-pause" id="play"><a></a></div>

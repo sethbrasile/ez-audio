@@ -4,6 +4,11 @@ import type { Connectable, Connection } from '@interfaces/connectable'
 import type { ControlType, ParamController, RampType, RatioType } from '@controllers/base-param-controller'
 import audioContextAwareTimeout from '@utils/timeout'
 
+interface BaseSoundOptions {
+  name?: string
+  setTimeout?: (fn: () => void, delayMillis: number) => number
+}
+
 export abstract class BaseSound implements Connectable, Playable {
   protected _isPlaying = false
   protected gainNode: GainNode
@@ -21,12 +26,16 @@ export abstract class BaseSound implements Connectable, Playable {
   public abstract audioSourceNode: OscillatorNode | AudioBufferSourceNode
   public abstract duration: TimeObject
 
-  constructor(protected audioContext: AudioContext, opts?: any) {
+  public name: string
+
+  constructor(protected audioContext: AudioContext, opts?: BaseSoundOptions) {
     const gainNode = audioContext.createGain()
     const pannerNode = audioContext.createStereoPanner()
 
     this.gainNode = gainNode
     this.pannerNode = pannerNode
+
+    this.name = opts?.name || ''
 
     if (opts?.setTimeout) {
       this.setTimeout = opts.setTimeout

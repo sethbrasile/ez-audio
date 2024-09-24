@@ -1,9 +1,16 @@
 import { Beat } from './beat'
 import type { Connectable } from './interfaces/connectable'
 import type { Playable } from './interfaces/playable'
+import type { SamplerOptions } from './sampler'
 import { Sampler } from './sampler'
 
 const beatBank = new WeakMap()
+
+export interface BeatTrackOptions extends SamplerOptions {
+  numBeats?: number
+  duration?: number
+  wrapWith?: (beat: Beat) => Beat
+}
 
 /**
  * An instance of this class has an array of "sounds" (comprised of one or multiple
@@ -19,15 +26,20 @@ const beatBank = new WeakMap()
  * queue?
  */
 export class BeatTrack extends Sampler {
-  constructor(private audioContext: AudioContext, sounds: (Playable & Connectable)[], opts?: { numBeats?: number, duration?: number }) {
-    super(sounds)
+  constructor(private audioContext: AudioContext, sounds: (Playable & Connectable)[], opts?: BeatTrackOptions) {
+    super(sounds, opts)
     if (opts?.numBeats) {
       this.numBeats = opts.numBeats
     }
     if (opts?.duration) {
       this.duration = opts.duration
     }
+    if (opts?.wrapWith) {
+      this.wrapWith = opts.wrapWith
+    }
   }
+
+  private wrapWith?: (beat: Beat) => Beat
 
   /**
    * @property numBeats
@@ -73,7 +85,12 @@ export class BeatTrack extends Sampler {
         play: this.play.bind(this),
       })
 
-      beats.push(beat)
+      if (this.wrapWith) {
+        beats.push(this.wrapWith(beat))
+      }
+      else {
+        beats.push(beat)
+      }
     }
 
     if (existingBeats) {

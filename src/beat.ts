@@ -44,8 +44,8 @@ export class Beat {
     }
   }
 
-  private parentPlayIn: ((time: number) => void) | undefined
-  private parentPlay: (() => void) | undefined
+  private parentPlayIn: ((time: number) => void)
+  private parentPlay: (() => void)
   private setTimeout: (fn: () => void, delayMillis: number) => number
 
   /**
@@ -105,7 +105,7 @@ export class Beat {
   public playIn(offset = 0): void {
     const msOffset = offset * 1000
 
-    this.parentPlayIn!(offset)
+    this.parentPlayIn(offset)
 
     this.setTimeout(() => {
       this.isPlaying = true
@@ -131,7 +131,7 @@ export class Beat {
     const msOffset = offset * 1000
 
     if (this.active) {
-      this.parentPlayIn!(offset)
+      this.parentPlayIn(offset)
       this.setTimeout(() => this.markPlaying(), msOffset)
     }
 
@@ -146,7 +146,7 @@ export class Beat {
    * `isPlaying` and `currentTimeIsPlaying` are both immediately marked true.
    */
   public play(): void {
-    this.parentPlay!()
+    this.parentPlay()
     this.markPlaying()
     this.markCurrentTimePlaying()
   }
@@ -163,7 +163,7 @@ export class Beat {
    */
   public playIfActive(): void {
     if (this.active) {
-      this.parentPlay!()
+      this.parentPlay()
       this.markPlaying()
     }
 
