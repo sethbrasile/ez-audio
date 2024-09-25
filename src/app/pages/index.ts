@@ -18,7 +18,7 @@ const Content = {
       note.play()
     }
 
-    element.addEventListener('click', play)
+    element.addEventListener('touchend', play)
 
     await DrumMachine.setup()
   },

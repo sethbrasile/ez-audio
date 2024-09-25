@@ -8,6 +8,8 @@ import { createNoteObjectsForFont, extractDecodedKeyValuePairs } from './utils/n
 import frequencyMap from './utils/frequency-map'
 import type { BeatTrackOptions } from './beat-track'
 import { BeatTrack } from './beat-track'
+// @ts-expect-error: don't need types, it's just a function and we're accepting it as-is
+import unmuteIosAudio from './utils/unmute'
 import { Beat } from '@/beat'
 import { MusicallyAware } from '@/musical-identity'
 import type { SamplerOptions } from '@/sampler'
@@ -28,14 +30,36 @@ function throwIfContextNotExist(): void {
   }
 }
 
-export async function initAudio(): Promise<void> {
+async function unlockAudioContext(): Promise<void> {
+  if (audioContext.state !== 'suspended')
+    return
+
+  const b = document.body
+  const events = ['touchstart', 'touchend', 'mousedown', 'keydown']
+
+  async function unlock(): Promise<void> {
+    await audioContext.resume().then(clean)
+  }
+
+  function clean(): void {
+    events.forEach(e => b.removeEventListener(e, unlock))
+  }
+
+  events.forEach(e => b.addEventListener(e, unlock, false))
+
+  await audioContext.resume()
+}
+
+export async function initAudio(useIosMuteWorkaround = true): Promise<void> {
   if (!audioContext) {
     audioContext = new AudioContext()
   }
 
-  if (audioContext.state === 'suspended') {
-    await audioContext.resume()
+  if (useIosMuteWorkaround) {
+    unmuteIosAudio(audioContext)
   }
+
+  await unlockAudioContext()
 }
 
 export async function getAudioContext(): Promise<AudioContext> {
@@ -161,6 +185,67 @@ async function load(src: string, type: 'sound' | 'track' | 'sampler'): Promise<S
   const buffer = await audioContext.decodeAudioData(await response.clone().arrayBuffer())
 
   return createSoundFor(type, buffer)
+}
+
+interface Player {
+  play: () => void
+  stop: () => void
+}
+
+export function preventEventDefaults(key: HTMLElement): void {
+  function prevent(e: Event): void {
+    e.preventDefault()
+  }
+
+  const events = [
+    'touchstart',
+    'touchend',
+    'touchcancel',
+    'touchmove',
+    'mousedown',
+    'mouseup',
+    'click',
+    'contextmenu',
+    'dragstart',
+    'dragend',
+    'dragenter',
+    'dragover',
+    'drag',
+    'dragleave',
+    'drop',
+  ]
+
+  events.forEach(event => key.addEventListener(event, prevent))
+}
+
+// TODO: Mashing on keys causes notes to skip b/c stop is called before play and etc..
+// solve that... debounce or something? the commented out stuff doesn't work
+export function useInteractionMethods(key: HTMLElement, player: Player): void {
+  // track whether a note is playing and ensure it can't play over top of itself and ensure
+  // start/stop always happen in the correct order
+  // let isPlaying = false
+
+  // function start() {
+  //   if (isPlaying) {
+  //     return
+  //   }
+  //   isPlaying = true
+  //   player.play()
+  // }
+
+  // function stop() {
+  //   if (!isPlaying) {
+  //     return
+  //   }
+  //   isPlaying = false
+  //   player.stop()
+  // }
+
+  key.addEventListener('touchstart', () => player.play())
+  key.addEventListener('touchend', () => player.stop())
+  key.addEventListener('touchcancel', () => player.stop())
+  key.addEventListener('mousedown', () => player.play())
+  key.addEventListener('mouseup', () => player.stop())
 }
 
 export {

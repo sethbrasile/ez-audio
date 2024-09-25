@@ -1,7 +1,5 @@
 import type { TimeObject } from '@utils/create-time-object'
 import createTimeObject from '@utils/create-time-object'
-import type { SeekType } from '@controllers/base-param-controller'
-import withinRange from './utils/within-range'
 import { SoundController } from './controllers/sound-controller'
 import { BaseSound } from './base-sound'
 
@@ -72,58 +70,5 @@ export class Sound extends BaseSound {
     const min = Math.floor(duration / 60)
     const sec = duration % 60
     return createTimeObject(duration, min, sec)
-  }
-
-  /**
-   * Gets the bufferSource and stops the initAudio,
-   * changes it's play position, and restarts the audio.
-   *
-   * returns a pojo with the `from` method that `value` is curried to, allowing
-   * one to specify which type of value is being provided.
-   *
-   * @example
-   *     // for a Sound instance with a duration of 100 seconds, these will all
-   *     // move the play position to 90 seconds.
-   *     soundInstance.seek(0.9).from('ratio');
-   *     soundInstance.seek(0.1).from('inverseRatio')
-   *     soundInstance.seek(90).from('percent');
-   *     soundInstance.seek(90).from('seconds');
-   *
-   * @param {number} amount The new play position value.
-   */
-  public seek(amount: number): { from: (type: SeekType) => void } {
-    const duration = this.duration.raw
-    const moveToOffset = (offset: number): void => {
-      const _isPlaying = this._isPlaying
-      const adjustedOffset = withinRange(offset, 0, duration)
-
-      if (_isPlaying) {
-        this.stop()
-        this.startOffset = adjustedOffset
-        this.later(() => this.play())
-      }
-      else {
-        this.startOffset = adjustedOffset
-      }
-    }
-
-    return {
-      from(type: SeekType) {
-        switch (type) {
-          case 'ratio':
-            moveToOffset(amount * duration)
-            break
-          case 'percent':
-            moveToOffset(amount * duration * 0.01)
-            break
-          case 'inverseRatio':
-            moveToOffset(duration - amount * duration)
-            break
-          case 'seconds':
-            moveToOffset(amount)
-            break
-        }
-      },
-    }
   }
 }

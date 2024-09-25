@@ -1,21 +1,21 @@
 import { codeBlock, htmlBlock, inlineCode } from '../../utils'
 import nav from './nav'
-import { createNotes, createOscillator, initAudio } from '@/index'
-import type { Note } from '@/note'
+import { createNotes, createOscillator, initAudio, preventEventDefaults, useInteractionMethods } from '@/index'
 
 const Content = {
   async setup() {
-    const element = document.querySelector<HTMLOListElement>('#keys')!
+    const keyboard = document.getElementById('keyboard')!
+
+    // we don't want dragging around on the keyboard to move the page around
+    preventEventDefaults(keyboard)
+
     // create an array of all the piano notes in western musical notation
     // then slicing just so the whole keyboard doesn't show up on the screen
     // Note objects contain musical identity information like frequency
     const notes = createNotes().slice(48, 60)
-    // We need to map each note to an <li>
-    const keys = new Map<Note, HTMLLIElement>()
 
-    // for each note create an <li> and map it to
-    notes.forEach((note) => {
-      // create an li
+    notes.forEach(async (note) => {
+      // for each note create an <li>
       const key = document.createElement('li')
 
       // format markup
@@ -26,52 +26,21 @@ const Content = {
       }
 
       // Add it to the DOM
-      element.appendChild(key)
+      keyboard.appendChild(key)
 
-      // put the key/note pair into the keys Map
-      keys.set(note, key)
-
-      // add the setup listener so that each key can trigger audio context init
-      key.addEventListener('mousedown', setup)
-      key.addEventListener('touchstart', setup)
-    })
-
-    async function setup(e: MouseEvent | TouchEvent): Promise<void> {
-      // First key is pressed...
-      // AudioContext setup
-      // There will be a small delay while the audio context is initializing so we need to show a loading indicator
-      const loading = document.querySelector<HTMLParagraphElement>('#loading')!
-      loading.classList.remove('hidden')
+      // We can't create the oscillator until the user interacts with the page, so wait for that
       await initAudio()
 
-      keys.forEach(async (key, note) => {
-        // Create the oscillator for this key and set its frequency from the corresponding note
-        const osc = await createOscillator({
-          frequency: note.frequency,
-          type: 'square',
-          // oscillators are pretty loud so turn it down
-          gain: 0.2,
-        })
-
-        key.addEventListener('touchstart', () => osc.play())
-        key.addEventListener('touchend', () => osc.stop())
-        key.addEventListener('mousedown', () => osc.play())
-        key.addEventListener('mouseup', () => osc.stop())
-
-        key.removeEventListener('mousedown', setup)
-        key.removeEventListener('touchstart', setup)
-
-        // If this iteration corresponds to the actual key that was pressed
-        if (e.target === key) {
-          // then start playing the
-          osc.play()
-          loading.classList.add('hidden')
-        }
+      // Create the oscillator for this key and set its frequency from the corresponding note
+      const osc = await createOscillator({
+        frequency: note.frequency,
+        type: 'square',
+        // oscillators are pretty loud so turn it down
+        gain: 0.2,
       })
-    }
 
-    element.addEventListener('mousedown', setup)
-    element.addEventListener('touchstart', setup)
+      useInteractionMethods(key, osc)
+    })
   },
   html: `
 
@@ -80,8 +49,7 @@ ${nav}
 <h1>Play a Synthesizer</h1>
 
 <div id="piano">
-  <p id="loading" class="hidden">loading...</p>
-  <ol id="keys"></ol>
+  <ol id="keyboard"></ol>
 </div>
 
 <div class="docs">
@@ -90,7 +58,7 @@ ${nav}
 
 ${htmlBlock(`
 <div id="piano">
-  <ol id="keys"></ol>
+  <ol id="keyboard"></ol>
 </div>
 `)}
 
@@ -106,24 +74,19 @@ with the Web Audio API's ${inlineCode('AudioContext')}, so we're safe to create 
 occurs.</p>
 
 ${codeBlock(`
-import { createNotes } from 'ez-web-audio'
-import type { Note } from 'ez-web-audio'
+import { createNotes, createOscillator, initAudio, useInteractionMethods } from 'ez-web-audio'
 
 // createNotes creates an array of all the notes in western musical notation as Note objects
 // (then slicing so the keyboard isn't huge)
 // Note objects contain musical identity information like frequency
 const notes = createNotes().slice(48, 60)
-// We need to map each note to an <li>
-const keys = new Map<Note, HTMLLIElement>()
 `)}
 
-<We>Now we can create a key for each note and add them to the keyboard. We set each key press to trigger
-the upcoming ${inlineCode('setup')} method.</p>
+<We>Now we can create a "key" (an ${inlineCode('<li>')} element) for each note and add them to the keyboard.</p>
 
 ${codeBlock(`
-// for each note
-notes.forEach((note) => {
-  // create an <li>
+notes.forEach(async (note) => {
+  // for each note create an <li>
   const key = document.createElement('li')
 
   // format markup
@@ -133,16 +96,28 @@ notes.forEach((note) => {
     key.classList.add('black')
   }
 
+  // we don't want dragging around on the keyboard to move the page around
+  key.addEventListener('touchmove', (touch) => {
+    touch.preventDefault()
+  })
+
   // Add it to the DOM
-  element.appendChild(key)
+  piano.appendChild(key)
 
-  // put the key/note pair into the keys Map
-  keys.set(note, key)
+  // We can't create the oscillator until the user interacts with the page, so wait for that
+  await initAudio()
 
-  // add the setup listener so that each key can trigger audio context init
-  // (we'll define 'setup' in a moment)
-  key.addEventListener('mousedown', setup)
-  key.addEventListener('touchstart', setup)
+  // Create the oscillator for this key and set its frequency from the corresponding note
+  const osc = await createOscillator({
+    frequency: note.frequency,
+    type: 'square',
+    // oscillators are pretty loud so turn it down
+    gain: 0.2,
+  })
+
+  // userInteractionMethods is a helper method that sets up all the touch/mouse events
+  // corresponding to play/stop for us.
+  useInteractionMethods(key, osc)
 })
 `)}
 

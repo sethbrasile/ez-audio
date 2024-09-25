@@ -9,6 +9,10 @@ export async function setupPiano(element: HTMLOListElement): Promise<void> {
 
   notes.forEach((note: Note) => {
     const key = document.createElement('li')
+
+    // Stop "double click" from zooming and etc..
+    key.addEventListener('click', () => {})
+
     key.classList.add('key')
     if (note.accidental) {
       key.classList.add('black')
@@ -20,12 +24,12 @@ export async function setupPiano(element: HTMLOListElement): Promise<void> {
     key.addEventListener('touchend', () => {
       note.stop()
     })
-    key.addEventListener('mousedown', () => {
-      note.play()
-    })
-    key.addEventListener('mouseup', () => {
-      note.stop()
-    })
+    // key.addEventListener('mousedown', () => {
+    //   note.play()
+    // })
+    // key.addEventListener('mouseup', () => {
+    //   note.stop()
+    // })
     element.appendChild(key)
   })
 }
