@@ -15,7 +15,11 @@ export default {
     return this.html
   },
   getSpinner() {
-    return document.getElementById('loading')! as HTMLDivElement
+    const div = document.getElementById('loading') as HTMLDivElement
+    if (!div) {
+      throw new Error('loading spinner method called, but no loading spinner found')
+    }
+    return div
   },
   show() {
     this.getSpinner().classList.remove('hidden')

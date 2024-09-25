@@ -1,5 +1,4 @@
 import DrumMachine from '../components/drum-machine'
-import LoadingSpinner from '../components/loading-spinner'
 import PermissionBanner from '../components/permission-banner'
 import { codeBlock } from '../utils'
 import { createSound } from '@/index'
@@ -22,7 +21,6 @@ const Content = {
     element.addEventListener('click', play)
 
     await DrumMachine.setup()
-    LoadingSpinner.hide()
   },
   html: `
 <h1>EZ Web Audio</h1>
