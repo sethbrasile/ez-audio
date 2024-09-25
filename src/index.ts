@@ -59,6 +59,7 @@ export async function initAudio(useIosMuteWorkaround = true): Promise<void> {
     unmuteIosAudio(audioContext)
   }
 
+  // TODO: without this, synth note hangs on first press?
   await unlockAudioContext()
 }
 
