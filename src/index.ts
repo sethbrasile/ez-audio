@@ -30,37 +30,43 @@ function throwIfContextNotExist(): void {
   }
 }
 
-async function unlockAudioContext(): Promise<void> {
-  if (audioContext.state !== 'suspended')
-    return
+// async function unlockAudioContext(): Promise<void> {
+//   if (audioContext.state !== 'suspended')
+//     return
 
-  const b = document.body
-  const events = ['touchstart', 'touchend', 'mousedown', 'keydown']
+//   const b = document.body
+//   const events = ['touchstart', 'touchend', 'mousedown', 'keydown']
 
-  async function unlock(): Promise<void> {
-    await audioContext.resume().then(clean)
-  }
+//   async function unlock(): Promise<void> {
+//     await audioContext.resume().then(clean)
+//   }
 
-  function clean(): void {
-    events.forEach(e => b.removeEventListener(e, unlock))
-  }
+//   function clean(): void {
+//     events.forEach(e => b.removeEventListener(e, unlock))
+//   }
 
-  events.forEach(e => b.addEventListener(e, unlock, false))
+//   events.forEach(e => b.addEventListener(e, unlock, false))
 
-  await audioContext.resume()
-}
+//   await audioContext.resume()
+// }
 
+let iosWorkaroundPerformed = false
 export async function initAudio(useIosMuteWorkaround = true): Promise<void> {
   if (!audioContext) {
     audioContext = new AudioContext()
   }
 
-  if (useIosMuteWorkaround) {
+  // only run this workaround code once
+  if (useIosMuteWorkaround && !iosWorkaroundPerformed) {
     unmuteIosAudio(audioContext)
+    iosWorkaroundPerformed = true
   }
 
   // TODO: without this, synth note hangs on first press?
-  await unlockAudioContext()
+  // await unlockAudioContext()
+  if (audioContext.state === 'suspended') {
+    await audioContext.resume()
+  }
 }
 
 export async function getAudioContext(): Promise<AudioContext> {
@@ -222,31 +228,21 @@ export function preventEventDefaults(key: HTMLElement): void {
 // TODO: Mashing on keys causes notes to skip b/c stop is called before play and etc..
 // solve that... debounce or something? the commented out stuff doesn't work
 export function useInteractionMethods(key: HTMLElement, player: Player): void {
-  // track whether a note is playing and ensure it can't play over top of itself and ensure
-  // start/stop always happen in the correct order
-  // let isPlaying = false
+  function play(): void {
+    // console.log(e, player.audioSourceNode.frequency.value, 'play')
+    player.play()
+  }
 
-  // function start() {
-  //   if (isPlaying) {
-  //     return
-  //   }
-  //   isPlaying = true
-  //   player.play()
-  // }
+  function stop(): void {
+    // console.log(e, player.audioSourceNode.frequency.value, 'stop')
+    player.stop()
+  }
 
-  // function stop() {
-  //   if (!isPlaying) {
-  //     return
-  //   }
-  //   isPlaying = false
-  //   player.stop()
-  // }
-
-  key.addEventListener('touchstart', () => player.play())
-  key.addEventListener('touchend', () => player.stop())
-  key.addEventListener('touchcancel', () => player.stop())
-  key.addEventListener('mousedown', () => player.play())
-  key.addEventListener('mouseup', () => player.stop())
+  key.addEventListener('touchstart', play)
+  key.addEventListener('touchend', stop)
+  key.addEventListener('touchcancel', stop)
+  key.addEventListener('mousedown', play)
+  key.addEventListener('mouseup', stop)
 }
 
 export {
