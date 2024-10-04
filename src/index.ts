@@ -1,3 +1,4 @@
+import { a } from 'vitest/dist/chunks/suite.CcK46U-P.js'
 import type { OscillatorOptsFilterValues } from './oscillator'
 import { SampledNote } from './sampled-note'
 import type { Connectable } from './interfaces/connectable'
@@ -24,31 +25,25 @@ const responses = new Map<string, Response>()
 
 let audioContext: AudioContext
 
-function throwIfContextNotExist(): void {
-  if (!audioContext) {
-    throw new Error('The audio context does not exist yet! You must call `initAudio()` in response to a user interaction before performing this action.')
+async function unlockAudioContext(): Promise<void> {
+  if (audioContext.state !== 'suspended')
+    return
+
+  const b = document.body
+  const events = ['touchstart', 'touchend', 'mousedown', 'keydown']
+
+  async function unlock(): Promise<void> {
+    await audioContext.resume().then(clean)
   }
+
+  function clean(): void {
+    events.forEach(e => b.removeEventListener(e, unlock))
+  }
+
+  events.forEach(e => b.addEventListener(e, unlock, false))
+
+  await audioContext.resume()
 }
-
-// async function unlockAudioContext(): Promise<void> {
-//   if (audioContext.state !== 'suspended')
-//     return
-
-//   const b = document.body
-//   const events = ['touchstart', 'touchend', 'mousedown', 'keydown']
-
-//   async function unlock(): Promise<void> {
-//     await audioContext.resume().then(clean)
-//   }
-
-//   function clean(): void {
-//     events.forEach(e => b.removeEventListener(e, unlock))
-//   }
-
-//   events.forEach(e => b.addEventListener(e, unlock, false))
-
-//   await audioContext.resume()
-// }
 
 let iosWorkaroundPerformed = false
 export async function initAudio(useIosMuteWorkaround = true): Promise<void> {
@@ -56,17 +51,17 @@ export async function initAudio(useIosMuteWorkaround = true): Promise<void> {
     audioContext = new AudioContext()
   }
 
+  if (!audioContext) {
+    throw new Error('The audio context does not exist yet! You must call `initAudio()` in response to a user interaction before performing this action.')
+  }
+
   // only run this workaround code once
   if (useIosMuteWorkaround && !iosWorkaroundPerformed) {
     unmuteIosAudio(audioContext)
     iosWorkaroundPerformed = true
   }
-
   // TODO: without this, synth note hangs on first press?
-  // await unlockAudioContext()
-  if (audioContext.state === 'suspended') {
-    await audioContext.resume()
-  }
+  await unlockAudioContext()
 }
 
 export async function getAudioContext(): Promise<AudioContext> {
@@ -106,11 +101,11 @@ export async function createBeatTrack(urls: string[], opts?: BeatTrackOptions): 
 export async function createSampler(urls: string[], opts?: SamplerOptions): Promise<Sampler> {
   const sounds = await Promise.all(urls.map(async url => load(url, 'sound') as Promise<Sound>))
   await initAudio()
-  throwIfContextNotExist()
   return new Sampler(sounds, opts)
 }
 
 export async function createOscillator(options?: OscillatorOpts): Promise<Oscillator> {
+  await initAudio()
   return new Oscillator(audioContext, options)
 }
 
@@ -119,7 +114,6 @@ export async function createFont(url: string): Promise<Font> {
   const text = await response.text()
   const audioData = mungeSoundFont(text)
   await initAudio()
-  throwIfContextNotExist()
   const keyValuePairs = await extractDecodedKeyValuePairs(audioContext, audioData)
   const notes = createNoteObjectsForFont(audioContext, keyValuePairs)
   return new Font(notes)
@@ -187,7 +181,6 @@ async function load(src: string, type: 'sound' | 'track' | 'sampler'): Promise<S
   responses.set(src, response)
 
   await initAudio()
-  throwIfContextNotExist()
 
   const buffer = await audioContext.decodeAudioData(await response.clone().arrayBuffer())
 
@@ -225,26 +218,23 @@ export function preventEventDefaults(key: HTMLElement): void {
   events.forEach(event => key.addEventListener(event, prevent))
 }
 
-// TODO: Mashing on keys causes notes to skip b/c stop is called before play and etc..
-// solve that... debounce or something? the commented out stuff doesn't work
-export function useInteractionMethods(key: HTMLElement, player: Player): void {
-  // console.log(player.audioSourceNode.frequency.value)
-
-  function play(): void {
-    // console.log(player.audioSourceNode.frequency.value, 'play')
+export async function useInteractionMethods(key: HTMLElement, player: Player): Promise<void> {
+  async function play(): Promise<void> {
+    await initAudio()
     player.play()
   }
 
-  function stop(): void {
-    // console.log(player.audioSourceNode.frequency.value, 'stop')
+  async function stop(): Promise<void> {
+    await initAudio()
     player.stop()
   }
 
   key.addEventListener('touchstart', play)
   key.addEventListener('touchend', stop)
-  key.addEventListener('touchcancel', stop)
+  // key.addEventListener('touchcancel', stop)
   key.addEventListener('mousedown', play)
   key.addEventListener('mouseup', stop)
+  key.addEventListener('mouseleave', stop)
 }
 
 export {

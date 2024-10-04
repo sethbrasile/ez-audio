@@ -11,17 +11,6 @@ export interface BaseSoundOptions {
   name?: string
 
   /**
-   * @property trackPlays
-   *
-   * Allows disabling play/stop tracking for this sound. You should not need to worry about this unless you're facing performance issues.
-   * If you disable this option, this sound's play/stop methods may end up called out of order when called in quick succession. This is caused by the browser
-   * sometimes failing to schedule events in the correct order.
-   *
-   * @default true
-   */
-  trackPlays?: boolean
-
-  /**
    * @method setTimeout
    *
    * A function that behaves like the native `setTimeout` function. This is used to schedule the stop method to be called after the sound has finished playing.
@@ -101,30 +90,6 @@ export abstract class BaseSound implements Connectable, Playable {
    */
   public name: string
 
-  /**
-   * @property playCalled
-   * This is a set of numbers, where each number is the audio context time that play was called. If play is called
-   * multiple times in the same audio context time, the second call will be ignored. Also lets us avoid calling stop
-   * before start was called. The browser will do this sometimes when binding start/stop to touch events.
-   *
-   * Acts as a register of called play times for this instance. This allows us to ensure that play isn't scheduled multiple
-   * times for the same audio context time.
-   */
-  private playCalled = new Set<number>()
-
-  /**
-   * @property trackPlays
-   *
-   * Allows disabling play/stop tracking for this sound. You should not need to worry about this unless you're facing performance issues.
-   * If you disable this option, this sound's play/stop methods may end up called out of order when called in quick succession. This is caused by the browser
-   * sometimes failing to schedule events in the correct order.
-   *
-   * Disable this option by setting the `trackPlays` option to `false` when creating this sound.
-   *
-   * @default true
-   */
-  private trackPlays = true
-
   constructor(protected audioContext: AudioContext, opts?: BaseSoundOptions) {
     const gainNode = audioContext.createGain()
     const pannerNode = audioContext.createStereoPanner()
@@ -133,11 +98,6 @@ export abstract class BaseSound implements Connectable, Playable {
     this.pannerNode = pannerNode
 
     this.name = opts?.name || ''
-
-    // if not nullish
-    if (opts?.trackPlays != null) {
-      this.trackPlays = opts.trackPlays
-    }
 
     if (opts?.setTimeout) {
       this.setTimeout = opts.setTimeout
@@ -212,8 +172,8 @@ export abstract class BaseSound implements Connectable, Playable {
     return this.controller.onPlayRamp(type, rampType)
   }
 
-  public play(): void {
-    this.playAt(this.audioContext.currentTime)
+  public async play(): Promise<void> {
+    await this.playAt(this.audioContext.currentTime)
   }
 
   public playIn(when: number): void {
@@ -255,30 +215,21 @@ export abstract class BaseSound implements Connectable, Playable {
    * @method playAt
    */
   public async playAt(time: number): Promise<void> {
-    // Only care about this if trackPlays is true, this is optional for performance reasons
-    if (this.trackPlays) {
-      // If the audio source has already been scheduled to play at this time, don't schedule it
-      if (this.playCalled.has(time)) {
-        return
-      }
-
-      this.playCalled.add(time)
-    }
-
     const { audioContext } = this
     const { currentTime } = audioContext
+    const duration = this.duration.raw
 
     await audioContext.resume()
 
     this.setup()
     this.audioSourceNode.start(time, this.startOffset)
     this.startedPlayingAt = time
-
-    // schedule _isPlaying to false after duration
-    this.setTimeout(() => {
-      this._isPlaying = false
-      this.playCalled.delete(time)
-    }, this.duration.pojo.seconds * 1000)
+    // if duration exists, schedule _isPlaying to false after duration has elapsed
+    if (duration) {
+      this.setTimeout(() => {
+        this._isPlaying = false
+      }, this.duration.pojo.seconds * 1000)
+    }
 
     if (time <= currentTime) {
       this._isPlaying = true
@@ -299,8 +250,8 @@ export abstract class BaseSound implements Connectable, Playable {
    * @param {number} seconds Number of seconds from "now" that the audio source
    * should be stopped.
    */
-  public stopIn(seconds: number): void {
-    this.stopAt(this.audioContext.currentTime + seconds)
+  public async stopIn(seconds: number): Promise<void> {
+    await this.stopAt(this.audioContext.currentTime + seconds)
   }
 
   /**
@@ -315,23 +266,17 @@ export abstract class BaseSound implements Connectable, Playable {
    * {{#crossLink "AudioContext"}}AudioContext's{{/crossLink}} "beginning of
    * time") when the audio source should be stopped.
    */
-  public stopAt(time: number): void {
-    // Only care about this if trackPlays is true
-    if (this.trackPlays) {
-      // if play has not been called for this sound/time, no sense stopping it. Also if it has already been stopped.
-      if (!this.playCalled.has(time)) {
-        return
-      }
-
-      this.playCalled.delete(time)
-    }
+  public async stopAt(time: number): Promise<void> {
+    await this.audioContext.resume()
 
     const node = this.audioSourceNode
     const currentTime = this.audioContext.currentTime
 
     const stop = (): void => {
-      this._isPlaying = false
-      node.stop(time)
+      if (this._isPlaying) {
+        this._isPlaying = false
+        node.stop(time)
+      }
     }
 
     if (time === currentTime) {
@@ -344,8 +289,8 @@ export abstract class BaseSound implements Connectable, Playable {
     }
   }
 
-  public stop(): void {
-    this.stopAt(this.audioContext.currentTime)
+  public async stop(): Promise<void> {
+    await this.stopAt(this.audioContext.currentTime)
   }
 
   public get isPlaying(): boolean {

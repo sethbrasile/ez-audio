@@ -30,9 +30,6 @@ const Content = {
       // Add it to the DOM
       keyboard.appendChild(key)
 
-      // We can't create the oscillator until the user interacts with the page, so wait for that
-      await initAudio()
-
       // Create the oscillator for this key and set its frequency from the corresponding note
       const osc = await createOscillator({
         frequency: note.frequency,
