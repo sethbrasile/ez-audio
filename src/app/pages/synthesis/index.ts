@@ -4,6 +4,8 @@ import { createNotes, createOscillator, initAudio, preventEventDefaults, useInte
 
 const Content = {
   async setup() {
+    nav.setup()
+
     const keyboard = document.getElementById('keyboard')!
 
     // we don't want dragging around on the keyboard to move the page around

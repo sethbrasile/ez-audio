@@ -36,12 +36,13 @@ notes.forEach((note: Note) => {
     note.stop()
   })
 
-  document.querySelector<HTMLOListElement>('#keys')!.appendChild(key)
+  document.querySelector<HTMLOListElement>('#keys')?.appendChild(key)
 })
 `
 
 const Content = {
   setup() {
+    nav.setup()
     setupPiano(document.querySelector<HTMLOListElement>('#keys')!)
     PermissionBanner.setup()
   },

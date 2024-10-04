@@ -236,6 +236,7 @@ export function setupHihatButton(element: HTMLButtonElement) {
 
 const Content = {
   async setup() {
+    nav.setup()
     PermissionBanner.setup()
     await initAudio()
     setupKickButton(document.querySelector<HTMLButtonElement>('#play_kick')!)

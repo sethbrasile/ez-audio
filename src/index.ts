@@ -228,13 +228,15 @@ export function preventEventDefaults(key: HTMLElement): void {
 // TODO: Mashing on keys causes notes to skip b/c stop is called before play and etc..
 // solve that... debounce or something? the commented out stuff doesn't work
 export function useInteractionMethods(key: HTMLElement, player: Player): void {
+  // console.log(player.audioSourceNode.frequency.value)
+
   function play(): void {
-    // console.log(e, player.audioSourceNode.frequency.value, 'play')
+    // console.log(player.audioSourceNode.frequency.value, 'play')
     player.play()
   }
 
   function stop(): void {
-    // console.log(e, player.audioSourceNode.frequency.value, 'stop')
+    // console.log(player.audioSourceNode.frequency.value, 'stop')
     player.stop()
   }
 

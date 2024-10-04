@@ -3,6 +3,7 @@ import nav from './nav'
 
 const Content = {
   setup() {
+    nav.setup()
   },
   html: `
 

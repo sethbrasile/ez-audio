@@ -1,3 +1,9 @@
+export interface Component {
+  setup: () => void
+  html: string
+  toString: () => string
+}
+
 export function escapeHTML(html: string): string {
   return new Option(html).innerHTML
 }
@@ -16,4 +22,12 @@ export function htmlBlock(code: string): string {
 
 export function getSamplesPaths(instrument: string): string[] {
   return [1, 2, 3].map(num => `/ez-web-audio/drum-samples/${instrument}${num}.wav`)
+}
+
+export function debounce(fn: () => any, ms = 300) {
+  let timeoutId: ReturnType<typeof setTimeout>
+  return function (this: any, ...args: []) {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn.apply(this, args), ms)
+  }
 }

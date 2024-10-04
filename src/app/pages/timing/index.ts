@@ -85,8 +85,8 @@ function handleClick() {
 
   <i><small>
     Again, this is an important concept to understand, but in many cases (even more complex cases, such as
-    <a href="/ez-web-audio/timing/drum-machine">building a rhythmically-based instrument</a>) this is already handled f
-    or you. Check out <a href="/ez-web-audio/timing/with-ez-web-audio">Beats</a>, or the very last example on this page.
+    <a href="/ez-web-audio/#/timing/drum-machine">building a rhythmically-based instrument</a>) this is already handled f
+    or you. Check out <a href="/ez-web-audio/#/timing/with-ez-web-audio">Beats</a>, or the very last example on this page.
   </small></i>
 
   <h2>The first example again, but with real code</h2>

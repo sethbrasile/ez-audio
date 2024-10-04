@@ -32,6 +32,8 @@ allButtons.forEach(element => element.addEventListener('click', setup))
 
 const Content = {
   setup() {
+    nav.setup()
+
     const rightButton = document.getElementById('right')!
     const leftButton = document.getElementById('left')!
     const bothButton = document.getElementById('both')!

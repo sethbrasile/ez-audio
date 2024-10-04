@@ -2,7 +2,7 @@ import { setupIndicators, setupMp3Buttons } from '@components/mp3-player/setup'
 import LoadingSpinner from '../loading-spinner'
 
 export default {
-  setup() {
+  async setup() {
     setupMp3Buttons(document.querySelector<HTMLButtonElement>('#seek')!, 'seek')
     setupMp3Buttons(document.querySelector<HTMLButtonElement>('#volume')!, 'vol')
     setupMp3Buttons(document.querySelector<HTMLButtonElement>('#play')!, 'play')

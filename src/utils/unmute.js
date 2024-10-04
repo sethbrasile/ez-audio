@@ -228,7 +228,7 @@ export default function unmute(context, allowBackgroundPlayback = false, forceIO
   function destroyChannelTag() {
     if (channelTag) {
       // Change src to nothing and trigger a load, this is required to actually hide / clear the iOS playback controls
-      channelTag.src = 'about:blank'
+      channelTag.src = ''
       channelTag.load()
       channelTag = null
     }

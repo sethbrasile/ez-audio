@@ -31,6 +31,10 @@ export class Font {
    * played.
    */
   play(identifier: AcceptableNote): void {
-    this.getNote(identifier)!.play()
+    const note = this.getNote(identifier)
+    if (!note) {
+      throw new Error(`EZ Web Audio: No note with identifier ${identifier} found.`)
+    }
+    note.play()
   }
 }

@@ -77,7 +77,7 @@ export default {
     })
 
     // show the beat machine
-    document.getElementById('beat-machine')!.classList.remove('hidden')
+    document.getElementById('beat-machine')?.classList.remove('hidden')
 
     // set up the play button
     const playButton = document.getElementById('play-button')!

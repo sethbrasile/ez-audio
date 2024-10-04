@@ -15,6 +15,7 @@ note.name // 'Ab
 
 const Content = {
   setup() {
+    nav.setup()
   },
   html: `
 ${nav}

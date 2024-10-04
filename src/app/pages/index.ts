@@ -3,22 +3,24 @@ import PermissionBanner from '../components/permission-banner'
 import { codeBlock } from '../utils'
 import { createSound } from '@/index'
 
-const url = 'Eb5.mp3'
-
 const Content = {
   async setup() {
     PermissionBanner.setup()
 
     const element = document.querySelector<HTMLButtonElement>('#play')!
 
-    createSound(url)
+    // we can load the mp3 before the user clicks the button
+    const noteSoon = createSound('Eb5.mp3')
 
-    async function play(): Promise<void> {
-      const note = await createSound(url)
+    async function playSound(): Promise<void> {
+      // The Promise from `createSound` resolves to a `Sound` object which has a `play` method.
+      const note = await noteSoon
+      // Play the sound
       note.play()
     }
 
-    element.addEventListener('touchend', play)
+    // we must wait for the user to click something before we can play
+    element.addEventListener('click', playSound)
 
     await DrumMachine.setup()
   },
@@ -49,11 +51,11 @@ someButton.addEventListener('click', playSound)
 `)}
 
 <p>To honestly still pretty dang simple...</p>
+<p>See the code for this one over <a href="/ez-web-audio/#/timing/drum-machine">here</a></p>
 
 ${PermissionBanner}
 ${DrumMachine}
 
-<p>See the code for this one over <a href="/ez-web-audio/timing/drum-machine">here</a></p>
 
 `,
 }

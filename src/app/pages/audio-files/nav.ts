@@ -1,7 +1,22 @@
-export default `
-<a href="/ez-web-audio/audio-files" id="audio-files">Simple</a>
-|
-<a href="/ez-web-audio/audio-files/mp3-player" id="mp3">MP3 Player</a>
-|
-<a href="/ez-web-audio/audio-files/drum-kit" id="drum-kit">Drum Kit</a>
-`
+import { type Link, createNav } from '@app/utils/nav'
+
+const path = 'audio-files'
+
+const links: Link[] = [
+  {
+    path,
+    text: 'Simple',
+  },
+  {
+    path,
+    subPath: 'mp3-player',
+    text: 'MP3 Player',
+  },
+  {
+    path,
+    subPath: 'drum-kit',
+    text: 'Multisampled Drum Kit',
+  },
+]
+
+export default createNav(links)

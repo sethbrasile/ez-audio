@@ -3,7 +3,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 import prismjs from 'vite-plugin-prismjs'
 
 export default defineConfig({
-  base: '/ez-web-audio/',
+  base: '/ez-web-audio',
   plugins: [
     tsconfigPaths(),
     prismjs({
@@ -15,6 +15,15 @@ export default defineConfig({
   ],
   publicDir: './src/app/public',
   build: {
-    outDir: 'dist-docs',
+    outDir: 'dist-app',
+  },
+  server: {
+    proxy: {
+      '/ez-web-audio/docs': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/docs/, ''),
+      },
+    },
   },
 })

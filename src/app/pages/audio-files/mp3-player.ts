@@ -5,6 +5,7 @@ import Mp3Player from '@/app/components/mp3-player'
 const Content = {
   setup() {
     Mp3Player.setup()
+    nav.setup()
   },
   html: `
 ${nav}

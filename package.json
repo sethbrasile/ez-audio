@@ -39,9 +39,13 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite -c vite.docs.config.js",
-    "build": "tsc && vite build",
-    "build:docs": "tsc && vite build -c vite.docs.config.js",
+    "dev": "concurrently \"vite -c vite.docs.config.js\" \"node ./dist/local-docs-server.js\"",
+    "build:ci": "dotenvx run -f .env.ci -- npm run build:base",
+    "build": "dotenvx run -f .env.local -- npm run build:base",
+    "build:base": "npm run build:lib && npm run build:app && npm run build:docs",
+    "build:lib": "tsc && vite build",
+    "build:app": "tsc && vite build -c vite.docs.config.js",
+    "build:docs": "typedoc src/index.ts --out ./docs",
     "preview": "vite preview -c vite.docs.config.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -49,19 +53,22 @@
     "test": "vitest"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.26.0",
+    "@antfu/eslint-config": "^2.27.3",
+    "@dotenvx/dotenvx": "^1.14.2",
     "@nx-js/observer-util": "^4.2.2",
     "@types/prismjs": "^1.26.4",
+    "concurrently": "^9.0.1",
     "eslint": "9.5.0",
-    "happy-dom": "^15.7.0",
+    "happy-dom": "^15.7.4",
     "prismjs": "^1.29.0",
     "standardized-audio-context": "^25.3.77",
-    "standardized-audio-context-mock": "^9.7.8",
-    "typescript": "^5.5.3",
-    "vite": "^5.4.0",
-    "vite-plugin-dts": "^4.2.1",
+    "standardized-audio-context-mock": "^9.7.9",
+    "typedoc": "^0.26.7",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "vite-plugin-dts": "^4.2.2",
     "vite-plugin-prismjs": "^0.0.11",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^2.0.5"
+    "vitest": "^2.1.1"
   }
 }

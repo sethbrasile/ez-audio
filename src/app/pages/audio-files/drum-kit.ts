@@ -6,6 +6,8 @@ import { createSampler } from '@/index'
 
 const Content = {
   setup() {
+    nav.setup()
+
     async function setupDrumSamplerButton(element: HTMLButtonElement, drumType: 'hihat' | 'snare' | 'kick'): Promise<void> {
       const drum = await createSampler(getSamplesPaths(drumType))
       element.addEventListener('click', () => drum.play())

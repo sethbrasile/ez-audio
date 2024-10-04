@@ -43,8 +43,10 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install
-      - name: Build
-        run: pnpm run build:docs
+      - name: Build lib, app, typedoc
+        run: VITE_DOCS_URL=https://${{ github.actor }}.github.io/${{ github.event.repository.name }}/docs pnpm run build:docs &&
+      - name: Move typedoc docs into dist-docs
+        run: mv docs ./dist-docs/
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact

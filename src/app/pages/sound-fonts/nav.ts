@@ -1,5 +1,17 @@
-export default `
-<a href="/ez-web-audio/sound-fonts" id="piano-link">Piano Example</a>
-|
-<a href="/ez-web-audio/sound-fonts/note-objects" id="notes-link">Note Objects</a>
-`
+import { type Link, createNav } from '@app/utils/nav'
+
+const path = 'sound-fonts'
+
+const links: Link[] = [
+  {
+    path,
+    text: 'Piano Example',
+  },
+  {
+    path,
+    subPath: 'note-objects',
+    text: 'Note Objects',
+  },
+]
+
+export default createNav(links)
